@@ -27,7 +27,7 @@ npm install
 npx expo start
 ```
 
-Development workflow
+# Development workflow
 
 1. Fork the repository
 
@@ -43,7 +43,7 @@ Development workflow
 
 ❗ Do NOT push directly to the main branch.
 
-Branch naming
+# Branch naming
 
 Use the following naming conventions:
 
@@ -57,7 +57,7 @@ Use the following naming conventions:
 
 - chore/update-config – Tooling or configuration changes
 
-Examples:
+# Examples
 
 - feat/login-screen
 
@@ -69,10 +69,11 @@ Commit messages
 
 This project uses Conventional Commits, enforced by Husky + Commitlint.
 
-Commit message format
+# Commit message format
+
 <type>(<scope>): <description>
 
-Allowed types
+# Allowed types
 
 - feat – A new feature
 
@@ -89,7 +90,8 @@ Allowed types
 - test – Adding or fixing tests
 
 - chore – Build process or tooling changes
-Examples
+
+# Examples
 
 ```bash
 feat(auth): add user authentication
@@ -101,7 +103,7 @@ test(auth): add unit tests for service
 chore(deps): update dependencies
 ```
 
-Code standards & tooling
+# Code standards & tooling
 
 This project enforces code quality using the following tools:
 
@@ -116,7 +118,8 @@ This project enforces code quality using the following tools:
 - Commitlint: Commit messages must follow Conventional Commits
 
 Before pushing code, make sure all checks pass.
-Testing
+
+# Testing
 
 # Run unit tests
 
@@ -130,7 +133,7 @@ npm run test:e2e
 
 npm run test:cov
 
-Pull Request Process
+# Pull Request Process
 
 1. Create feature branch from dev
 2. Make your changes
@@ -139,7 +142,8 @@ Pull Request Process
 5. Push to your branch
 6. Create Pull Request
 
-Project Structure
+# Project Structure
+
 src/
 ├── core/                 # Shared resources used across the entire app
 │   ├── api/              # API configuration (axios instance, interceptors)
@@ -160,7 +164,7 @@ src/
 │
 ├── app.tsx               # Application entry logic (providers, navigation)
 
-Git Hooks
+# Git Hooks
 
 - pre-commit: Runs ESLint and Prettier
 - commit-msg: Validates commit message format
