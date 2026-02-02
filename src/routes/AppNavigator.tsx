@@ -1,5 +1,5 @@
-import { DisplayRoute } from "../features/display/routes/DisplayRoute";
+import OnboardingPage from "../features/schedules/pages/OnboardingPage";
 
 export default function AppNavigator() {
-  return <DisplayRoute />;
+  return <OnboardingPage />;
 }
