@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, StyleSheet } from "react-native";
+import { Image } from "react-native";
 import Animated from "react-native-reanimated";
 
 interface Props {
@@ -8,23 +8,16 @@ interface Props {
 
 const BearCharacter = ({ animatedStyle }: Props) => {
   return (
-    <Animated.View style={[styles.container, animatedStyle]}>
+    <Animated.View
+      style={animatedStyle}
+      className="items-center justify-center h-[120px] top-[135px]"
+    >
       <Image
-        source={require("../../../core/assets/hinh-anh-gau-truc-hoat-hinh-de-thuong_121845289.jpg")}
-        style={styles.image}
+        source={require("@/assets/anh gau.png")}
+        className="w-[120px] h-[120px] resize-contain"
       />
     </Animated.View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    justifyContent: "center",
-    height: 120,
-    top: 135,
-  },
-  image: { width: 120, height: 120, resizeMode: "contain" },
-});
 
 export default BearCharacter;

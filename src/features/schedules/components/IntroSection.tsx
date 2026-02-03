@@ -1,48 +1,31 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
 
 interface IntroProps {
   onStart: () => void;
 }
 
-const IntroSection = ({ onStart }: IntroProps) => (
-  <View style={styles.container}>
-    <View style={styles.textGroup}>
-      <Text style={styles.title}>Hello parents 👋</Text>
-      <Text style={styles.description}>
-        Im Panda — your companion. Today, we will find the best golden time to
-        learn English with your child!
-      </Text>
+const IntroSection = ({ onStart }: IntroProps) => {
+  return (
+    <View className="items-center w-full mt-5">
+      <View className="items-center px-10">
+        <Text className="text-2xl font-bold text-[#4A55A2] mb-3">
+          Hello parents 👋
+        </Text>
+        <Text className="text-center text-[15px] text-gray-600 leading-[22px]">
+          Im Panda — your companion. Today, we will find the best golden time to
+          learn English with your child!
+        </Text>
+      </View>
+
+      <TouchableOpacity
+        onPress={onStart}
+        className="bg-[#E1C12C] py-4 px-20 rounded-xl mt-2"
+      >
+        <Text className="text-white text-lg font-bold">Start</Text>
+      </TouchableOpacity>
     </View>
-
-    <TouchableOpacity style={styles.button} onPress={onStart}>
-      <Text style={styles.buttonText}>Start</Text>
-    </TouchableOpacity>
-  </View>
-);
-
-const styles = StyleSheet.create({
-  container: { alignItems: "center", width: "100%", marginTop: 20 },
-  textGroup: { alignItems: "center", paddingHorizontal: 40 },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#4A55A2",
-    marginBottom: 12,
-  },
-  description: {
-    textAlign: "center",
-    fontSize: 15,
-    color: "#666",
-    lineHeight: 22,
-  },
-  button: {
-    backgroundColor: "#E1C12C",
-    paddingVertical: 15,
-    paddingHorizontal: 80,
-    borderRadius: 12,
-    marginTop: 5,
-  },
-  buttonText: { color: "#FFF", fontSize: 18, fontWeight: "bold" },
-});
+  );
+};
 
 export default IntroSection;

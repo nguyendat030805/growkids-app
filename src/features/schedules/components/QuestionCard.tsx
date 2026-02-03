@@ -1,106 +1,91 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-} from "react-native";
+import { Dimensions } from "react-native";
+
+import { Box } from "@/components/ui/box";
+import { Heading } from "@/components/ui/heading";
+import { Pressable } from "@/components/ui/pressable";
+import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
 
 const { width } = Dimensions.get("window");
 
-const QuestionCard = ({ stepData, selections, onSelect, options }: any) => {
+interface QuestionCardProps {
+  stepData: any;
+  selections: Record<string, string>;
+  onSelect: (value: string) => void;
+  options: any[];
+}
+
+const QuestionCard = ({
+  stepData,
+  selections,
+  onSelect,
+  options,
+}: QuestionCardProps) => {
   return (
-    <View style={styles.card}>
-      <View style={{ paddingBottom: 15 }}>
-        <Text style={styles.subtitle}>{stepData.question.en}</Text>
-        <Text style={styles.subtitleViet}>{stepData.question.vi}</Text>
-      </View>
+    <Box
+      className="bg-white rounded-[32px] p-6 self-center shadow-xl border border-gray-50 mt-4 mb-24"
+      style={{ width: width * 0.9 }}
+    >
+      <VStack space="xs" className="mb-6">
+        <Heading size="md" className="text-gray-800 text-[20px] font-bold">
+          ⏰ {stepData.question.en}
+        </Heading>
+        <Text className="text-gray-400 text-[15px] italic font-medium">
+          {stepData.question.vi}
+        </Text>
+      </VStack>
 
-      {options.map((item: any, index: number) => {
-        const isString = typeof item === "string";
-        const labelEn = isString ? item : item.en;
-        const labelVi = isString ? null : item.vi;
-        const value = isString ? item : item.en;
+      <VStack space="md">
+        {options.map((item, index) => {
+          const value = typeof item === "string" ? item : item.en;
+          const labelVi = typeof item === "string" ? null : item.vi;
+          const isSelected = selections[stepData.id] === value;
 
-        const isSelected = selections[stepData.id] === value;
-
-        return (
-          <TouchableOpacity
-            key={index}
-            activeOpacity={0.3}
-            onPress={() => onSelect(value)}
-            style={[styles.option, isSelected && styles.optionSelected]}
-          >
-            <View
-              style={[styles.checkbox, isSelected && styles.checkboxActive]}
+          return (
+            <Pressable
+              key={index}
+              onPress={() => onSelect(value)}
+              className={`flex-row items-center p-4 rounded-[20px] border-2 ${
+                isSelected
+                  ? "border-green-400 bg-green-50"
+                  : "border-gray-100 bg-gray-50/40"
+              }`}
             >
-              {isSelected && <Text style={styles.check}>✓</Text>}
-            </View>
-            <View>
-              <Text
-                style={[styles.timeText, isSelected && styles.timeTextActive]}
+              <Box
+                className={`w-6 h-6 rounded-full border-2 mr-4 items-center justify-center ${
+                  isSelected
+                    ? "bg-green-500 border-green-500"
+                    : "border-gray-200 bg-white"
+                }`}
               >
-                {labelEn}
-              </Text>
-              {labelVi && (
-                <Text style={{ fontSize: 12, color: "#AAA" }}>{labelVi}</Text>
-              )}
-            </View>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
+                {isSelected && (
+                  <Text className="text-white text-[18px] font-bold">✓</Text>
+                )}
+              </Box>
+
+              <VStack className="flex-1">
+                <Text
+                  className={`text-[18px] ${
+                    isSelected
+                      ? "text-green-900 font-bold"
+                      : "text-gray-600 font-medium"
+                  }`}
+                >
+                  {value}
+                </Text>
+                {labelVi && (
+                  <Text className="text-[11px] text-gray-400 font-medium">
+                    {labelVi}
+                  </Text>
+                )}
+              </VStack>
+            </Pressable>
+          );
+        })}
+      </VStack>
+    </Box>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    width: width * 0.8,
-    backgroundColor: "#FFF",
-    borderRadius: 30,
-    padding: 20,
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: "#E8F5E9",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-  },
-  subtitle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-  subtitleViet: {
-    fontSize: 14,
-    color: "#9E9E9E",
-    fontStyle: "italic",
-    marginTop: 2,
-  },
-  option: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: "#F0F0F0",
-    marginBottom: 10,
-    backgroundColor: "#FAFAFA",
-  },
-  optionSelected: { borderColor: "#C5E1A5", backgroundColor: "#F1F8E9" },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#DDD",
-    marginRight: 15,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  checkboxActive: { backgroundColor: "#8BC34A", borderColor: "#8BC34A" },
-  check: { color: "#FFF", fontSize: 12, fontWeight: "bold" },
-  timeText: { fontSize: 16, color: "#555" },
-  timeTextActive: { color: "#333", fontWeight: "bold" },
-});
 
 export default QuestionCard;

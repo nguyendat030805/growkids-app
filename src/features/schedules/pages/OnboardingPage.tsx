@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-  Text,
-} from "react-native";
+import { View, Dimensions, TouchableOpacity, Text } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -53,7 +47,7 @@ const OnboardingPage = () => {
           [0, -height * 0.19],
         ),
       },
-      { scale: interpolate(animationProgress.value, [0, 1], [1, 0.85]) },
+      { scale: interpolate(animationProgress.value, [0, 1], [1, 0.9]) },
     ],
     position: "absolute",
     zIndex: 10,
@@ -67,14 +61,17 @@ const OnboardingPage = () => {
   }));
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white items-center justify-center">
       <BearCharacter animatedStyle={bearAnimatedStyle} />
 
       {!isStarted ? (
         <IntroSection onStart={handleStart} />
       ) : (
-        <Animated.View style={[styles.setupContent, contentAnimatedStyle]}>
-          <View style={styles.chatPosition}>
+        <Animated.View
+          style={contentAnimatedStyle}
+          className="w-full items-center flex-1 pt-[30%]"
+        >
+          <View className="w-[100%] items-center mb-4">
             <ChatBubble text={chatText} animatedStyle={contentAnimatedStyle} />
           </View>
 
@@ -85,28 +82,29 @@ const OnboardingPage = () => {
             options={options}
           />
 
-          <View style={styles.footer}>
+          <View className="flex-row justify-between w-[90%] absolute bottom-10 items-center">
             <TouchableOpacity
               onPress={back}
               disabled={currentStep === 0}
-              style={styles.BackButton}
+              className="bg-gray-100 py-3.5 px-10 rounded-xl shadow-sm"
             >
-              <Text style={styles.backText}>Back</Text>
+              <Text className="text-gray-600 font-semibold text-[20px]">
+                Back
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[
-                styles.continueButton,
-                !isStepCompleted && styles.disabledButton,
-              ]}
               onPress={() => {
                 if (next()) {
                   console.log("Navigating to AI...");
                 }
               }}
               disabled={!isStepCompleted}
+              className={`py-3.5 px-10 rounded-xl ${
+                isStepCompleted ? "bg-lime-500" : "bg-lime-300/40"
+              }`}
             >
-              <Text style={styles.continueText}>
+              <Text className="text-white font-bold text-[20px]">
                 {isLastStep ? "View suggestions" : "Continue"}
               </Text>
             </TouchableOpacity>
@@ -116,48 +114,5 @@ const OnboardingPage = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  setupContent: {
-    width: "100%",
-    alignItems: "center",
-    flex: 1,
-    paddingTop: height * 0.2,
-  },
-  chatPosition: { width: "90%", alignItems: "center", marginBottom: 10 },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "90%",
-    position: "absolute",
-    bottom: 20,
-    alignItems: "center",
-  },
-  continueButton: {
-    backgroundColor: "#D4E157",
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    borderRadius: 12,
-  },
-  BackButton: {
-    backgroundColor: "#F0F0F0",
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-  },
-  disabledButton: { backgroundColor: "#d3e15766" },
-  continueText: { color: "#FFF", fontWeight: "bold" },
-  backText: { color: "#757575", fontWeight: "600" },
-});
 
 export default OnboardingPage;
