@@ -1,5 +1,4 @@
-import { DisplayRoute } from "../features/display/routes/DisplayRoute";
-
+import HomepageRoute from "@/src/features/homepage/routes/HomepageRoute";
 export default function AppNavigator() {
-  return <DisplayRoute />;
+  return <HomepageRoute />;
 }
