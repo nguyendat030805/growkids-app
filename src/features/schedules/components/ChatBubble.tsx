@@ -16,9 +16,7 @@ const ChatBubble = ({ animatedStyle, text }: Props) => {
       style={animatedStyle}
       className="bg-white px-4 py-3 rounded-[20px] border border-yellow-400 mx-5"
     >
-      <Text className="text-[18px] text-center">
-        Now, tell me about your daily schedule!
-      </Text>
+      <Text className="text-[18px] text-center">{text.en}</Text>
     </Animated.View>
   );
 };

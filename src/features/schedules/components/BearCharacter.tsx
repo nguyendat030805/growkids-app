@@ -13,7 +13,7 @@ const BearCharacter = ({ animatedStyle }: Props) => {
       className="items-center justify-center h-[120px] top-[135px]"
     >
       <Image
-        source={require("@/assets/anh gau.png")}
+        source={require("@/assets/tải xuống.png")}
         className="w-[120px] h-[120px] resize-contain"
       />
     </Animated.View>

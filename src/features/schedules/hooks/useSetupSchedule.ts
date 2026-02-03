@@ -21,7 +21,6 @@ export const useSetupLogic = () => {
   const handleSelectTime = (value: string) => {
     setSelections((prev) => ({ ...prev, [stepData.id]: value }));
   };
-
   const next = (): boolean => {
     if (currentStep < SETUP_STEPS.length - 1) {
       setCurrentStep((prev) => prev + 1);

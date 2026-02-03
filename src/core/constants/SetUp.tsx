@@ -21,6 +21,10 @@ const SETUP_STEPS = [
       vi: "Bé ăn sáng lúc mấy giờ?",
       en: "What time does the baby have breakfast?",
     },
+    chat: {
+      vi: "Tiếp theo, cho mình biết giờ ăn sáng của bé nhé.",
+      en: "Next, tell me the baby’s breakfast time.",
+    },
   },
   {
     id: "nap",
@@ -29,6 +33,10 @@ const SETUP_STEPS = [
     question: {
       vi: "Bé ngủ trưa lúc mấy giờ?",
       en: "What time does the baby take a nap?",
+    },
+    chat: {
+      vi: "Tiếp theo, cho mình biết giờ ngủ trưa của bé nhé.",
+      en: "Next, tell me the baby’s nap time.",
     },
   },
   {
@@ -39,6 +47,10 @@ const SETUP_STEPS = [
       vi: "Bé tắm lúc mấy giờ?",
       en: "What time is the baby’s bath time?",
     },
+    chat: {
+      vi: "Tiếp theo, cho mình biết giờ tắm của bé nhé.",
+      en: "Next, tell me the baby’s bath time.",
+    },
   },
   {
     id: "sleep",
@@ -47,6 +59,10 @@ const SETUP_STEPS = [
     question: {
       vi: "Bé đi ngủ lúc mấy giờ?",
       en: "What time does the baby go to sleep?",
+    },
+    chat: {
+      vi: "Cuối cùng, cho mình biết giờ đi ngủ của bé nhé.",
+      en: "Finally, tell me the baby’s bedtime.",
     },
   },
 
@@ -76,7 +92,10 @@ const SETUP_STEPS = [
       vi: "Ba/mẹ có thể giành bao nhiêu thời gian mỗi ngày?",
       en: "How much time can you spend each day?",
     },
-    chat: { vi: "", en: "How much time can you spend each day?" },
+    chat: {
+      vi: "Bây giờ, hãy cho mình biết thời gian rảnh của ba mẹ nhé.",
+      en: "Now, please tell me about the parents’ free time.",
+    },
     customOptions: [
       { en: "30 minutes" },
       { en: "40 minutes" },
