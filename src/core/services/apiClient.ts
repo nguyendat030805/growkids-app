@@ -2,17 +2,29 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios, { AxiosRequestConfig } from "axios";
 
 import { STORAGE_KEYS } from "../constants";
+import { NavigationService } from "../navigation/NavigationService";
 
 interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
   _retry?: boolean;
 }
 
 const apiClient = axios.create({
-  baseURL: process.env.API_BASE_URL,
+  baseURL: "http://10.10.25.133:3000/api/v1",
+
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+apiClient.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 404) {
+      NavigationService.navigate("NotFound");
+    }
+    return Promise.reject(err);
+  },
+);
 
 // Request interceptor
 apiClient.interceptors.request.use(async (config) => {
@@ -25,7 +37,6 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Response interceptor
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {

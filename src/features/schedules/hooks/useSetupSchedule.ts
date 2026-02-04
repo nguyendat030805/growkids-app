@@ -10,7 +10,6 @@ export const useSetupLogic = () => {
 
   const options = useMemo(() => {
     if (stepData.customOptions) return stepData.customOptions;
-
     const type = stepData.type as keyof typeof TIME_OPTIONS;
     return TIME_OPTIONS[type] || TIME_OPTIONS.morning;
   }, [stepData]);
@@ -18,9 +17,19 @@ export const useSetupLogic = () => {
   const isStepCompleted = !!selections[stepData.id];
   const isLastStep = currentStep === SETUP_STEPS.length - 1;
 
+  const calculateEndTime = (startTime: string, durationMinutes: number) => {
+    if (!startTime) return "";
+    const [hours, mins] = startTime.split(":").map(Number);
+    const totalMins = hours * 60 + mins + durationMinutes;
+    const h = Math.floor(totalMins / 60) % 24;
+    const m = totalMins % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  };
+
   const handleSelectTime = (value: string) => {
     setSelections((prev) => ({ ...prev, [stepData.id]: value }));
   };
+
   const next = (): boolean => {
     if (currentStep < SETUP_STEPS.length - 1) {
       setCurrentStep((prev) => prev + 1);
@@ -33,6 +42,28 @@ export const useSetupLogic = () => {
     if (currentStep > 0) setCurrentStep((prev) => prev - 1);
   };
 
+  const getFormatPayload = () => {
+    const keyToType: Record<string, string> = {
+      wake_up: "WAKE_UP",
+      breakfast: "BREAKFAST",
+      nap: "NAP",
+      bath: "BATH",
+      sleep: "SLEEP",
+    };
+
+    const time_blocks = Object.entries(selections)
+      .filter(([key, value]) => keyToType[key] && value)
+      .map(([key, value]) => ({
+        activity_type: keyToType[key],
+        start_time: value,
+        end_time: calculateEndTime(value, 30),
+      }));
+
+    return {
+      time_blocks: time_blocks,
+    };
+  };
+
   return {
     currentStep,
     stepData,
@@ -43,6 +74,7 @@ export const useSetupLogic = () => {
     selections,
     isStepCompleted,
     isLastStep,
+    getFormatPayload,
     chatText: stepData.chat || stepData.question,
     progress: (currentStep + 1) / SETUP_STEPS.length,
   };

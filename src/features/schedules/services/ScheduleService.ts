@@ -1,16 +1,8 @@
-export const scheduleService = {
-  submitInitialSchedule: async (payload: any) => {
-    return new Promise((resolve) => {
-      console.log("--- MOCK API CALL ---");
-      console.log(
-        "Dữ liệu thu thập được từ FE:",
-        JSON.stringify(payload, null, 2),
-      );
-      console.log(payload);
+import apiClient from "@/src/core/services/apiClient";
 
-      setTimeout(() => {
-        resolve({ status: 200, message: "Success" });
-      }, 1000);
-    });
+export const scheduleService = {
+  submitInitialSchedule: async (childId: string, payload: any) => {
+    const res = await apiClient.post(`/children/${childId}/schedule`, payload);
+    return res.data;
   },
 };
