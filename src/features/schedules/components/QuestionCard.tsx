@@ -1,4 +1,3 @@
-import React from "react";
 import { Dimensions } from "react-native";
 
 import { Box } from "@/components/ui/box";

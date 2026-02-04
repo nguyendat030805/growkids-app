@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Dimensions, TouchableOpacity, Text } from "react-native";
+import { View, Dimensions, TouchableOpacity, Text, Alert } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -13,11 +13,13 @@ import ChatBubble from "../components/ChatBubble";
 import IntroSection from "../components/IntroSection";
 import QuestionCard from "../components/QuestionCard";
 import { useSetupLogic } from "../hooks/useSetupSchedule";
+import { scheduleService } from "../services/ScheduleService";
 
 const { height } = Dimensions.get("window");
 
-const OnboardingPage = () => {
+const OnboardingPage = ({ navigation }: any) => {
   const [isStarted, setIsStarted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const animationProgress = useSharedValue(0);
 
   const {
@@ -31,11 +33,36 @@ const OnboardingPage = () => {
     chatText,
     options,
     isLastStep,
+    getFormatPayload,
   } = useSetupLogic();
 
   const handleStart = () => {
     setIsStarted(true);
     animationProgress.value = withSpring(1, { damping: 15 });
+  };
+
+  const handleNextAction = async () => {
+    const isFinished = next();
+
+    if (isFinished) {
+      try {
+        setLoading(true);
+        const childId = "550e8400-e29b-41d4-a716-446655440000";
+        const payload = getFormatPayload(childId);
+
+        await scheduleService.submitInitialSchedule(payload);
+        Alert.alert("Thành công", "Lịch sinh hoạt của bé đã được lưu!");
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "MainHome" }],
+        });
+      } catch (error: any) {
+        console.error("Lỗi setup:", error);
+        Alert.alert("Lỗi", "Không thể lưu lịch. Vui lòng thử lại.");
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const bearAnimatedStyle = useAnimatedStyle(() => ({
@@ -85,7 +112,7 @@ const OnboardingPage = () => {
           <View className="flex-row justify-between w-[90%] absolute bottom-10 items-center">
             <TouchableOpacity
               onPress={back}
-              disabled={currentStep === 0}
+              disabled={currentStep === 0 || loading}
               className="bg-gray-100 py-3.5 px-10 rounded-xl shadow-sm"
             >
               <Text className="text-gray-600 font-semibold text-[20px]">
@@ -94,18 +121,14 @@ const OnboardingPage = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => {
-                if (next()) {
-                  console.log("Navigating to AI...");
-                }
-              }}
-              disabled={!isStepCompleted}
+              onPress={handleNextAction}
+              disabled={!isStepCompleted || loading}
               className={`py-3.5 px-10 rounded-xl ${
                 isStepCompleted ? "bg-lime-500" : "bg-lime-300/40"
               }`}
             >
               <Text className="text-white font-bold text-[20px]">
-                {isLastStep ? "View suggestions" : "Continue"}
+                {loading ? "..." : isLastStep ? "View suggestions" : "Continue"}
               </Text>
             </TouchableOpacity>
           </View>
