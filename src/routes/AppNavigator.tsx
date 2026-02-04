@@ -1,4 +1,5 @@
-import HomepageRoute from "@/src/features/homepage/routes/HomepageRoute";
+
+import OnboardingPage from "../features/schedules/pages/OnboardingPage";
+
 export default function AppNavigator() {
-  return <HomepageRoute />;
-}
+  return <OnboardingPage />;
