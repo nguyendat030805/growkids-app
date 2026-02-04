@@ -1,6 +1,4 @@
-// import { DisplayRoute } from "../features/display/routes/DisplayRoute";
-import { LoginRoute } from "../features/auth/routes/LoginRoute";
-
+import HomepageRoute from "@/src/features/homepage/routes/HomepageRoute";
 export default function AppNavigator() {
-  return <LoginRoute />;
+  return <HomepageRoute />;
 }
