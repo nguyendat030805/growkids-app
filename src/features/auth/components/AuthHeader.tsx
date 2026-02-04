@@ -10,7 +10,7 @@ interface AuthHeaderProps {
 const AuthHeader: React.FC<AuthHeaderProps> = ({ title, subtitle, image }) => {
   return (
     <View className="mt-10 items-center">
-      <View className="w-32 h-32 rounded-full items-center justify-center">
+      <View className="w-32 h-14 rounded-full items-center justify-center">
         <Image source={image} className="w-64 h-64" resizeMode="contain" />
       </View>
 
