@@ -47,10 +47,10 @@ const OnboardingPage = ({ navigation }: any) => {
     if (isFinished) {
       try {
         setLoading(true);
-        const childId = "550e8400-e29b-41d4-a716-446655440000";
-        const payload = getFormatPayload(childId);
-
-        await scheduleService.submitInitialSchedule(payload);
+        const childId = "3f2a9c7e-8d41-4f9a-9c6d-1b2f8a7c4e90";
+        const payload = getFormatPayload();
+        console.log("Payload gửi lên:", payload);
+        await scheduleService.submitInitialSchedule(childId, payload);
         Alert.alert("Thành công", "Lịch sinh hoạt của bé đã được lưu!");
         navigation.reset({
           index: 0,

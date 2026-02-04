@@ -17,7 +17,6 @@ export const useSetupLogic = () => {
   const isStepCompleted = !!selections[stepData.id];
   const isLastStep = currentStep === SETUP_STEPS.length - 1;
 
-  // Hàm helper tính toán thời gian kết thúc
   const calculateEndTime = (startTime: string, durationMinutes: number) => {
     if (!startTime) return "";
     const [hours, mins] = startTime.split(":").map(Number);
@@ -43,8 +42,7 @@ export const useSetupLogic = () => {
     if (currentStep > 0) setCurrentStep((prev) => prev - 1);
   };
 
-  // Hàm format dữ liệu để gửi lên Backend
-  const getFormatPayload = (childId: string) => {
+  const getFormatPayload = () => {
     const keyToType: Record<string, string> = {
       wake_up: "WAKE_UP",
       breakfast: "BREAKFAST",
@@ -54,7 +52,7 @@ export const useSetupLogic = () => {
     };
 
     const time_blocks = Object.entries(selections)
-      .filter(([key]) => keyToType[key]) // Chỉ lấy các key nằm trong map
+      .filter(([key, value]) => keyToType[key] && value)
       .map(([key, value]) => ({
         activity_type: keyToType[key],
         start_time: value,
@@ -62,7 +60,6 @@ export const useSetupLogic = () => {
       }));
 
     return {
-      child_id: childId, // Bây giờ là chuỗi UUID
       time_blocks: time_blocks,
     };
   };
