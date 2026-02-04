@@ -71,11 +71,12 @@ const OnboardingPage = ({ navigation }: any) => {
         translateY: interpolate(
           animationProgress.value,
           [0, 1],
-          [0, -height * 0.19],
+          [0, -height * 0.15],
         ),
       },
-      { scale: interpolate(animationProgress.value, [0, 1], [1, 0.9]) },
+      { scale: interpolate(animationProgress.value, [0, 1], [1, 0.85]) },
     ],
+    top: height * 0.15,
     position: "absolute",
     zIndex: 10,
   }));
