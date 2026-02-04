@@ -18,6 +18,7 @@ const LoginScreen = () => {
 
   const { handleLogin, loading, error } = useLogin();
   const { validateEmail, validatePassword } = useValidation();
+
   const navigation = useNavigation();
 
   const validateForm = () => {
@@ -47,6 +48,7 @@ const LoginScreen = () => {
     const success = await handleLogin(email, password);
     if (success) {
       alert("Login successful");
+
       navigation.dispatch(
         CommonActions.reset({ index: 0, routes: [{ name: "Onboarding" }] }),
       );
