@@ -1,13 +1,16 @@
+
 import { createStackNavigator } from "@react-navigation/stack";
 
 import { RootStackParamList } from "../core/navigation/NavigationService";
 import NotFoundScreen from "../core/pages/PageNotFound";
 import LoginScreen from "../features/auth/pages/LoginScreen";
+
 import OnboardingPage from "../features/schedules/pages/OnboardingPage";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
+
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
@@ -21,3 +24,4 @@ export default function AppNavigator() {
     </Stack.Navigator>
   );
 }
+
