@@ -1,5 +1,5 @@
-import { DisplayRoute } from "../features/display/routes/DisplayRoute";
+import SongsPage from "../features/minisong/pages";
 
 export default function AppNavigator() {
-  return <DisplayRoute />;
+  return <SongsPage />;
 }
