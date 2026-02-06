@@ -1,10 +1,14 @@
-import { ImageSourcePropType } from "react-native/Libraries/Image/Image";
-
+import { ImageSourcePropType } from "react-native";
+export interface LyricLine {
+  title: string;
+  sub: string;
+}
 export interface Song {
   id: number;
   title: string;
   thumbnail: ImageSourcePropType;
-  duration: string;
-  views: string;
+  duration: number;
+  views: number;
   category: "Body" | "School";
+  lyrics: LyricLine[];
 }

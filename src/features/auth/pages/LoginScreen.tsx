@@ -1,3 +1,4 @@
+import { useNavigation, CommonActions } from "@react-navigation/native";
 import { Lock, Mail } from "lucide-react-native";
 import { useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
@@ -17,6 +18,8 @@ const LoginScreen = () => {
 
   const { handleLogin, loading, error } = useLogin();
   const { validateEmail, validatePassword } = useValidation();
+
+  const navigation = useNavigation();
 
   const validateForm = () => {
     let isValid = true;
@@ -45,6 +48,10 @@ const LoginScreen = () => {
     const success = await handleLogin(email, password);
     if (success) {
       alert("Login successful");
+
+      navigation.dispatch(
+        CommonActions.reset({ index: 0, routes: [{ name: "Onboarding" }] }),
+      );
     } else {
       alert(`Login failed: ${error}`);
     }

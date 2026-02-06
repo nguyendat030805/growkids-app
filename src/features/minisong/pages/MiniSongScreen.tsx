@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import MiniSongHeader from "../components/MiniSongHeader";
+import HeaderChild from "../../../core/components/HeaderChild";
 import { SongCard } from "../components/SongCard";
 import { useSongs } from "../hooks/useSongs";
 
@@ -20,10 +20,12 @@ const SongsPage = () => {
 
   return (
     <View className="flex-1 bg-[#F5F6FA]">
-      {/* ===== Header ===== */}
-      <MiniSongHeader />
-      {/* ===== Search ===== */}
       <View className="mx-4 mt-4">
+        <HeaderChild
+          title="Songs"
+          subtitle="Let’s enjoy the music!"
+          showBack={true}
+        />
         <View className="flex-row items-center bg-white rounded-2xl px-4 py-2 border border-black-100 shadow-sm">
           <TextInput
             placeholder="Search"

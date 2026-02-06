@@ -1,55 +1,55 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
+import { MiniSongStackParamList } from "../routes/SongsRoute";
 import { Song } from "../types/Song";
 
+type NavigationProp = NativeStackNavigationProp<
+  MiniSongStackParamList,
+  "Songs"
+>;
+
 export const SongCard = ({ song }: { song: Song }) => {
-  const router = useRouter();
+  const navigation = useNavigation<NavigationProp>();
 
   return (
     <TouchableOpacity
       activeOpacity={0.85}
-      onPress={() =>
-        router.push({
-          pathname: "/minisong/song-detail",
-          params: {
-            song: JSON.stringify(song),
-          },
-        })
-      }
-      className="mb-6"
+      onPress={() => navigation.navigate("SongDetail", { song })}
+      className="mb-5"
     >
-      <View className="bg-white rounded-2xl overflow-hidden shadow-sm">
-        {/* Image */}
-        <Image
-          source={song.thumbnail}
-          className="w-full h-[150px]"
-          resizeMode="cover"
-        />
-
-        {/* Badge */}
-        <View className="absolute top-3 right-3 bg-orange-400 px-3 py-1 rounded-full">
-          <Text className="text-white text-[11px] font-semibold">
-            {song.category}
-          </Text>
+      <View className="overflow-hidden rounded-2xl bg-white shadow-sm">
+        <View className="relative">
+          <Image
+            source={song.thumbnail}
+            className="h-[150px] w-full"
+            resizeMode="cover"
+          />
+          {song.category && (
+            <View className="absolute right-3 top-3 rounded-full bg-orange-400 px-3 py-1">
+              <Text className="text-[11px] font-semibold text-white">
+                {song.category}
+              </Text>
+            </View>
+          )}
         </View>
-
-        {/* Content */}
-        <View className="p-3">
+        <View className="px-4 py-3">
           <View className="flex-row items-center justify-between">
             <Text
-              className="flex-1 text-[15px] font-bold mr-2"
+              className="flex-1 pr-2 text-[15px] font-bold text-gray-900"
               numberOfLines={2}
             >
               {song.title}
             </Text>
-            <Ionicons name="heart-outline" size={20} color="#888" />
+
+            <Ionicons name="heart-outline" size={18} color="#9CA3AF" />
           </View>
 
-          <Text className="mt-2 text-xs text-gray-500">
-            {song.duration} ·{" "}
-            <Text className="text-orange-500 font-semibold">{song.views}</Text>
+          <Text className="mt-2 text-xs text-gray-400">
+            ⏱ {song.duration} ·{" "}
+            <Text className="font-semibold text-orange-500">{song.views}</Text>
           </Text>
         </View>
       </View>
