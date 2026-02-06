@@ -13,10 +13,10 @@ export const useLogin = () => {
       setLoading(true);
       setError(null);
 
-      const data = await login({ email, password });
+      const response = await login({ email, password });
 
-      await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.accessToken);
-      await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, data.refreshToken);
+      await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.accessToken);
+      await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refreshToken);
 
       return true;
     } catch (e: any) {
