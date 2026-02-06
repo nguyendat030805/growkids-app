@@ -1,5 +1,4 @@
-import { useNavigation, CommonActions } from "@react-navigation/native";
-import { Lock, Mail } from "lucide-react-native";
+import { Lock, Mail, User } from "lucide-react-native";
 import { useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 
@@ -7,23 +6,30 @@ import { Button, ButtonText } from "@/components/ui/button";
 
 import AuthHeader from "../components/AuthHeader";
 import IconInput from "../components/IconInput";
-import { useLogin } from "../hooks/useLogin";
+import { useRegister } from "../hooks/useRegister";
 import { useValidation } from "../hooks/useValidation";
+import { useNavigation } from "@react-navigation/native";
 
-const LoginScreen = () => {
+const RegisterScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
-
-  const { handleLogin, loading, error } = useLogin();
-  const { validateEmail, validatePassword } = useValidation();
-
+  const [nameError, setNameError] = useState<string | null>(null);
   const navigation = useNavigation();
+  const { handleRegister, loading, error } = useRegister();
+  const { validateEmail, validatePassword, validateUsername } = useValidation();
 
   const validateForm = () => {
     let isValid = true;
 
+    if (!validateUsername(name)) {
+      setNameError("Name is required");
+      isValid = false;
+    } else {
+      setNameError(null);
+    }
     if (!validateEmail(email)) {
       setEmailError("Email is not valid");
       isValid = false;
@@ -41,33 +47,44 @@ const LoginScreen = () => {
     return isValid;
   };
 
-  const handleSignIn = async () => {
+  const handleSignup = async () => {
     if (!validateForm()) {
       return;
     }
-    const success = await handleLogin(email, password);
+    const success = await handleRegister(name, email, password);
     if (success) {
-      alert("Login successful");
-
-      navigation.dispatch(
-        CommonActions.reset({ index: 0, routes: [{ name: "Onboarding" }] }),
-      );
+      alert("Registration successful");
     } else {
-      alert(`Login failed: ${error}`);
+      alert(`Registration failed: ${error}`);
     }
   };
   return (
     <View className="flex-1 bg-yellow-400 items-center justify-start">
-      <AuthHeader
-        image={require("@/public/assets/images/login-boy.png")}
-        title="Hi There!"
-        subtitle="Sign in to continue"
-      />
-      <View className="mt-10 w-full">
+      <AuthHeader image={require("@/public/assets/images/login-boy.png")} />
+      <View className="w-full">
         <View className="bg-white rounded-t-3xl px-6 py-8 h-full">
           <Text className="mb-8 text-4xl font-bold text-yellow-400 text-center">
-            Sign in
+            Sign up
           </Text>
+          <IconInput
+            icon={User}
+            placeholder="Your name"
+            className="mb-1"
+            value={name}
+            onChangeText={(text) => {
+              setName(text);
+              if (nameError && validateUsername(text)) {
+                setNameError(null);
+              }
+            }}
+            onBlur={() => {
+              if (!validateUsername(name)) {
+                setNameError("Name is not valid");
+              }
+            }}
+            error={nameError}
+          />
+
           <IconInput
             icon={Mail}
             placeholder="Your email"
@@ -109,10 +126,10 @@ const LoginScreen = () => {
 
           <Button
             className="bg-yellow-500 rounded-full h-14"
-            onPress={handleSignIn}
+            onPress={handleSignup}
           >
             <ButtonText className="text-white font-semibold text-base text-xl">
-              Sign in
+              Sign up
             </ButtonText>
           </Button>
 
@@ -127,9 +144,9 @@ const LoginScreen = () => {
           </Pressable>
 
           <View className="flex-row justify-center mt-6">
-            <Text className="text-gray-500">Don&apos;t have an account?</Text>
-            <Pressable onPress={() => navigation.navigate("Register" as never)}>
-              <Text className="text-blue-500 ml-1 font-medium">Sign up</Text>
+            <Text className="text-gray-500">Already have an account?</Text>
+            <Pressable onPress={() => navigation.navigate("Login" as never)}>
+              <Text className="text-blue-500 ml-1 font-medium">Sign in</Text>
             </Pressable>
           </View>
         </View>
@@ -138,4 +155,4 @@ const LoginScreen = () => {
   );
 };
 
-export default LoginScreen;
+export default RegisterScreen;

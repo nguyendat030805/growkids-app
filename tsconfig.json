@@ -5,6 +5,8 @@
       "node"
     ],
     "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {

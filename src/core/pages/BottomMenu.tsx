@@ -1,6 +1,8 @@
+import { useNavigation } from "@react-navigation/native";
 import { Home, Zap, BookOpen, User } from "lucide-react-native";
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
+import { RootStackParamList } from "../navigation/NavigationService";
 
 interface BottomMenuProps {
   activeTab?: "home" | "experience" | "library" | "profile";
@@ -11,30 +13,31 @@ export const BottomMenu: React.FC<BottomMenuProps> = ({
   activeTab = "home",
   onTabPress,
 }) => {
+  const navigation = useNavigation();
   const menuItems = [
     {
-      id: "home" as const,
+      id: "MainHome" as never,
       label: "Home",
       icon: Home,
       activeColor: "#1C2B6D",
       inactiveColor: "#9CA3AF",
     },
     {
-      id: "experience" as const,
+      id: "Experience" as never,
       label: "Experience",
       icon: Zap,
       activeColor: "#1C2B6D",
       inactiveColor: "#9CA3AF",
     },
     {
-      id: "library" as const,
+      id: "library" as never,
       label: "Library",
       icon: BookOpen,
       activeColor: "#1C2B6D",
       inactiveColor: "#9CA3AF",
     },
     {
-      id: "profile" as const,
+      id: "profile" as never,
       label: "Profile",
       icon: User,
       activeColor: "#1C2B6D",
@@ -53,7 +56,7 @@ export const BottomMenu: React.FC<BottomMenuProps> = ({
           <TouchableOpacity
             key={item.id}
             className="items-center justify-center"
-            onPress={() => onTabPress && onTabPress(item.id)}
+            onPress={() => navigation.navigate(item.id)}
             activeOpacity={0.7}
           >
             <Icon size={24} color={color} />

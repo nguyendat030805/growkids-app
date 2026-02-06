@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
 import { Music, BookOpen } from "lucide-react-native";
 
@@ -76,7 +76,7 @@ export default function ExperienceScreen() {
             </Text>
 
             {/* Experiences List */}
-            <View className="space-y-6">
+            <View className="gap-6">
               {experiences.map((exp, idx) => {
                 const progressPercentage = calculateProgressPercentage(exp.progress);
                 const IconComponent = exp.iconComponent;
@@ -131,14 +131,14 @@ export default function ExperienceScreen() {
                         {exp.desc}
                       </Text>
                       
-                      <View className="flex-row items-center space-x-8">
-                        <Text className="text-sm font-bold text-black">Progress</Text>
+                      <View className="flex-row items-center">
+                        <Text className="text-sm font-bold text-black mr-2">Progress</Text>
                         <Text className="text-sm font-semibold text-[#1C2B6D]">
                           {exp.progress}
                         </Text>
                       </View>
                       
-                      <View className="flex-row items-center space-x-4">
+                      <View className="flex-row items-center gap-4">
                         <View className="flex-1">
                           <View className="h-2 bg-gray-200 rounded-full overflow-hidden">
                             <View 
@@ -170,7 +170,7 @@ export default function ExperienceScreen() {
             <View className="mt-8 bg-[#F8F9FA] rounded-2xl p-5">
               <Text className="text-lg font-bold text-[#1C2B6D] mb-4">Coming Soon</Text>
               
-              <View className="space-y-4">
+              <View className="gap-4">
                 <View className="flex-row items-center">
                   <View className="w-12 h-12 rounded-xl bg-[#E8F5E9] items-center justify-center mr-4">
                     <Text className="text-xl">🎬</Text>
