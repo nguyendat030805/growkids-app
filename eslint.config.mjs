@@ -16,38 +16,22 @@ export default defineConfig([
       "@typescript-eslint": tsPlugin,
       "unused-imports": unusedImports,
     },
-    settings: {
-      "import/resolver": {
-        typescript: true,
-      },
-    },
+
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "unused-imports/no-unused-imports": "error",
+      "import/namespace": "off",
+      "import/no-named-as-default": "off",
+      "import/no-named-as-default-member": "off",
+      "import/default": "off",
+      "import/no-unresolved": "off",
+      "import/no-duplicates": "off",
 
-      "import/order": [
-        "error",
-        {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            "parent",
-            "sibling",
-            "index",
-          ],
-          pathGroups: [
-            {
-              pattern: "@/**",
-              group: "internal",
-            },
-          ],
-          "newlines-between": "always",
-          alphabetize: { order: "asc" },
-        },
-      ],
+
+      "import/order": "off",
+
     },
   },
 

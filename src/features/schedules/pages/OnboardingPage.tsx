@@ -51,6 +51,7 @@ const OnboardingPage = ({ navigation }: any) => {
         const payload = getFormatPayload();
         console.log("Payload gửi lên:", payload);
         await scheduleService.submitInitialSchedule(childId, payload);
+        navigation.replace("GoldenTime", { childId });
         Alert.alert("Thành công", "Lịch sinh hoạt của bé đã được lưu!");
         navigation.reset({
           index: 0,
