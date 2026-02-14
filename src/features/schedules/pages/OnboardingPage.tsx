@@ -52,9 +52,9 @@ const OnboardingPage = ({ navigation }: any) => {
         console.log("Payload gửi lên:", payload);
         await scheduleService.submitInitialSchedule(childId, payload);
         Alert.alert("Thành công", "Lịch sinh hoạt của bé đã được lưu!");
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "MainHome" }],
+        navigation.replace("GoldenTime", {
+          childId,
+          timeBlocks: payload.time_blocks,
         });
       } catch (error: any) {
         console.error("Lỗi setup:", error);
