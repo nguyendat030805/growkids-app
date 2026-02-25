@@ -45,15 +45,15 @@ const LoginScreen = () => {
     if (!validateForm()) {
       return;
     }
-    const success = await handleLogin(email, password);
-    if (success) {
+    const result = await handleLogin(email, password);
+    if (result.success) {
       alert("Login successful");
 
       navigation.dispatch(
         CommonActions.reset({ index: 0, routes: [{ name: "Onboarding" }] }),
       );
     } else {
-      alert(`Login failed: ${error}`);
+      alert(`Login failed: ${result.error}`);
     }
   };
   return (

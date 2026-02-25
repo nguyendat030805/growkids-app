@@ -9,7 +9,7 @@ interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
 }
 
 const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.1.9:3000";
+  process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.10.32:3000";
 
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
@@ -40,12 +40,22 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
+const AUTH_ENDPOINTS = ["/auth/login", "/auth/register"];
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config as AxiosRequestConfigWithRetry;
+    const requestUrl = originalRequest?.url || "";
+    const isAuthEndpoint = AUTH_ENDPOINTS.some((ep) =>
+      requestUrl.includes(ep),
+    );
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
       originalRequest._retry = true;
 
       try {

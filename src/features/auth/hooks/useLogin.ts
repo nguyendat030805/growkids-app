@@ -18,10 +18,11 @@ export const useLogin = () => {
       await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.accessToken);
       await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refreshToken);
 
-      return true;
+      return { success: true, error: null };
     } catch (e: any) {
-      setError(e?.response?.data?.message ?? "Login failed");
-      return false;
+      const errorMessage = e?.response?.data?.message ?? "Login failed";
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }

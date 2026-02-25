@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
 import { Music, BookOpen } from "lucide-react-native";
+import { useNavigation } from "@react-navigation/native";
+import type { StackNavigationProp } from "@react-navigation/stack";
 
 import { BottomMenu } from "@/src/core/pages/BottomMenu";
 import { Header } from "@/src/core/pages/Header";
+import type { RootStackParamList } from "@/src/core/navigation/NavigationService";
 
 const experiences = [
   {
@@ -19,6 +22,7 @@ const experiences = [
     iconComponent: Music,
     iconColor: "#9EC800",
     bgColor: "bg-[#A8D400]/10",
+    navigateTo: undefined as keyof RootStackParamList | undefined,
   },
   {
     title: "Interactive Story",
@@ -33,10 +37,12 @@ const experiences = [
     iconComponent: BookOpen,
     iconColor: "#FFB500",
     bgColor: "bg-[#FFB500]/10",
+    navigateTo: "Story" as keyof RootStackParamList,
   },
 ];
 
 export default function ExperienceScreen() {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [activeTab, setActiveTab] = useState<
     "home" | "experience" | "library" | "profile"
   >("experience");
@@ -154,6 +160,11 @@ export default function ExperienceScreen() {
                         <TouchableOpacity
                           className={`rounded-full py-2 px-6 ${exp.btnColor} items-center min-w-[80px]`}
                           activeOpacity={0.8}
+                          onPress={() => {
+                            if (exp.navigateTo) {
+                              navigation.navigate(exp.navigateTo);
+                            }
+                          }}
                         >
                           <Text className="font-bold text-white text-sm">
                             {exp.btn}

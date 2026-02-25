@@ -10,7 +10,7 @@ interface BottomMenuProps {
 }
 
 export const BottomMenu: React.FC<BottomMenuProps> = ({
-  activeTab = "home",
+  activeTab,
   onTabPress,
 }) => {
   const navigation = useNavigation();

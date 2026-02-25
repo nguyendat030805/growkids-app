@@ -7,6 +7,7 @@ import OnboardingPage from "../features/schedules/pages/OnboardingPage";
 import HomepageScreen from "../features/homepage/pages/HomepageScreen";
 import ExperienceScreen from "../features/experiences/pages/ExperienceScreen";
 import RegisterScreen from "../features/auth/pages/RegisterScreen";
+import StoryScreen from "../features/story/pages/StoryScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -23,6 +24,7 @@ export default function AppNavigator() {
       <Stack.Screen name="MainHome" component={HomepageScreen} />
       <Stack.Screen name="Experience" component={ExperienceScreen} />
       <Stack.Screen name="GoldenTime" component={NotFoundScreen} />
+      <Stack.Screen name="Story" component={StoryScreen} />
     </Stack.Navigator>
   );
 }
