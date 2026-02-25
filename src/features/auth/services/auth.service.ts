@@ -11,7 +11,7 @@ interface RegisterPayload {
 }
 export const login = async (payload: LoginPayload) => {
   const res = await apiClient.post("/auth/login", payload);
-  return res.data;
+  return res.data.data;
 };
 
 export const register = async (payload: RegisterPayload) => {
