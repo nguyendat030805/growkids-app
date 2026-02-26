@@ -5,7 +5,7 @@ import {
 
 export type RootStackParamList = {
   Login: undefined;
-  Onboarding: undefined;
+  Onboarding: { childId: string };
   MainHome: undefined;
   GoldenTime: undefined;
   NotFound: undefined;
