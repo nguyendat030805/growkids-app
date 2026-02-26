@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { goldenTimeService } from "../services/GoldenTime.service";
 import { GoldenTimeSlot } from "../types/GoldenTimeType";
 
@@ -6,8 +7,10 @@ export const useSubmitGoldenTime = (
   data: GoldenTimeSlot[],
   activeSlots: number[],
   routineId: string,
+  timeBlocks: any[],
 ) => {
   const [loading, setLoading] = useState(false);
+  const navigation = useNavigation<any>();
 
   const handleConfirm = async () => {
     if (activeSlots.length === 0) {
@@ -33,6 +36,10 @@ export const useSubmitGoldenTime = (
       await goldenTimeService.submitGoldenTime(payload as any);
 
       alert("Golden time saved successfully!");
+      navigation.navigate("GoldenTimeSummary", {
+        selectedSlots: selectedSlots,
+        timeBlocks: timeBlocks,
+      });
     } catch (error) {
       console.error("Submit error:", error);
       alert("Something went wrong!");

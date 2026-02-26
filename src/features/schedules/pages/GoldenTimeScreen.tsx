@@ -8,12 +8,17 @@ import { useSubmitGoldenTime } from "../hooks/useSubmitGoldenTime";
 import { GoldenTimeSlot } from "../types/GoldenTimeType";
 
 const GoldenTimeScreen = ({ route }: any) => {
-  const { childId } = route.params;
+  const { childId, timeBlocks } = route.params;
   const [activeSlots, setActiveSlots] = useState<number[]>([]);
   const [data, setData] = useState<GoldenTimeSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [routineId, setRoutineId] = useState<string | null>(null);
-  const { handleConfirm } = useSubmitGoldenTime(data, activeSlots, routineId);
+  const { handleConfirm } = useSubmitGoldenTime(
+    data,
+    activeSlots,
+    routineId,
+    timeBlocks,
+  );
   useEffect(() => {
     const fetchGoldenTime = async () => {
       try {
@@ -107,7 +112,7 @@ const GoldenTimeScreen = ({ route }: any) => {
         </View>
       </ScrollView>
 
-      <View className="absolute bottom-6 w-full px-6 flex-row justify-between">
+      <View className="absolute bottom-0 w-full px-6 flex-row justify-between bg-white py-6">
         <TouchableOpacity
           onPress={() => route.goBack()}
           className="bg-gray-100 py-3 px-10 rounded-xl"

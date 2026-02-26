@@ -9,6 +9,7 @@ export type RootStackParamList = {
   MainHome: undefined;
   GoldenTime: undefined;
   NotFound: undefined;
+  GoldenTimeSummary: { selectedSlots: any[] };
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

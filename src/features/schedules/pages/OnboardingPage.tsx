@@ -70,7 +70,10 @@ const OnboardingPage = ({ navigation }: any) => {
         const payload = getFormatPayload();
 
         const res = await scheduleService.submitInitialSchedule(payload);
-        navigation.replace("GoldenTime", { childId: res.data.data.child_id });
+        navigation.replace("GoldenTime", {
+          childId: res.data.data.child_id,
+          timeBlocks: payload.time_blocks,
+        });
         Alert.alert("Success", "Baby's daily schedule has been saved!");
       } catch (error: any) {
         Alert.alert("Error", "Could not save the schedule. Please try again.");
