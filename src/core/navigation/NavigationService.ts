@@ -8,6 +8,7 @@ export type RootStackParamList = {
   Onboarding: undefined;
   MainHome: undefined;
   GoldenTime: undefined;
+  RecordingScreen: undefined;
   NotFound: undefined;
 };
 
