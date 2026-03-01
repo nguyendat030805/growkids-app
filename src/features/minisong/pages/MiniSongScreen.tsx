@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import HeaderChild from "../../../core/components/HeaderChild";
+import HeaderChild from "../../../core/components/ScreenHeader";
 import { SongCard } from "../components/SongCard";
 import { useSongs } from "../hooks/useSongs";
 
-const SongsPage = () => {
+const MiniSongScreen = () => {
   const { songs, loading } = useSongs();
 
   if (loading) {
@@ -52,4 +52,4 @@ const SongsPage = () => {
   );
 };
 
-export default SongsPage;
+export default MiniSongScreen;

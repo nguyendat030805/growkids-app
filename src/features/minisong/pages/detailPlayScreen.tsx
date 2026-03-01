@@ -5,9 +5,9 @@ import { ScrollView, Text, View, Pressable } from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
 
 import { CircleIcon } from "../../../core/components/CircleIcon";
-import HeaderChild from "../../../core/components/HeaderChild";
+import HeaderChild from "../../../core/components/ScreenHeader";
 
-export default function SongDetailPlayPage() {
+export default function SongDetailPlayScreen() {
   const router = useRouter();
   const [playing, setPlaying] = useState(false);
   const [hasEnded, setHasEnded] = useState(false);

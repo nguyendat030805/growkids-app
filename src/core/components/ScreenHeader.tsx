@@ -3,14 +3,14 @@ import { ArrowLeft } from "lucide-react-native";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
-interface MiniSongHeaderProps {
+interface ScreenHeaderProps {
   title?: string;
   subtitle?: string;
   showBack?: boolean;
   onBackPress?: () => void;
 }
 
-const MiniSongHeader: React.FC<MiniSongHeaderProps> = ({
+const ScreenHeader: React.FC<ScreenHeaderProps> = ({
   title = "Songs",
   subtitle = "Let’s enjoy the music!",
   showBack = true,
@@ -52,4 +52,4 @@ const MiniSongHeader: React.FC<MiniSongHeaderProps> = ({
   );
 };
 
-export default MiniSongHeader;
+export default ScreenHeader;

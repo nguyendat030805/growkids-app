@@ -10,5 +10,6 @@ export interface Song {
   duration: number;
   views: number;
   category: "Body" | "School";
+  videoUrl: string;
   lyrics: LyricLine[];
 }

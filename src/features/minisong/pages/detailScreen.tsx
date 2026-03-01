@@ -4,7 +4,7 @@ import { Play } from "lucide-react-native";
 import { Image, ScrollView, Text, View } from "react-native";
 
 import { CircleIcon } from "../../../core/components/CircleIcon";
-import HeaderChild from "../../../core/components/HeaderChild";
+import HeaderChild from "../../../core/components/ScreenHeader";
 import { MiniSongStackParamList } from "../routes/SongsRoute";
 
 type RouteProps = RouteProp<MiniSongStackParamList, "SongDetail">;
