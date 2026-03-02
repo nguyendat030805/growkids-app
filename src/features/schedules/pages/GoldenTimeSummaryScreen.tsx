@@ -1,3 +1,4 @@
+import { CommonActions } from "@react-navigation/native";
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
 import ChatBubble from "../components/ChatBubble";
 
@@ -145,7 +146,11 @@ const GoldenTimeSummaryScreen = ({ route, navigation }: any) => {
 
       <View className="p-6">
         <TouchableOpacity
-          onPress={() => navigation.popToTop()}
+          onPress={() =>
+            navigation.dispatch(
+              CommonActions.reset({ index: 0, routes: [{ name: "MainHome" }] }),
+            )
+          }
           className="bg-lime-500 py-4 rounded-xl items-center"
         >
           <Text className="text-white font-bold text-lg">Completed</Text>

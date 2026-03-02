@@ -128,7 +128,9 @@ const LoginScreen = () => {
 
           <View className="flex-row justify-center mt-6">
             <Text className="text-gray-500">Don&apos;t have an account?</Text>
-            <Pressable>
+            <Pressable
+              onPress={() => navigation.navigate("Register" as never)}
+            >
               <Text className="text-blue-500 ml-1 font-medium">Sign up</Text>
             </Pressable>
           </View>

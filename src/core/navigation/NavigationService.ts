@@ -5,8 +5,11 @@ import {
 
 export type RootStackParamList = {
   Login: undefined;
+  Register: undefined;
   Onboarding: { childId: string };
   MainHome: undefined;
+  Experience: undefined;
+  Story: undefined;
   GoldenTime: undefined;
   NotFound: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };

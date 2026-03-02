@@ -8,6 +8,7 @@ import AuthHeader from "../components/AuthHeader";
 import IconInput from "../components/IconInput";
 import { useRegister } from "../hooks/useRegister";
 import { useValidation } from "../hooks/useValidation";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 
 const RegisterScreen = () => {
   const [email, setEmail] = useState("");
@@ -19,7 +20,7 @@ const RegisterScreen = () => {
 
   const { handleRegister, loading, error } = useRegister();
   const { validateEmail, validatePassword, validateUsername } = useValidation();
-
+  const navigation = useNavigation();
   const validateForm = () => {
     let isValid = true;
 
@@ -53,6 +54,9 @@ const RegisterScreen = () => {
     const success = await handleRegister(name, email, password);
     if (success) {
       alert("Registration successful");
+      navigation.dispatch(
+        CommonActions.reset({ index: 0, routes: [{ name: "Login" }] }),
+      );
     } else {
       alert(`Registration failed: ${error}`);
     }
@@ -144,7 +148,9 @@ const RegisterScreen = () => {
 
           <View className="flex-row justify-center mt-6">
             <Text className="text-gray-500">Already have an account?</Text>
-            <Pressable>
+            <Pressable
+              onPress={() => navigation.navigate("Login" as never)}
+            >
               <Text className="text-blue-500 ml-1 font-medium">Sign in</Text>
             </Pressable>
           </View>
