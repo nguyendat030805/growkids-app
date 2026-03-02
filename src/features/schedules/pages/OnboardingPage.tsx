@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Dimensions, TouchableOpacity, Text, Alert } from "react-native";
 import Animated, {
   useSharedValue,
@@ -20,6 +20,7 @@ const { height } = Dimensions.get("window");
 const OnboardingPage = ({ navigation }: any) => {
   const [isStarted, setIsStarted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const animationProgress = useSharedValue(0);
 
   const {
@@ -36,6 +37,25 @@ const OnboardingPage = ({ navigation }: any) => {
     getFormatPayload,
   } = useSetupLogic();
 
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const res = await scheduleService.getScheduleStatus();
+        if (res.data.hasSchedule === true) {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "MainHome" }],
+          });
+        } else {
+          setIsChecking(false);
+        }
+      } catch (error) {
+        setIsChecking(false);
+      }
+    };
+    checkStatus();
+  }, []);
+
   const handleStart = () => {
     setIsStarted(true);
     animationProgress.value = withSpring(1, { damping: 15 });
@@ -47,18 +67,16 @@ const OnboardingPage = ({ navigation }: any) => {
     if (isFinished) {
       try {
         setLoading(true);
-        // const childId = "3f2a9c7e-8d41-4f9a-9c6d-1b2f8a7c4e90";
-        // const payload = getFormatPayload();
-        // console.log("Payload gửi lên:", payload);
-        // await scheduleService.submitInitialSchedule(childId, payload);
-        Alert.alert("Thành công", "Lịch sinh hoạt của bé đã được lưu!");
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "MainHome" }],
+        const payload = getFormatPayload();
+
+        const res = await scheduleService.submitInitialSchedule(payload);
+        navigation.replace("GoldenTime", {
+          childId: res.data.data.child_id,
+          timeBlocks: payload.time_blocks,
         });
+        Alert.alert("Success", "Baby's daily schedule has been saved!");
       } catch (error: any) {
-        console.error("Lỗi setup:", error);
-        Alert.alert("Lỗi", "Không thể lưu lịch. Vui lòng thử lại.");
+        Alert.alert("Error", "Could not save the schedule. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -87,7 +105,13 @@ const OnboardingPage = ({ navigation }: any) => {
       { translateY: interpolate(animationProgress.value, [0, 1], [30, 0]) },
     ],
   }));
-
+  if (isChecking) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Data Loading...</Text>
+      </View>
+    );
+  }
   return (
     <View className="flex-1 bg-white items-center justify-center">
       <BearCharacter animatedStyle={bearAnimatedStyle} />

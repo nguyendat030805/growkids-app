@@ -4,9 +4,9 @@ import { RootStackParamList } from "../core/navigation/NavigationService";
 import NotFoundScreen from "../core/pages/PageNotFound";
 import LoginScreen from "../features/auth/pages/LoginScreen";
 import OnboardingPage from "../features/schedules/pages/OnboardingPage";
+import RecordingScreen from "../features/voiceRecording/pages/RecordingScreen";
+import GoldenTimeSummaryScreen from "../features/schedules/pages/GoldenTimeSummaryScreen";
 import HomepageScreen from "../features/homepage/pages/HomepageScreen";
-import ExperienceScreen from "../features/experiences/pages/ExperienceScreen";
-import RegisterScreen from "../features/auth/pages/RegisterScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -17,12 +17,15 @@ export default function AppNavigator() {
       initialRouteName="Login"
     >
       <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="Onboarding" component={OnboardingPage} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} />
       <Stack.Screen name="MainHome" component={HomepageScreen} />
-      <Stack.Screen name="Experience" component={ExperienceScreen} />
       <Stack.Screen name="GoldenTime" component={NotFoundScreen} />
+      <Stack.Screen name="RecordingScreen" component={RecordingScreen} />
+      <Stack.Screen
+        name="GoldenTimeSummary"
+        component={GoldenTimeSummaryScreen}
+      />
     </Stack.Navigator>
   );
 }

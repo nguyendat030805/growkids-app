@@ -8,11 +8,8 @@ interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
   _retry?: boolean;
 }
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.1.9:3000";
-
 const apiClient = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1`,
+  baseURL: process.env.API_BASE_URL,
 
   headers: {
     "Content-Type": "application/json",
@@ -54,7 +51,7 @@ apiClient.interceptors.response.use(
         );
 
         const res = await axios.post(
-          `${API_BASE_URL}/api/v1/auth/refresh-token`,
+          `${process.env.API_BASE_URL}/auth/refresh`,
           {
             refreshToken,
           },
