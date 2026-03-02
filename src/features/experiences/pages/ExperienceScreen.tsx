@@ -162,7 +162,7 @@ export default function ExperienceScreen() {
                           activeOpacity={0.8}
                           onPress={() => {
                             if (exp.navigateTo) {
-                              navigation.navigate(exp.navigateTo);
+                              navigation.navigate(exp.navigateTo as never);
                             }
                           }}
                         >
