@@ -3,7 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { RootStackParamList } from "../core/navigation/NavigationService";
 import NotFoundScreen from "../core/pages/PageNotFound";
 import LoginScreen from "../features/auth/pages/LoginScreen";
-import SongsRoute from "../features/minisong/routes/SongsRoute";
+import SongsRoute from "../features/minisong/routes/SongRoute";
 import OnboardingPage from "../features/schedules/pages/OnboardingPage";
 const Stack = createStackNavigator<RootStackParamList>();
 

@@ -5,7 +5,7 @@ import { Image, ScrollView, Text, View } from "react-native";
 
 import { CircleIcon } from "../../../core/components/CircleIcon";
 import HeaderChild from "../../../core/components/ScreenHeader";
-import { MiniSongStackParamList } from "../routes/SongsRoute";
+import { MiniSongStackParamList } from "../routes/SongRoute";
 
 type RouteProps = RouteProp<MiniSongStackParamList, "SongDetail">;
 

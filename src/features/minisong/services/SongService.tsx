@@ -1,4 +1,4 @@
-import { Song } from "../types/Song";
+import { Song } from "../types/Song.type";
 
 export const SongsService = {
   fetchSongs: async (): Promise<Song[]> => {

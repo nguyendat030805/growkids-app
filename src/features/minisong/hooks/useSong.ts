@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { SongsService } from "../services/SongsService";
-import { Song } from "../types/Song";
+import { SongsService } from "../services/SongService";
+import { Song } from "../types/Song.type";
 
 export const useSongs = () => {
   const [songs, setSongs] = useState<Song[]>([]);

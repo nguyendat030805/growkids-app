@@ -3,8 +3,8 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
-import { MiniSongStackParamList } from "../routes/SongsRoute";
-import { Song } from "../types/Song";
+import { MiniSongStackParamList } from "../routes/SongRoute";
+import { Song } from "../types/Song.type";
 
 type NavigationProp = NativeStackNavigationProp<
   MiniSongStackParamList,

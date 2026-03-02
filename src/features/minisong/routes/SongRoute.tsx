@@ -4,7 +4,7 @@ import CompletedScreen from "../pages/CompletedScreen";
 import SongDetailPlayPage from "../pages/DetailPlayScreen";
 import SongDetailPage from "../pages/DetailScreen";
 import SongsPage from "../pages/MiniSongScreen";
-import { Song } from "../types/Song";
+import { Song } from "../types/Song.type";
 
 export type MiniSongStackParamList = {
   Songs: undefined;
