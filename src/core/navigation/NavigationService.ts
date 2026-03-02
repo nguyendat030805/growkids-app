@@ -5,11 +5,12 @@ import {
 
 export type RootStackParamList = {
   Login: undefined;
-  Onboarding: undefined;
+  Onboarding: { childId: string };
   MainHome: undefined;
   GoldenTime: undefined;
   RecordingScreen: undefined;
   NotFound: undefined;
+  GoldenTimeSummary: { selectedSlots: any[] };
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
