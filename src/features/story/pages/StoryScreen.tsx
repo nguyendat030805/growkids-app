@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +13,10 @@ import { useNavigation } from "@react-navigation/native";
 
 import { BottomMenu } from "@/src/core/pages/BottomMenu";
 import { Header } from "@/src/core/pages/Header";
+import {
+  AIStoryModal,
+  AIStoryParams,
+} from "@/src/features/story/components/AIStoryModal";
 
 interface Story {
   id: number;
@@ -83,6 +88,11 @@ const CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
 
 export default function StoryScreen() {
   const navigation = useNavigation();
+  const [showAIModal, setShowAIModal] = useState(false);
+
+  const handleAIGenerate = (params: AIStoryParams) => {
+    setShowAIModal(false);
+  };
 
   return (
     <View className="flex-1 bg-white">
@@ -96,7 +106,6 @@ export default function StoryScreen() {
             <Header />
           </View>
 
-          {/* Sub Header: Back + Title + Star */}
           <View className="flex-row items-center justify-between px-4 mb-4">
             <TouchableOpacity
               className="flex-row items-center"
@@ -116,24 +125,20 @@ export default function StoryScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Banner */}
           <View className="mx-4 mb-5">
-            <View className="bg-[#FFB500] rounded-full py-3 px-6 items-center">
+            <TouchableOpacity
+              onPress={() => setShowAIModal(true)}
+              activeOpacity={0.8}
+              className="bg-[#FFB500] rounded-full py-3 px-6 items-center"
+            >
               <Text className="text-white font-extrabold text-base tracking-wider">
-                CHOOSE YOUR ADVENTURE
+                Smart Story Generation
               </Text>
-            </View>
+            </TouchableOpacity>
           </View>
 
-          {/* Topics & Stories */}
           {topicsData.map((topic, topicIdx) => (
             <View key={topicIdx} className="px-4 mb-6">
-              <Text className="text-base mb-4">
-                <Text className="font-bold text-[#1C2B6D]">Topic: </Text>
-                <Text className="text-gray-700">{topic.name}</Text>
-              </Text>
-
-              {/* Story Grid */}
               <View className="flex-row flex-wrap" style={{ gap: CARD_GAP }}>
                 {topic.stories.map((story) => (
                   <TouchableOpacity
@@ -142,20 +147,21 @@ export default function StoryScreen() {
                     style={{ width: CARD_WIDTH }}
                     className="rounded-2xl overflow-hidden"
                   >
-                    <View className="relative" style={{ height: CARD_WIDTH * 1.15 }}>
+                    <View
+                      className="relative"
+                      style={{ height: CARD_WIDTH * 1.15 }}
+                    >
                       <Image
                         source={story.image}
                         style={{ width: "100%", height: "100%" }}
                         resizeMode="cover"
                       />
 
-                      {/* Dark overlay for text readability */}
                       <View
                         className="absolute inset-0"
                         style={{ backgroundColor: "rgba(0,0,0,0.2)" }}
                       />
 
-                      {/* Title */}
                       <View className="absolute top-0 left-0 right-0 p-2.5">
                         <Text
                           className="text-white font-extrabold text-sm"
@@ -170,7 +176,6 @@ export default function StoryScreen() {
                         </Text>
                       </View>
 
-                      {/* Bottom badges */}
                       <View className="absolute bottom-0 left-0 right-0 flex-row items-center justify-between p-2.5">
                         <View className="bg-[#9EC800] rounded-full px-3 py-1">
                           <Text className="text-white text-xs font-bold">
@@ -192,10 +197,15 @@ export default function StoryScreen() {
         </View>
       </ScrollView>
 
-      {/* BottomMenu */}
       <View className="absolute bottom-0 left-0 right-0">
         <BottomMenu />
       </View>
+
+      <AIStoryModal
+        visible={showAIModal}
+        onClose={() => setShowAIModal(false)}
+        onGenerate={handleAIGenerate}
+      />
     </View>
   );
 }

@@ -9,7 +9,7 @@ interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
 }
 
 const apiClient = axios.create({
-  baseURL: "http://10.10.25.19:3000/api/v1", // nhớ sửa lại như củ trước khi đẩy lên nha
+  baseURL: "http://10.0.136.71:3000/api/v1", // nhớ sửa lại như củ trước khi đẩy lên nha
 
   headers: {
     "Content-Type": "application/json",

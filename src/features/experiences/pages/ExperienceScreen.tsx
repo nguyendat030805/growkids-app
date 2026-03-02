@@ -55,7 +55,7 @@ export default function ExperienceScreen() {
   };
 
   const calculateProgressPercentage = (progress: string) => {
-    const [current, total] = progress.split('/').map(Number);
+    const [current, total] = progress.split("/").map(Number);
     return (current / total) * 100;
   };
 
@@ -67,7 +67,6 @@ export default function ExperienceScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View className="py-4">
-          {/* Header */}
           <View className="px-0">
             <Header />
           </View>
@@ -78,57 +77,54 @@ export default function ExperienceScreen() {
               Bilingual Learning Through Experience
             </Text>
             <Text className="text-center text-gray-600 mb-6 text-base px-2">
-              Fun learning activities like MiniSong and Story help children learn language naturally through sound, images, and movement.
+              Fun learning activities like MiniSong and Story help children
+              learn language naturally through sound, images, and movement.
             </Text>
 
-            {/* Experiences List */}
             <View className="gap-6">
               {experiences.map((exp, idx) => {
-                const progressPercentage = calculateProgressPercentage(exp.progress);
+                const progressPercentage = calculateProgressPercentage(
+                  exp.progress,
+                );
                 const IconComponent = exp.iconComponent;
-                
+
                 return (
-                  <View 
-                    key={idx} 
+                  <View
+                    key={idx}
                     className="rounded-3xl border border-gray-200 overflow-hidden bg-white shadow-sm"
                   >
-                    {/* Large Image at Top */}
                     <View className="w-full h-44 overflow-hidden">
                       <Image
                         source={exp.image}
                         className="w-full h-full"
                         resizeMode="cover"
                         style={{
-                            width: "100%",
-                            height: "100%",
-                          }}
+                          width: "100%",
+                          height: "100%",
+                        }}
                       />
                     </View>
-                    
-                    {/* Content Section */}
+
                     <View className={`p-4 ${exp.bgColor}`}>
                       <View className="flex-row items-center mb-2">
-                        <View 
+                        <View
                           className="w-10 h-10 rounded-full overflow-hidden mr-3 border-2 border-gray-100 items-center justify-center"
                           style={{ backgroundColor: `${exp.iconColor}20` }}
                         >
-                          <IconComponent 
-                            size={20} 
-                            color={exp.iconColor} 
-                          />
+                          <IconComponent size={20} color={exp.iconColor} />
                         </View>
-                        
+
                         <Text className="font-bold text-lg text-black flex-1">
                           {exp.title}
                         </Text>
-                        
+
                         <View className="bg-white px-3 py-1 rounded-full">
                           <Text className="text-xm font-bold text-[#54616D]">
                             {exp.duration}
                           </Text>
                         </View>
                       </View>
-                      
+
                       <Text className="text-sm font-medium text-black mb-2">
                         {exp.type}
                       </Text>
@@ -136,27 +132,29 @@ export default function ExperienceScreen() {
                       <Text className="text-sm text-gray-600 mb-4 leading-5">
                         {exp.desc}
                       </Text>
-                      
+
                       <View className="flex-row items-center">
-                        <Text className="text-sm font-bold text-black mr-2">Progress</Text>
+                        <Text className="text-sm font-bold text-black mr-2">
+                          Progress
+                        </Text>
                         <Text className="text-sm font-semibold text-[#1C2B6D]">
                           {exp.progress}
                         </Text>
                       </View>
-                      
+
                       <View className="flex-row items-center gap-4">
                         <View className="flex-1">
                           <View className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <View 
+                            <View
                               className="h-full rounded-full"
-                              style={{ 
+                              style={{
                                 width: `${progressPercentage}%`,
-                                backgroundColor: exp.progressColor
+                                backgroundColor: exp.progressColor,
                               }}
                             />
                           </View>
                         </View>
-                        
+
                         <TouchableOpacity
                           className={`rounded-full py-2 px-6 ${exp.btnColor} items-center min-w-[80px]`}
                           activeOpacity={0.8}
@@ -177,28 +175,37 @@ export default function ExperienceScreen() {
               })}
             </View>
 
-            {/* Coming Soon Section */}
             <View className="mt-8 bg-[#F8F9FA] rounded-2xl p-5">
-              <Text className="text-lg font-bold text-[#1C2B6D] mb-4">Coming Soon</Text>
-              
+              <Text className="text-lg font-bold text-[#1C2B6D] mb-4">
+                Coming Soon
+              </Text>
+
               <View className="gap-4">
                 <View className="flex-row items-center">
                   <View className="w-12 h-12 rounded-xl bg-[#E8F5E9] items-center justify-center mr-4">
                     <Text className="text-xl">🎬</Text>
                   </View>
                   <View className="flex-1">
-                    <Text className="font-semibold text-gray-800">Music Videos</Text>
-                    <Text className="text-sm text-gray-600">Animated music videos with lyrics</Text>
+                    <Text className="font-semibold text-gray-800">
+                      Music Videos
+                    </Text>
+                    <Text className="text-sm text-gray-600">
+                      Animated music videos with lyrics
+                    </Text>
                   </View>
                 </View>
-                
+
                 <View className="flex-row items-center">
                   <View className="w-12 h-12 rounded-xl bg-[#FFF3CD] items-center justify-center mr-4">
                     <Text className="text-xl">🎭</Text>
                   </View>
                   <View className="flex-1">
-                    <Text className="font-semibold text-gray-800">Role Play</Text>
-                    <Text className="text-sm text-gray-600">Interactive dialogues and scenarios</Text>
+                    <Text className="font-semibold text-gray-800">
+                      Role Play
+                    </Text>
+                    <Text className="text-sm text-gray-600">
+                      Interactive dialogues and scenarios
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -207,7 +214,6 @@ export default function ExperienceScreen() {
         </View>
       </ScrollView>
 
-      {/* BottomMenu */}
       <View className="absolute bottom-0 left-0 right-0">
         <BottomMenu activeTab={activeTab} onTabPress={handleTabPress} />
       </View>

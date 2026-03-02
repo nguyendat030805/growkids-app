@@ -1,4 +1,4 @@
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../core/navigation/NavigationService";
 import NotFoundScreen from "../core/pages/PageNotFound";
@@ -11,7 +11,7 @@ import StoryScreen from "../features/story/pages/StoryScreen";
 import GoldenTimeSummaryScreen from "../features/schedules/pages/GoldenTimeSummaryScreen";
 import GoldenTimeScreen from "../features/schedules/pages/GoldenTimeScreen";
 
-const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   return (
@@ -27,7 +27,10 @@ export default function AppNavigator() {
       <Stack.Screen name="Experience" component={ExperienceScreen} />
       <Stack.Screen name="Story" component={StoryScreen} />
       <Stack.Screen name="GoldenTime" component={GoldenTimeScreen} />
-      <Stack.Screen name="GoldenTimeSummary" component={GoldenTimeSummaryScreen}/>
+      <Stack.Screen
+        name="GoldenTimeSummary"
+        component={GoldenTimeSummaryScreen}
+      />
     </Stack.Navigator>
   );
 }
