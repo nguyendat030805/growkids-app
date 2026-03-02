@@ -1,6 +1,6 @@
 import apiClient from "@/src/core/services/apiClient";
 
-import { APIResponse } from "../types/recording.type";
+import { APIResponse } from "../types/RecordingType";
 
 export const recordingService = {
   transcribeAudio: async (uri: string): Promise<APIResponse> => {

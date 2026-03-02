@@ -15,9 +15,9 @@ import {
 import { ResultCard } from "../components/ResultCard";
 import { useRecording } from "../hooks/useRecording";
 import { recordingService } from "../services/RecordingService";
-import { AIResultData, SuggestionItem } from "../types/recording.type";
+import { AIResultData, SuggestionItem } from "../types/RecordingType";
 
-export default function RecordingPage() {
+export default function RecordingScreen() {
   const { isRecording, startRecording, stopRecording } = useRecording();
   const [loading, setLoading] = useState(false);
   const [aiData, setAiData] = useState<AIResultData | null>(null);
@@ -95,7 +95,7 @@ export default function RecordingPage() {
             Nói & Học
           </Text>
           <Image
-            source={require("../../../../assets/tải xuống (1).png")}
+            source={require("../../../../assets/LogoConversation.png")}
             className="w-16 h-16 rounded-full absolute right-0"
             resizeMode="contain"
           />

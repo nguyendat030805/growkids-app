@@ -4,7 +4,7 @@ import { RootStackParamList } from "../core/navigation/NavigationService";
 import NotFoundScreen from "../core/pages/PageNotFound";
 import LoginScreen from "../features/auth/pages/LoginScreen";
 import OnboardingPage from "../features/schedules/pages/OnboardingPage";
-import RecordingPage from "../features/voiceRecording/pages/RecordingPage";
+import RecordingScreen from "../features/voiceRecording/pages/RecordingScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -19,7 +19,7 @@ export default function AppNavigator() {
       <Stack.Screen name="NotFound" component={NotFoundScreen} />
       <Stack.Screen name="MainHome" component={NotFoundScreen} />
       <Stack.Screen name="GoldenTime" component={NotFoundScreen} />
-      <Stack.Screen name="RecordingScreen" component={RecordingPage} />
+      <Stack.Screen name="RecordingScreen" component={RecordingScreen} />
     </Stack.Navigator>
   );
 }
