@@ -8,6 +8,7 @@ export type RootStackParamList = {
   Onboarding: { childId: string };
   MainHome: undefined;
   GoldenTime: undefined;
+  RecordingScreen: undefined;
   NotFound: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
 };

@@ -65,7 +65,7 @@ const GoldenTimeScreen = ({ route }: any) => {
       >
         <View className="items-center mt-6 mb-4">
           <Image
-            source={require("@/assets/tải xuống.png")}
+            source={require("@/assets/LogoIntro.png")}
             className="w-[120px] h-[120px] resize-contain"
           />
         </View>
