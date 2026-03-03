@@ -9,7 +9,7 @@ interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
 }
 
 const apiClient = axios.create({
-  baseURL: process.env.API_BASE_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_BASE_URL,
 
   headers: {
     "Content-Type": "application/json",
@@ -51,7 +51,7 @@ apiClient.interceptors.response.use(
         );
 
         const res = await axios.post(
-          `${process.env.API_BASE_URL}/auth/refresh`,
+          `${process.env.EXPO_PUBLIC_API_BASE_URL}/auth/refresh`,
           {
             refreshToken,
           },
