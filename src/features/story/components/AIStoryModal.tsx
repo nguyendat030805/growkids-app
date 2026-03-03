@@ -98,7 +98,6 @@ export function AIStoryModal({
             bounces={false}
             contentContainerStyle={{ paddingBottom: 30 }}
           >
-            {/* Header */}
             <View className="items-center pt-4 pb-2">
               <Image
                 source={require("@/public/assets/images/logoGrowKids.png")}

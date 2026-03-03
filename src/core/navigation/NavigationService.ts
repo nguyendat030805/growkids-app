@@ -16,6 +16,7 @@ export type RootStackParamList = {
     duration: string;
   };
   GoldenTime: undefined;
+  RecordingScreen: undefined;
   NotFound: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
 };

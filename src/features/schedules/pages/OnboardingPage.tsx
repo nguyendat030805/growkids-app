@@ -41,7 +41,7 @@ const OnboardingPage = ({ navigation }: any) => {
     const checkStatus = async () => {
       try {
         const res = await scheduleService.getScheduleStatus();
-        if (res.hasSchedule) {
+        if (res.data.hasSchedule === true) {
           navigation.reset({
             index: 0,
             routes: [{ name: "MainHome" }],

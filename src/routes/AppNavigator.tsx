@@ -2,14 +2,15 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../core/navigation/NavigationService";
 import NotFoundScreen from "../core/pages/PageNotFound";
-import HomepageScreen from "../features/homepage/pages/HomepageScreen";
 import LoginScreen from "../features/auth/pages/LoginScreen";
 import OnboardingPage from "../features/schedules/pages/OnboardingPage";
+import RecordingScreen from "../features/voiceRecording/pages/RecordingScreen";
 import ExperienceScreen from "../features/experiences/pages/ExperienceScreen";
 import RegisterScreen from "../features/auth/pages/RegisterScreen";
 import StoryScreen from "../features/story/pages/StoryScreen";
 import StoryPlayerScreen from "../features/story/pages/StoryPlayerScreen";
 import GoldenTimeSummaryScreen from "../features/schedules/pages/GoldenTimeSummaryScreen";
+import HomepageScreen from "../features/homepage/pages/HomepageScreen";
 import GoldenTimeScreen from "../features/schedules/pages/GoldenTimeScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -24,6 +25,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="Onboarding" component={OnboardingPage} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} />
+      <Stack.Screen name="RecordingScreen" component={RecordingScreen} />
       <Stack.Screen name="MainHome" component={HomepageScreen} />
       <Stack.Screen name="Experience" component={ExperienceScreen} />
       <Stack.Screen name="Story" component={StoryScreen} />
