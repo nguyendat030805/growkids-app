@@ -7,18 +7,28 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   Onboarding: { childId: string };
-  MainHome: undefined;
-  Experience: undefined;
+  MainTabs: undefined;
+  GoldenTime: undefined;
+  GoldenTimeSummary: { selectedSlots: any[] };
+  NotFound: undefined;
+};
+
+export type MainTabParamList = {
+  HomeTab: undefined;
+  ExperienceTab: undefined;
+  VoiceTab: undefined;
+  LibraryTab: undefined;
+  ProfileTab: undefined;
+};
+
+export type ExperienceStackParamList = {
+  ExperienceMain: undefined;
   Story: undefined;
   StoryPlayer: {
     storyId: number;
     title: string;
     duration: string;
   };
-  GoldenTime: undefined;
-  RecordingScreen: undefined;
-  NotFound: undefined;
-  GoldenTimeSummary: { selectedSlots: any[] };
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

@@ -5,10 +5,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  ImageSourcePropType,
   Dimensions,
   PanResponder,
   GestureResponderEvent,
+  ActivityIndicator,
 } from "react-native";
 import {
   ChevronLeft,
@@ -19,159 +19,10 @@ import {
 } from "lucide-react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 
-import { RootStackParamList } from "@/src/core/navigation/NavigationService";
-import { BottomMenu } from "@/src/core/pages/BottomMenu";
-import { Header } from "@/src/core/pages/Header";
+import { ExperienceStackParamList } from "@/src/core/navigation/NavigationService";
+import { useStorySegments } from "@/src/features/story/hooks/useStorySegments";
 
-type StoryPlayerRouteProp = RouteProp<RootStackParamList, "StoryPlayer">;
-
-interface StorySegment {
-  text: string;
-  image: ImageSourcePropType;
-  startTime: number;
-  endTime: number;
-}
-
-const STORY_SEGMENTS: Record<number, StorySegment[]> = {
-  1: [
-    {
-      text: "Once upon a time, a tiny mouse was playing in the forest. A big lion was sleeping nearby under a large tree.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 30,
-    },
-    {
-      text: "The mouse accidentally ran across the lion's nose and woke him up! The lion caught the mouse, but the mouse begged for mercy.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 30,
-      endTime: 60,
-    },
-    {
-      text: 'The lion laughed and let the mouse go. "You are too small to be my meal," he said kindly.',
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 60,
-      endTime: 80,
-    },
-    {
-      text: "Later, the lion was caught in a hunter's net. The tiny mouse heard his roar and came running to help.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 80,
-      endTime: 100,
-    },
-    {
-      text: "She gnawed through the ropes and set the lion free. From that day on, they became the best of friends.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 100,
-      endTime: 120,
-    },
-  ],
-  2: [
-    {
-      text: "In a small village, there was a garden that bloomed only at night. No one knew why.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 30,
-    },
-    {
-      text: "A curious girl named Lily discovered it one evening. The flowers glowed with golden light.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 30,
-      endTime: 60,
-    },
-    {
-      text: "Lily learned that the garden grew brighter when someone did a good deed. She started helping everyone in the village.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 60,
-      endTime: 90,
-    },
-  ],
-  3: [
-    {
-      text: "Once there was a sweet little girl who always wore a red riding hood. Everyone in the village loved her.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 37,
-    },
-    {
-      text: "One day, her mother asked her to take food to her grandmother who lived in the woods.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 37,
-      endTime: 75,
-    },
-    {
-      text: "On the way through the forest, she met a cunning wolf. The wolf tricked her and ran ahead.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 75,
-      endTime: 112,
-    },
-    {
-      text: "But a brave woodcutter saved them both. Red Riding Hood learned to always stay on the safe path.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 112,
-      endTime: 150,
-    },
-  ],
-  4: [
-    {
-      text: "A little bird fell from its nest during a storm. It was cold and afraid.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 27,
-    },
-    {
-      text: "A kind boy named Tom found it shivering under a bush. He carefully picked it up and made a warm nest.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 27,
-      endTime: 54,
-    },
-    {
-      text: "Soon the bird was strong enough to fly again. It sang a beautiful song for Tom before flying home.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 54,
-      endTime: 80,
-    },
-  ],
-  5: [
-    {
-      text: "A little bird fell from its nest during a storm. It was cold and afraid.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 27,
-    },
-    {
-      text: "A kind boy named Tom found it shivering under a bush. He carefully picked it up and made a warm nest.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 27,
-      endTime: 54,
-    },
-    {
-      text: "Soon the bird was strong enough to fly again. It sang a beautiful song for Tom before flying home.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 54,
-      endTime: 80,
-    },
-  ],
-  6: [
-    {
-      text: "Bunny was lost in the big meadow. He hopped left and right but could not find his home.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 20,
-    },
-    {
-      text: "A friendly squirrel offered to help. Together they crossed the stream and passed the tall oak tree.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 20,
-      endTime: 40,
-    },
-    {
-      text: "Finally, they found the cozy burrow under the hill. Bunny was so happy he shared his carrots with his new friend.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 40,
-      endTime: 60,
-    },
-  ],
-};
+type StoryPlayerRouteProp = RouteProp<ExperienceStackParamList, "StoryPlayer">;
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const IMAGE_WIDTH = SCREEN_WIDTH - 48;
@@ -187,7 +38,7 @@ export default function StoryPlayerScreen() {
     return isNaN(num) ? 60 : num;
   }, [duration]);
 
-  const segments = useMemo(() => STORY_SEGMENTS[storyId] ?? [], [storyId]);
+  const { segments, loading: segmentsLoading } = useStorySegments(storyId);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -267,21 +118,20 @@ export default function StoryPlayerScreen() {
   const progressPercent =
     totalSeconds > 0 ? (currentTime / totalSeconds) * 100 : 0;
 
+  if (segmentsLoading) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center">
+        <ActivityIndicator size="large" color="#FFB500" />
+      </View>
+    );
+  }
+
   if (!currentSegment) return null;
 
   return (
     <View className="flex-1 bg-white">
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="py-4">
-          <View className="px-0">
-            <Header />
-          </View>
-
-          {/* Sub Header */}
           <View className="flex-row items-center justify-between px-4 mb-4">
             <TouchableOpacity
               className="flex-row items-center"
@@ -462,11 +312,6 @@ export default function StoryPlayerScreen() {
           )}
         </View>
       </ScrollView>
-
-      {/* BottomMenu */}
-      <View className="absolute bottom-0 left-0 right-0">
-        <BottomMenu />
-      </View>
 
       {/* Completion Screen Overlay */}
       {isCompleted && (

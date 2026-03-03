@@ -1,8 +1,4 @@
-import { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
-
-import { BottomMenu } from "@/src/core/pages/BottomMenu";
-import { Header } from "@/src/core/pages/Header";
 
 const stats = [
   {
@@ -51,33 +47,12 @@ const activities = [
 ];
 
 export default function HomepageScreen() {
-  const [activeTab, setActiveTab] = useState<
-    "home" | "experience" | "library" | "profile"
-  >("home");
-
-  const handleTabPress = (
-    tab: "home" | "experience" | "library" | "profile",
-  ) => {
-    setActiveTab(tab);
-    console.log(`Switched to ${tab} tab`);
-  };
-
   return (
     <View className="flex-1 bg-white">
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 80 }}
-        showsVerticalScrollIndicator={false}
-      >
-        <View className="py-4">
-          {/* Header */}
-          <View className="px-0">
-            <Header />
-          </View>
-
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="py-6">
           <View className="px-4">
-            {/* Introduction */}
-            <Text className="text-xl font-bold text-[#1C2B6D] text-center mb-4">
+            <Text className="text-2xl font-bold text-[#1C2B6D] text-center mb-4">
               Bilingual Learning with your child
             </Text>
             <Text className="text-center text-gray-500 mb-6 text-base">
@@ -86,7 +61,6 @@ export default function HomepageScreen() {
               effectively
             </Text>
 
-            {/* Stats */}
             <View className="flex-row justify-between mb-7">
               {stats.map((stat, idx) => (
                 <View
@@ -106,16 +80,13 @@ export default function HomepageScreen() {
               ))}
             </View>
 
-            {/* Activities */}
             <Text className="text-xl font-bold mb-6 text-[#1C2B6D]">
               {"Today's activities"}
             </Text>
             <View className="flex-row flex-wrap -mx-1">
               {activities.map((act, idx) => (
                 <View key={idx} className="w-1/2 px-1 mb-4">
-                  {/* Card */}
                   <View className="bg-white rounded-2xl shadow border border-gray-100 overflow-hidden">
-                    {/* Image */}
                     <View className="w-full h-24">
                       <Image
                         source={act.image}
@@ -157,11 +128,6 @@ export default function HomepageScreen() {
           </View>
         </View>
       </ScrollView>
-
-      {/* BottomMenu */}
-      <View className="absolute bottom-0 left-0 right-0">
-        <BottomMenu activeTab={activeTab} onTabPress={handleTabPress} />
-      </View>
     </View>
   );
 }

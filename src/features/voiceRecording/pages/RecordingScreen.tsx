@@ -83,23 +83,17 @@ export default function RecordingScreen() {
   return (
     <ScrollView
       className="flex-1 bg-slate-100"
-      contentContainerStyle={{ padding: 20, paddingTop: 50 }}
+      contentContainerStyle={{ padding: 20, paddingTop: 16 }}
     >
-      <View className="flex-row items-center mb-5 h-16">
-        <TouchableOpacity className="p-1 z-10">
-          <Ionicons name="chevron-back" size={28} color="#1E293B" />
-        </TouchableOpacity>
-
-        <View className="flex-1 flex-row items-center justify-center relative h-full">
-          <Text className="text-4xl font-extrabold text-slate-800">
-            Nói & Học
-          </Text>
-          <Image
-            source={require("../../../../assets/LogoConversation.png")}
-            className="w-16 h-16 rounded-full absolute right-0"
-            resizeMode="contain"
-          />
-        </View>
+      <View className="flex-row items-center justify-center mb-5">
+        <Text className="text-3xl font-extrabold text-slate-800">
+          Nói & Học
+        </Text>
+        <Image
+          source={require("../../../../assets/LogoConversation.png")}
+          className="w-14 h-14 rounded-full ml-3"
+          resizeMode="contain"
+        />
       </View>
 
       <Text className="text-center text-slate-500 font-medium mb-6">
