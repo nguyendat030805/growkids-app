@@ -9,7 +9,8 @@ import {
   Dimensions,
 } from "react-native";
 import { ChevronLeft, Star } from "lucide-react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { RootStackParamList } from "@/src/core/navigation/NavigationService";
 
 import { BottomMenu } from "@/src/core/pages/BottomMenu";
 import { Header } from "@/src/core/pages/Header";
@@ -23,6 +24,7 @@ interface Story {
   title: string;
   difficulty: string;
   duration: string;
+  content: string;
   image: ImageSourcePropType;
 }
 
@@ -39,42 +41,54 @@ const topicsData: Topic[] = [
         id: 1,
         title: "The Lion & Mouse",
         difficulty: "Easy",
-        duration: "8ms",
+        duration: "120",
+        content:
+          "Once upon a time, a tiny mouse was playing. A big lion was sleeping nearby. The mouse accidentally ran across the lion's nose and woke him up. The lion caught the mouse, but the mouse begged for mercy. The lion laughed and let the mouse go. Later, the lion was caught in a hunter's net. The tiny mouse heard his roar and came to help. She gnawed through the ropes and set the lion free. From that day on, they became the best of friends.",
         image: require("@/public/assets/images/imgStory.png"),
       },
       {
         id: 2,
         title: "The Magic Garden",
         difficulty: "Easy",
-        duration: "8ms",
+        duration: "90",
+        content:
+          "In a small village, there was a garden that bloomed only at night. A curious girl named Lily discovered it one evening. The flowers glowed with golden light and whispered secrets of kindness. Lily learned that the garden grew brighter when someone did a good deed. She started helping everyone in the village, and the garden became the most beautiful place in the world.",
         image: require("@/public/assets/images/imgStory.png"),
       },
       {
         id: 3,
         title: "Red Riding Hood",
         difficulty: "Easy",
-        duration: "10ms",
+        duration: "150",
+        content:
+          "Once there was a sweet little girl who always wore a red riding hood. One day, her mother asked her to take food to her grandmother. On the way through the forest, she met a wolf. The wolf tricked her and ran to grandmother's house first. But a brave woodcutter saved them both. Red Riding Hood learned to always stay on the safe path.",
         image: require("@/public/assets/images/imgStory.png"),
       },
       {
         id: 4,
         title: "Save the Little Bird",
         difficulty: "Easy",
-        duration: "8ms",
+        duration: "80",
+        content:
+          "A little bird fell from its nest during a storm. A kind boy named Tom found it shivering under a bush. He carefully picked it up and made a warm nest in a box. Every day, he fed the bird and talked to it gently. Soon the bird was strong enough to fly again. It sang a beautiful song for Tom before flying home.",
         image: require("@/public/assets/images/imgStory.png"),
       },
       {
         id: 5,
         title: "Save the Little Bird",
         difficulty: "Easy",
-        duration: "8ms",
+        duration: "80",
+        content:
+          "A little bird fell from its nest during a storm. A kind boy named Tom found it shivering under a bush. He carefully picked it up and made a warm nest in a box. Every day, he fed the bird and talked to it gently. Soon the bird was strong enough to fly again. It sang a beautiful song for Tom before flying home.",
         image: require("@/public/assets/images/imgStory.png"),
       },
       {
         id: 6,
         title: "Help Bunny Find Home",
         difficulty: "Easy",
-        duration: "5ms",
+        duration: "60",
+        content:
+          "Bunny was lost in the big meadow. He hopped left and right but could not find his home. A friendly squirrel offered to help. Together they crossed the stream and passed the tall oak tree. Finally, they found the cozy burrow under the hill. Bunny was so happy he shared his carrots with his new friend.",
         image: require("@/public/assets/images/imgStory.png"),
       },
     ],
@@ -87,7 +101,7 @@ const HORIZONTAL_PADDING = 16;
 const CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
 
 export default function StoryScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [showAIModal, setShowAIModal] = useState(false);
 
   const handleAIGenerate = (params: AIStoryParams) => {
@@ -146,6 +160,13 @@ export default function StoryScreen() {
                     activeOpacity={0.85}
                     style={{ width: CARD_WIDTH }}
                     className="rounded-2xl overflow-hidden"
+                    onPress={() =>
+                      navigation.navigate("StoryPlayer", {
+                        storyId: story.id,
+                        title: story.title,
+                        duration: story.duration,
+                      })
+                    }
                   >
                     <View
                       className="relative"

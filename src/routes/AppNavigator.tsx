@@ -8,6 +8,7 @@ import OnboardingPage from "../features/schedules/pages/OnboardingPage";
 import ExperienceScreen from "../features/experiences/pages/ExperienceScreen";
 import RegisterScreen from "../features/auth/pages/RegisterScreen";
 import StoryScreen from "../features/story/pages/StoryScreen";
+import StoryPlayerScreen from "../features/story/pages/StoryPlayerScreen";
 import GoldenTimeSummaryScreen from "../features/schedules/pages/GoldenTimeSummaryScreen";
 import GoldenTimeScreen from "../features/schedules/pages/GoldenTimeScreen";
 
@@ -26,6 +27,7 @@ export default function AppNavigator() {
       <Stack.Screen name="MainHome" component={HomepageScreen} />
       <Stack.Screen name="Experience" component={ExperienceScreen} />
       <Stack.Screen name="Story" component={StoryScreen} />
+      <Stack.Screen name="StoryPlayer" component={StoryPlayerScreen} />
       <Stack.Screen name="GoldenTime" component={GoldenTimeScreen} />
       <Stack.Screen
         name="GoldenTimeSummary"

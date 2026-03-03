@@ -10,6 +10,11 @@ export type RootStackParamList = {
   MainHome: undefined;
   Experience: undefined;
   Story: undefined;
+  StoryPlayer: {
+    storyId: number;
+    title: string;
+    duration: string;
+  };
   GoldenTime: undefined;
   NotFound: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
