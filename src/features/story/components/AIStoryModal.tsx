@@ -67,6 +67,22 @@ export function AIStoryModal({
   const [additionalPrompt, setAdditionalPrompt] = useState("");
   const [promptError, setPromptError] = useState("");
 
+  const resetForm = () => {
+    setSelectedTopic("animals");
+    setSelectedAge("3-4.5");
+    setSelectedLength("2 min");
+    setSelectedType("fairy_tales");
+    setCustomType("");
+    setCustomTypeError("");
+    setAdditionalPrompt("");
+    setPromptError("");
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   const validateCustomType = (value: string): boolean => {
     if (selectedType !== "other") return true;
 
@@ -149,7 +165,7 @@ export function AIStoryModal({
       visible={visible}
       transparent
       animationType="slide"
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
       <View className="flex-1 justify-end bg-black/40">
         <KeyboardAvoidingView
@@ -416,7 +432,7 @@ export function AIStoryModal({
 
               {/* Cancel */}
               <TouchableOpacity
-                onPress={onClose}
+                onPress={handleClose}
                 activeOpacity={0.7}
                 className="items-center py-2"
               >
