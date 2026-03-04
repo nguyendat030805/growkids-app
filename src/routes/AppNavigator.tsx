@@ -3,8 +3,10 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { RootStackParamList } from "../core/navigation/NavigationService";
 import NotFoundScreen from "../core/pages/PageNotFound";
 import LoginScreen from "../features/auth/pages/LoginScreen";
+import SongDetailPage from "../features/minisong/pages/MiniSongScreen";
 import SongsRoute from "../features/minisong/routes/SongRoute";
 import OnboardingPage from "../features/schedules/pages/OnboardingPage";
+
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
@@ -19,6 +21,7 @@ export default function AppNavigator() {
       <Stack.Screen name="MainHome" component={NotFoundScreen} />
       <Stack.Screen name="GoldenTime" component={NotFoundScreen} />
       <Stack.Screen name="Songs" component={SongsRoute} />
+      <Stack.Screen name="SongDetail" component={SongDetailPage} />
     </Stack.Navigator>
   );
 }

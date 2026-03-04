@@ -9,7 +9,7 @@ import {
 
 import HeaderChild from "../../../core/components/ScreenHeader";
 import { SongCard } from "../components/SongCard";
-import { useSongs } from "../hooks/useSongs";
+import { useSongs } from "../hooks/useSong";
 
 const MiniSongScreen = () => {
   const { songs, loading } = useSongs();
