@@ -52,10 +52,22 @@ export default function StoryPlayerScreen() {
   const [segmentDurationsMs, setSegmentDurationsMs] = useState<number[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
+  const [audioFinished, setAudioFinished] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1.0);
   const soundRef = useRef<Audio.Sound | null>(null);
   const segIndexRef = useRef(0);
+  const playbackRateRef = useRef(1.0);
   const barWidthRef = useRef(0);
   const barPageXRef = useRef(0);
+  const isSeekingRef = useRef(false);
+  const wasPlayingRef = useRef(false);
+  const seekTargetRef = useRef<{ segIdx: number; offsetMs: number } | null>(
+    null,
+  );
+  const loadIdRef = useRef(0);
+  const isPlayingRef = useRef(false);
+  const totalDurationMsRef = useRef(0);
+  const segmentOffsetsRef = useRef<number[]>([]);
 
   const currentSegment = segments[currentSegmentIndex];
   const isLastSegment = currentSegmentIndex === segments.length - 1;
@@ -74,6 +86,16 @@ export default function StoryPlayerScreen() {
     }
     return offsets;
   }, [segmentDurationsMs]);
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+  useEffect(() => {
+    totalDurationMsRef.current = totalDurationMs;
+  }, [totalDurationMs]);
+  useEffect(() => {
+    segmentOffsetsRef.current = segmentOffsets;
+  }, [segmentOffsets]);
 
   const globalPositionMs =
     (segmentOffsets[currentSegmentIndex] ?? 0) + segmentPositionMs;
@@ -118,17 +140,21 @@ export default function StoryPlayerScreen() {
     };
   }, [segments]);
 
-  const loadFnRef =
-    useRef<
-      (index: number, autoPlay: boolean, startAtMs?: number) => Promise<void>
-    >();
+  const loadFnRef = useRef<
+    | ((index: number, autoPlay: boolean, startAtMs?: number) => Promise<void>)
+    | undefined
+  >(undefined);
 
   const loadAndPlaySegment = useCallback(
     async (index: number, autoPlay: boolean, startAtMs = 0) => {
+      const myLoadId = ++loadIdRef.current;
+
       if (soundRef.current) {
         await soundRef.current.unloadAsync();
         soundRef.current = null;
       }
+
+      if (myLoadId !== loadIdRef.current) return;
 
       const seg = segments[index];
       if (!seg?.audio_url) return;
@@ -139,23 +165,40 @@ export default function StoryPlayerScreen() {
 
       const { sound } = await Audio.Sound.createAsync(
         { uri: seg.audio_url },
-        { shouldPlay: autoPlay, positionMillis: startAtMs },
+        {
+          shouldPlay: autoPlay,
+          positionMillis: startAtMs,
+          rate: playbackRateRef.current,
+          shouldCorrectPitch: true,
+        },
         (status: AVPlaybackStatus) => {
           if (!status.isLoaded) return;
-          setSegmentPositionMs(status.positionMillis);
+          if (!isSeekingRef.current) {
+            setSegmentPositionMs(status.positionMillis);
+          }
 
-          if (status.didJustFinish) {
+          if (status.didJustFinish && !isSeekingRef.current) {
             const nextIdx = segIndexRef.current + 1;
             if (nextIdx < segments.length) {
               loadFnRef.current?.(nextIdx, true);
             } else {
               setIsPlaying(false);
+              setAudioFinished(true);
             }
           }
         },
       );
+
+      if (myLoadId !== loadIdRef.current) {
+        await sound.unloadAsync();
+        return;
+      }
+
       soundRef.current = sound;
-      if (autoPlay) setIsPlaying(true);
+      if (autoPlay) {
+        setIsPlaying(true);
+        setAudioFinished(false);
+      }
     },
     [segments],
   );
@@ -171,19 +214,15 @@ export default function StoryPlayerScreen() {
   }, []);
 
   const togglePlay = async () => {
-    if (!soundRef.current) {
+    if (audioFinished || !soundRef.current) {
+      setAudioFinished(false);
+      setSegmentPositionMs(0);
       await loadAndPlaySegment(0, true);
       return;
     }
 
     const status = await soundRef.current.getStatusAsync();
     if (!status.isLoaded) return;
-
-    if (status.didJustFinish && isLastSegment) {
-      setSegmentPositionMs(0);
-      await loadAndPlaySegment(0, true);
-      return;
-    }
 
     if (status.isPlaying) {
       await soundRef.current.pauseAsync();
@@ -200,39 +239,34 @@ export default function StoryPlayerScreen() {
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  const seekToGlobalPosition = useCallback(
-    async (pageX: number) => {
-      if (totalDurationMs === 0) return;
-      const x = pageX - barPageXRef.current;
-      const clamped = Math.max(0, Math.min(x, barWidthRef.current));
-      const ratio = barWidthRef.current > 0 ? clamped / barWidthRef.current : 0;
-      const targetMs = Math.round(ratio * totalDurationMs);
+  const changeSpeed = async (rate: number) => {
+    setPlaybackRate(rate);
+    playbackRateRef.current = rate;
+    if (soundRef.current) {
+      await soundRef.current.setRateAsync(rate, true);
+    }
+  };
 
-      let targetSegIdx = 0;
-      for (let i = segmentOffsets.length - 1; i >= 0; i--) {
-        if (targetMs >= segmentOffsets[i]) {
-          targetSegIdx = i;
-          break;
-        }
-      }
-      const offsetInSegment = targetMs - segmentOffsets[targetSegIdx];
+  const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5];
 
-      if (targetSegIdx === currentSegmentIndex && soundRef.current) {
-        await soundRef.current.setPositionAsync(offsetInSegment);
-        setSegmentPositionMs(offsetInSegment);
-      } else {
-        await loadAndPlaySegment(targetSegIdx, isPlaying, offsetInSegment);
-        setSegmentPositionMs(offsetInSegment);
+  const computeSeekPosition = (pageX: number) => {
+    const total = totalDurationMsRef.current;
+    if (total === 0) return null;
+    const x = pageX - barPageXRef.current;
+    const clamped = Math.max(0, Math.min(x, barWidthRef.current));
+    const ratio = barWidthRef.current > 0 ? clamped / barWidthRef.current : 0;
+    const targetMs = Math.round(ratio * total);
+
+    const offsets = segmentOffsetsRef.current;
+    let segIdx = 0;
+    for (let i = offsets.length - 1; i >= 0; i--) {
+      if (targetMs >= offsets[i]) {
+        segIdx = i;
+        break;
       }
-    },
-    [
-      totalDurationMs,
-      segmentOffsets,
-      currentSegmentIndex,
-      isPlaying,
-      loadAndPlaySegment,
-    ],
-  );
+    }
+    return { segIdx, offsetMs: targetMs - offsets[segIdx] };
+  };
 
   const panResponder = useMemo(
     () =>
@@ -240,13 +274,56 @@ export default function StoryPlayerScreen() {
         onStartShouldSetPanResponder: () => true,
         onMoveShouldSetPanResponder: () => true,
         onPanResponderGrant: (evt: GestureResponderEvent) => {
-          seekToGlobalPosition(evt.nativeEvent.pageX);
+          isSeekingRef.current = true;
+          wasPlayingRef.current = isPlayingRef.current;
+
+          if (soundRef.current) {
+            soundRef.current.pauseAsync().catch(() => {});
+          }
+
+          const pos = computeSeekPosition(evt.nativeEvent.pageX);
+          if (pos) {
+            seekTargetRef.current = pos;
+            setCurrentSegmentIndex(pos.segIdx);
+            setSegmentPositionMs(pos.offsetMs);
+          }
         },
         onPanResponderMove: (evt: GestureResponderEvent) => {
-          seekToGlobalPosition(evt.nativeEvent.pageX);
+          const pos = computeSeekPosition(evt.nativeEvent.pageX);
+          if (pos) {
+            seekTargetRef.current = pos;
+            setCurrentSegmentIndex(pos.segIdx);
+            setSegmentPositionMs(pos.offsetMs);
+          }
+        },
+        onPanResponderRelease: async () => {
+          isSeekingRef.current = false;
+          const target = seekTargetRef.current;
+          if (!target) return;
+
+          setAudioFinished(false);
+          const shouldPlay = wasPlayingRef.current;
+
+          if (target.segIdx === segIndexRef.current && soundRef.current) {
+            await soundRef.current.setPositionAsync(target.offsetMs);
+            setSegmentPositionMs(target.offsetMs);
+            if (shouldPlay) {
+              await soundRef.current.playAsync();
+              setIsPlaying(true);
+            }
+          } else {
+            await loadFnRef.current?.(
+              target.segIdx,
+              shouldPlay,
+              target.offsetMs,
+            );
+          }
+        },
+        onPanResponderTerminate: () => {
+          isSeekingRef.current = false;
         },
       }),
-    [seekToGlobalPosition],
+    [],
   );
 
   const progressPercent =
@@ -419,6 +496,27 @@ export default function StoryPlayerScreen() {
                 <Text className="text-xs text-white font-semibold w-10 text-center">
                   {formatTime(totalSeconds)}
                 </Text>
+              </View>
+
+              <View className="flex-row items-center justify-center mt-3 gap-1">
+                {SPEED_OPTIONS.map((rate) => (
+                  <TouchableOpacity
+                    key={rate}
+                    onPress={() => changeSpeed(rate)}
+                    activeOpacity={0.7}
+                    className={`px-3 py-1.5 rounded-full ${
+                      playbackRate === rate ? "bg-white" : "bg-[#A88A3D]"
+                    }`}
+                  >
+                    <Text
+                      className={`text-xs font-bold ${
+                        playbackRate === rate ? "text-[#C8A84E]" : "text-white"
+                      }`}
+                    >
+                      {rate}x
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
           </View>
