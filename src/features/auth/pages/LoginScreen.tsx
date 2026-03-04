@@ -50,7 +50,7 @@ const LoginScreen = () => {
       alert("Login successful");
 
       navigation.dispatch(
-        CommonActions.reset({ index: 0, routes: [{ name: "Onboarding" }] }),
+        CommonActions.reset({ index: 0, routes: [{ name: "MainHome" }] }),
       );
     } else {
       alert(`Login failed: ${error}`);
@@ -128,7 +128,7 @@ const LoginScreen = () => {
 
           <View className="flex-row justify-center mt-6">
             <Text className="text-gray-500">Don&apos;t have an account?</Text>
-            <Pressable>
+            <Pressable onPress={() => navigation.navigate("Register" as never)}>
               <Text className="text-blue-500 ml-1 font-medium">Sign up</Text>
             </Pressable>
           </View>
