@@ -16,6 +16,7 @@ import ExperienceScreen from "@/src/features/experiences/pages/ExperienceScreen"
 import StoryScreen from "@/src/features/story/pages/StoryScreen";
 import StoryPlayerScreen from "@/src/features/story/pages/StoryPlayerScreen";
 import RecordingScreen from "@/src/features/voiceRecording/pages/RecordingScreen";
+import LibraryScreen from "@/src/features/library/pages/LibraryScreen";
 import NotFoundScreen from "./PageNotFound";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -57,7 +58,7 @@ export default function MainTabsScreen() {
         <Tab.Screen name="HomeTab" component={HomepageScreen} />
         <Tab.Screen name="ExperienceTab" component={ExperienceStackScreen} />
         <Tab.Screen name="VoiceTab" component={RecordingScreen} />
-        <Tab.Screen name="LibraryTab" component={NotFoundScreen} />
+        <Tab.Screen name="LibraryTab" component={LibraryScreen} />
         <Tab.Screen name="ProfileTab" component={NotFoundScreen} />
       </Tab.Navigator>
     </View>
