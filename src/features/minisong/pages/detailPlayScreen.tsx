@@ -6,6 +6,7 @@ import YoutubePlayer from "react-native-youtube-iframe";
 
 import { CircleIcon } from "../../../core/components/CircleIcon";
 import HeaderChild from "../../../core/components/ScreenHeader";
+import { headShouldersLyrics } from "../data/headShoulders.lyrics";
 
 export default function SongDetailPlayScreen() {
   const router = useRouter();
@@ -38,6 +39,7 @@ export default function SongDetailPlayScreen() {
       </View>
 
       <ScrollView className="px-4 mt-2" showsVerticalScrollIndicator={false}>
+        {/* Video */}
         <View className="relative mb-4 overflow-hidden rounded-2xl bg-white shadow-md">
           <YoutubePlayer
             height={220}
@@ -58,22 +60,13 @@ export default function SongDetailPlayScreen() {
           )}
         </View>
 
+        {/* Title */}
         <Text className="text-lg font-bold mb-3">
           Head Shoulders Knees And Toes
         </Text>
 
-        {[
-          {
-            title: "Head and shoulders knees and toes",
-            sub: "/hed ænd ˈʃoʊldərz niːz ænd toʊz/",
-          },
-          { title: "Knees and toes", sub: "/niːz ænd toʊz/" },
-          {
-            title: "Head and shoulders knees and toes",
-            sub: "/hed ænd ˈʃoʊldərz niːz ænd toʊz/",
-          },
-          { title: "Knees and toes", sub: "/niːz ænd toʊz/" },
-        ].map((item, index) => (
+        {/* Lyrics */}
+        {headShouldersLyrics.map((item, index) => (
           <View
             key={index}
             className="flex-row items-center justify-between bg-white rounded-xl px-4 py-3 mb-3 shadow-sm"
