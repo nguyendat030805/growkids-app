@@ -1,19 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CircularProgress from "../components/CircularProgress";
 import TimeSlotCard from "../components/TimeSlotCard";
 import { TimeSlot } from "../types/schedule.type";
-
 const VisualScheduleScreen = () => {
-  const [activeTab, setActiveTab] = useState("home");
-  const handleTabPress = (tab: string) => {
-    setActiveTab(tab);
-  };
   const slots: TimeSlot[] = [
     {
       id: "1",
-      title: "Golden Time(Main)",
+      title: "Golden Time (Main)",
       subtitle: "MiniSong",
       time: "19:30 - 20:00",
       duration: 30,
@@ -22,7 +17,7 @@ const VisualScheduleScreen = () => {
     },
     {
       id: "2",
-      title: "Golden Time(Mini)",
+      title: "Golden Time (Mini)",
       subtitle: "MiniSong",
       time: "7:30 - 7:45",
       duration: 15,
@@ -31,7 +26,7 @@ const VisualScheduleScreen = () => {
     },
     {
       id: "3",
-      title: "Golden Time(Main)",
+      title: "Golden Time (Main)",
       subtitle: "Story",
       time: "20:30 - 21:00",
       duration: 30,
@@ -55,16 +50,14 @@ const VisualScheduleScreen = () => {
             resizeMode="contain"
           />
         </View>
-        <View className="bg-white rounded-2xl p-5 mb-6 shadow-sm elevation: 5">
+        <View className="bg-white rounded-2xl p-5 mb-6 border border-gray-300 shadow-sm elevation: 5">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="font-semibold text-gray-800 text-base">
               Today’s Learning
             </Text>
             <TouchableOpacity className="flex-row items-center border border-[#FFB81F]/50 bg-white px-3 py-1 rounded-full">
               <Ionicons name="create-outline" size={14} color="#FFB81F" />
-              <Text className="text-[#FFB81F] text-xs ml-1 font-medium">
-                Edit
-              </Text>
+              <Text className="text-black text-xs ml-1 font-medium">Edit</Text>
             </TouchableOpacity>
           </View>
           <View className="bg-[#FFB81F]/10 border border-[#FFB81F] rounded-2xl p-4 flex-row justify-between items-center">
@@ -78,7 +71,7 @@ const VisualScheduleScreen = () => {
           </View>
         </View>
         <Text className="text-gray-800 font-semibold mb-3 text-base">
-          Golden Time(Main)
+          Golden Time (Main)
         </Text>
         {slots.map((slot) => (
           <TimeSlotCard key={slot.id} slot={slot} />
@@ -88,5 +81,4 @@ const VisualScheduleScreen = () => {
     </View>
   );
 };
-
 export default VisualScheduleScreen;

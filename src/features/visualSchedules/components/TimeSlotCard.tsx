@@ -11,7 +11,7 @@ const TimeSlotCard: React.FC<Props> = ({ slot }) => {
   const config = useScheduleStatus(slot.status);
   if (!slot) return null;
   return (
-    <View className="bg-white rounded-2xl p-4 mb-4 shadow-sm">
+    <View className="bg-white rounded-2xl p-4 mb-4 border border-gray-200 shadow-sm">
       <View className="flex-row justify-between items-center mb-2">
         <View className="flex-row items-center">
           <Ionicons
@@ -24,8 +24,16 @@ const TimeSlotCard: React.FC<Props> = ({ slot }) => {
             {slot.title}
           </Text>
         </View>
-        <View className={`px-3 py-1 rounded-full ${config.badgeStyle}`}>
-          <Text className="text-xs font-semibold capitalize">
+        <View className={`${config.badgeStyle} px-2 py-0.5 rounded-full`}>
+          <Text
+            className={`text-xs font-semibold capitalize ${
+              slot.status === "missed"
+                ? "text-orange-600"
+                : slot.status === "completed"
+                  ? "text-green-600"
+                  : "text-yellow-600"
+            }`}
+          >
             {slot.status}
           </Text>
         </View>

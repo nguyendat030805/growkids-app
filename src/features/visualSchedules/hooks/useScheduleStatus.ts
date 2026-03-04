@@ -12,17 +12,17 @@ export const useScheduleStatus = (status: TimeSlot["status"]): StatusConfig => {
     upcoming: {
       icon: "time-outline",
       iconColor: "#F59E0B",
-      badgeStyle: "border border-[#00C517] bg-transparent",
+      badgeStyle: "bg-yellow-50 border border-yellow-400",
     },
     completed: {
       icon: "checkmark-circle",
       iconColor: "#00C517",
-      badgeStyle: "bg-[#00C517]/20 border border-[#0F5E47]",
+      badgeStyle: "bg-green-50 border border-green-400",
     },
     missed: {
       icon: "warning-outline",
       iconColor: "#FF6200",
-      badgeStyle: "bg-[#FF6200] border border-[#FF6200]/20",
+      badgeStyle: "bg-orange-50 border border-orange-400",
     },
   };
   return statusConfig[status];

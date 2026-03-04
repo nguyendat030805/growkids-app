@@ -1,5 +1,4 @@
 export type ScheduleStatus = "upcoming" | "completed" | "missed";
-
 export interface TimeSlot {
   id: string;
   title: string;

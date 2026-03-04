@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
-import Svg, { Circle } from "react-native-svg";
+import Svg, { Circle, G } from "react-native-svg";
 interface Props {
   percentage: number;
   size?: number;
@@ -17,28 +17,30 @@ const CircularProgress: React.FC<Props> = ({
   return (
     <View className="items-center justify-center">
       <Svg width={size} height={size}>
-        <Circle
-          stroke="#e5e7eb"
-          fill="none"
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          strokeWidth={strokeWidth}
-        />
-        <Circle
-          stroke="#84cc16"
-          fill="none"
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-        />
+        <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
+          <Circle
+            stroke="#E5E7EB"
+            fill="none"
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            strokeWidth={strokeWidth}
+          />
+          <Circle
+            stroke="#A8D400"
+            fill="none"
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            strokeWidth={strokeWidth}
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+          />
+        </G>
       </Svg>
       <View className="absolute">
-        <Text className="text-lg font-bold">{percentage}%</Text>
+        <Text className="text-lg font-bold text-gray-800">{percentage}%</Text>
       </View>
     </View>
   );
