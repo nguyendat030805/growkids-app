@@ -51,13 +51,14 @@ apiClient.interceptors.response.use(
         );
 
         const res = await axios.post(
-          `${process.env.EXPO_PUBLIC_API_BASE_URL}/auth/refresh`,
+          `${process.env.EXPO_PUBLIC_API_BASE_URL}/auth/refresh-token`,
           {
             refreshToken,
           },
         );
 
         const newAccessToken = res.data.accessToken;
+        console.log("newAccessToken", newAccessToken);
 
         await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
 

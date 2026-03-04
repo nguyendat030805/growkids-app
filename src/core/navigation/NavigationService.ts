@@ -26,8 +26,6 @@ export type ExperienceStackParamList = {
   Story: undefined;
   StoryPlayer: {
     storyId: number;
-    title: string;
-    duration: string;
   };
 };
 

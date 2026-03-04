@@ -48,7 +48,7 @@ const LoginScreen = () => {
       alert("Login successful");
 
       navigation.dispatch(
-        CommonActions.reset({ index: 0, routes: [{ name: "MainTabs" }] }),
+        CommonActions.reset({ index: 0, routes: [{ name: "Onboarding" }] }),
       );
     } else {
       alert(`Login failed: ${error}`);

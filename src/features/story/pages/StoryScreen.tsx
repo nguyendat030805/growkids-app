@@ -17,14 +17,25 @@ import {
   AIStoryParams,
 } from "@/src/features/story/components/AIStoryModal";
 import { useStories } from "@/src/features/story/hooks/useStories";
+import { useCreateStory } from "@/src/features/story/hooks/useCreateStory";
+import { Story } from "@/src/features/story/types/StoryType";
 
-const formatDuration = (seconds: string) => {
-  const totalSec = parseInt(seconds, 10);
-  const min = Math.floor(totalSec / 60);
-  const sec = totalSec % 60;
+const FALLBACK_IMAGE = require("@/public/assets/images/imgStory.png");
+
+const formatDuration = (seconds: number | null) => {
+  if (!seconds) return "";
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
   if (min === 0) return `${sec}s`;
   if (sec === 0) return `${min} min`;
   return `${min} min ${sec}s`;
+};
+
+const getCoverImage = (story: Story) => {
+  if (story.cover_image_url) return { uri: story.cover_image_url };
+  const firstSegment = story.story_segments?.[0];
+  if (firstSegment?.image_url) return { uri: firstSegment.image_url };
+  return FALLBACK_IMAGE;
 };
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -35,15 +46,13 @@ const IMAGE_HEIGHT = CARD_WIDTH * 0.85;
 
 export default function StoryScreen() {
   const navigation = useNavigation<NavigationProp<ExperienceStackParamList>>();
-  const { stories, loading } = useStories();
+  const { stories, loading, refetch } = useStories();
+  const { createStory, loading: creating } = useCreateStory(() => {
+    setShowAIModal(false);
+    refetch();
+  });
   const [showAIModal, setShowAIModal] = useState(false);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [favInitialized, setFavInitialized] = useState(false);
-
-  if (!favInitialized && stories.length > 0) {
-    setFavorites(new Set(stories.filter((s) => s.isFavorite).map((s) => s.id)));
-    setFavInitialized(true);
-  }
 
   const toggleFavorite = (id: number) => {
     setFavorites((prev) => {
@@ -55,7 +64,7 @@ export default function StoryScreen() {
   };
 
   const handleAIGenerate = (params: AIStoryParams) => {
-    setShowAIModal(false);
+    createStory(params);
   };
 
   return (
@@ -101,22 +110,20 @@ export default function StoryScreen() {
             ) : (
               <View className="flex-row flex-wrap" style={{ gap: CARD_GAP }}>
                 {stories.map((story) => {
-                  const isFav = favorites.has(story.id);
+                  const isFav = favorites.has(story.story_id);
                   return (
                     <TouchableOpacity
-                      key={story.id}
+                      key={story.story_id}
                       activeOpacity={0.9}
                       style={[styles.card, { width: CARD_WIDTH }]}
                       onPress={() =>
                         navigation.navigate("StoryPlayer", {
-                          storyId: story.id,
-                          title: story.title,
-                          duration: story.duration,
+                          storyId: story.story_id,
                         })
                       }
                     >
                       <Image
-                        source={story.image}
+                        source={getCoverImage(story)}
                         style={styles.cardImage}
                         resizeMode="cover"
                       />
@@ -132,7 +139,7 @@ export default function StoryScreen() {
                           <TouchableOpacity
                             onPress={(e) => {
                               e.stopPropagation();
-                              toggleFavorite(story.id);
+                              toggleFavorite(story.story_id);
                             }}
                             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                             activeOpacity={0.6}
@@ -156,24 +163,23 @@ export default function StoryScreen() {
                         </View>
 
                         <View className="flex-row items-center justify-between mt-2">
-                          <View
-                            style={[
-                              styles.categoryBadge,
-                              { backgroundColor: story.categoryColor + "18" },
-                            ]}
-                          >
-                            <Text
+                          {story.age_min != null && story.age_max != null && (
+                            <View
                               style={[
-                                styles.categoryText,
-                                { color: story.categoryColor },
+                                styles.ageBadge,
+                                { backgroundColor: "#A855F718" },
                               ]}
                             >
-                              {story.category}
-                            </Text>
-                          </View>
+                              <Text
+                                style={[styles.ageText, { color: "#A855F7" }]}
+                              >
+                                {story.age_min}–{story.age_max} tuổi
+                              </Text>
+                            </View>
+                          )}
 
                           <Text className="text-[11px] text-gray-400">
-                            {formatDuration(story.duration)}
+                            {formatDuration(story.duration_seconds)}
                           </Text>
                         </View>
                       </View>
@@ -214,12 +220,12 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
   },
-  categoryBadge: {
+  ageBadge: {
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
-  categoryText: {
+  ageText: {
     fontSize: 11,
     fontWeight: "700",
   },

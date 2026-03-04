@@ -1,18 +1,14 @@
-import { Story, StorySegment } from "../types/StoryType";
-import { MOCK_STORIES, MOCK_STORY_SEGMENTS } from "../mocks/storyMock";
-
-const SIMULATED_DELAY_MS = 300;
-
-const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+import apiClient from "@/src/core/services/apiClient";
+import { Story, CreateStoryPayload } from "../types/StoryType";
 
 export const storyService = {
   getStories: async (): Promise<Story[]> => {
-    await delay(SIMULATED_DELAY_MS);
-    return MOCK_STORIES;
+    const res = await apiClient.get("/stories");
+    return res.data.data;
   },
 
-  getStorySegments: async (storyId: number): Promise<StorySegment[]> => {
-    await delay(SIMULATED_DELAY_MS);
-    return MOCK_STORY_SEGMENTS[storyId] ?? [];
+  createStory: async (payload: CreateStoryPayload): Promise<Story> => {
+    const res = await apiClient.post("/stories", payload);
+    return res.data.data;
   },
 };

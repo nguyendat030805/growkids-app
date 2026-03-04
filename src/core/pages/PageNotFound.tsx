@@ -16,7 +16,7 @@ export default function NotFoundScreen() {
       <TouchableOpacity
         onPress={() =>
           navigation.dispatch(
-            CommonActions.reset({ index: 0, routes: [{ name: "Login" }] }),
+            CommonActions.reset({ index: 0, routes: [{ name: "MainTabs" }] }),
           )
         }
         className="bg-lime-500 px-10 py-3 rounded-xl shadow-md"

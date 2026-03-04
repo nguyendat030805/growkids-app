@@ -1,29 +1,13 @@
-import { useEffect, useState } from "react";
-import { StorySegment } from "../types/StoryType";
-import { storyService } from "../services/story.service";
+import { useMemo } from "react";
+import { Story } from "../types/StoryType";
 
-export const useStorySegments = (storyId: number) => {
-  const [segments, setSegments] = useState<StorySegment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export const useStorySegments = (story: Story | undefined) => {
+  const segments = useMemo(() => {
+    if (!story?.story_segments) return [];
+    return [...story.story_segments].sort(
+      (a, b) => a.segment_order - b.segment_order,
+    );
+  }, [story]);
 
-  useEffect(() => {
-    const fetchSegments = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await storyService.getStorySegments(storyId);
-        setSegments(data);
-      } catch (err) {
-        setError("Failed to load story segments");
-        console.error("fetchSegments error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSegments();
-  }, [storyId]);
-
-  return { segments, loading, error };
+  return { segments };
 };
