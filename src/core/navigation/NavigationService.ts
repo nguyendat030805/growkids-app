@@ -10,6 +10,7 @@ export type RootStackParamList = {
   GoldenTime: undefined;
   RecordingScreen: undefined;
   NotFound: undefined;
+  VisualSchedule: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
 };
 
