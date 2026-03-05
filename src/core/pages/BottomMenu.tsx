@@ -2,7 +2,6 @@ import { useNavigation } from "@react-navigation/native";
 import { Home, Zap, BookOpen, User } from "lucide-react-native";
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { RootStackParamList } from "../navigation/NavigationService";
 
 interface BottomMenuProps {
   activeTab?: "home" | "experience" | "library" | "profile";

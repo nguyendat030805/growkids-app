@@ -19,6 +19,8 @@ export type RootStackParamList = {
   RecordingScreen: undefined;
   NotFound: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
+  Songs: undefined;
+  SongDetail: { songId: number };
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

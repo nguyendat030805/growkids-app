@@ -148,9 +148,7 @@ const RegisterScreen = () => {
 
           <View className="flex-row justify-center mt-6">
             <Text className="text-gray-500">Already have an account?</Text>
-            <Pressable
-              onPress={() => navigation.navigate("Login" as never)}
-            >
+            <Pressable onPress={() => navigation.navigate("Login" as never)}>
               <Text className="text-blue-500 ml-1 font-medium">Sign in</Text>
             </Pressable>
           </View>
