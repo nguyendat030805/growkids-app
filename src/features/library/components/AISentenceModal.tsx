@@ -9,6 +9,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
 } from "react-native";
 import {
   X,
@@ -84,6 +85,7 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
 
   const selectedLevelLabel =
     LEVEL_OPTIONS.find((l) => l.key === level)?.label ?? "Level";
+  const canGenerate = topic.trim().length > 0 && !loading;
 
   return (
     <Modal
@@ -94,62 +96,23 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        className="flex-1"
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            justifyContent: "flex-end",
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "#F0F7F0",
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-              maxHeight: "90%",
-              minHeight: "60%",
-            }}
-          >
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-[#F0F7F0] rounded-t-3xl max-h-[90%] min-h-[60%]">
             {/* Header */}
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                paddingHorizontal: 20,
-                paddingTop: 20,
-                paddingBottom: 12,
-              }}
-            >
-              {showResults ? (
-                <TouchableOpacity
-                  onPress={handleBackToForm}
-                  style={{ marginRight: 8 }}
-                >
+            <View className="flex-row items-center px-5 pt-5 pb-3">
+              {showResults && (
+                <TouchableOpacity onPress={handleBackToForm} className="mr-2">
                   <ChevronLeft size={24} color="#1C2B6D" />
                 </TouchableOpacity>
-              ) : null}
-              <Text
-                style={{
-                  fontSize: 20,
-                  fontWeight: "700",
-                  color: "#1C2B6D",
-                  flex: 1,
-                }}
-              >
+              )}
+              <Text className="text-xl font-bold text-[#1C2B6D] flex-1">
                 {showResults ? "Results" : "Create sentence patterns"}
               </Text>
               <TouchableOpacity
                 onPress={handleClose}
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 16,
-                  backgroundColor: "rgba(0,0,0,0.08)",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+                className="w-8 h-8 rounded-full bg-black/10 items-center justify-center"
               >
                 <X size={18} color="#6B7280" />
               </TouchableOpacity>
@@ -165,95 +128,41 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
             >
               {!showResults ? (
                 <View
-                  style={{
-                    backgroundColor: "#fff",
-                    borderRadius: 20,
-                    padding: 20,
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.06,
-                    shadowRadius: 8,
-                    elevation: 3,
-                  }}
+                  className="bg-white rounded-[20px] p-5"
+                  style={styles.formCard}
                 >
                   {/* Topic */}
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "600",
-                      color: "#374151",
-                      marginBottom: 8,
-                    }}
-                  >
+                  <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                     Topic:
                   </Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      borderWidth: 1,
-                      borderColor: "#E5E7EB",
-                      borderRadius: 999,
-                      paddingHorizontal: 16,
-                      paddingVertical: 4,
-                      marginBottom: 20,
-                    }}
-                  >
+                  <View className="flex-row items-center border border-gray-200 rounded-full px-4 py-1 mb-5">
                     <Pen size={16} color="#9CA3AF" />
                     <TextInput
                       value={topic}
                       onChangeText={setTopic}
                       placeholder="Enter your topic..."
                       placeholderTextColor="#9CA3AF"
-                      style={{
-                        flex: 1,
-                        fontSize: 15,
-                        color: "#1F2937",
-                        paddingVertical: 10,
-                        marginLeft: 10,
-                      }}
+                      className="flex-1 text-[15px] text-gray-800 py-2.5 ml-2.5"
                     />
                   </View>
 
                   {/* Level & Quantity */}
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      gap: 12,
-                      marginBottom: 20,
-                    }}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "600",
-                          color: "#374151",
-                          marginBottom: 8,
-                        }}
-                      >
+                  <View className="flex-row mb-5" style={{ gap: 12 }}>
+                    <View className="flex-1">
+                      <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                         Level:
                       </Text>
                       <TouchableOpacity
                         onPress={() => setShowLevelPicker(!showLevelPicker)}
                         activeOpacity={0.7}
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          borderWidth: 1,
-                          borderColor: "#E5E7EB",
-                          borderRadius: 999,
-                          paddingHorizontal: 16,
-                          paddingVertical: 14,
-                        }}
+                        className="flex-row items-center justify-between border border-gray-200 rounded-full px-4 py-3.5"
                       >
                         <Text
-                          style={{
-                            fontSize: 15,
-                            color: level ? "#1F2937" : "#9CA3AF",
-                            fontWeight: level ? "500" : "400",
-                          }}
+                          className={
+                            level
+                              ? "text-[15px] text-gray-800 font-medium"
+                              : "text-[15px] text-gray-400"
+                          }
                         >
                           {selectedLevelLabel}
                         </Text>
@@ -262,22 +171,8 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
 
                       {showLevelPicker && (
                         <View
-                          style={{
-                            position: "absolute",
-                            top: 80,
-                            left: 0,
-                            right: 0,
-                            backgroundColor: "#fff",
-                            borderRadius: 12,
-                            borderWidth: 1,
-                            borderColor: "#E5E7EB",
-                            shadowColor: "#000",
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.12,
-                            shadowRadius: 8,
-                            elevation: 8,
-                            zIndex: 10,
-                          }}
+                          className="absolute top-20 left-0 right-0 bg-white rounded-xl border border-gray-200 z-10"
+                          style={styles.dropdown}
                         >
                           {LEVEL_OPTIONS.map((opt) => (
                             <TouchableOpacity
@@ -286,20 +181,18 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                                 setLevel(opt.key);
                                 setShowLevelPicker(false);
                               }}
-                              style={{
-                                paddingHorizontal: 16,
-                                paddingVertical: 12,
-                                backgroundColor:
-                                  level === opt.key ? "#EFF6FF" : "transparent",
-                              }}
+                              className={
+                                level === opt.key
+                                  ? "px-4 py-3 bg-blue-50"
+                                  : "px-4 py-3 bg-transparent"
+                              }
                             >
                               <Text
-                                style={{
-                                  fontSize: 15,
-                                  color:
-                                    level === opt.key ? "#1C2B6D" : "#374151",
-                                  fontWeight: level === opt.key ? "600" : "400",
-                                }}
+                                className={
+                                  level === opt.key
+                                    ? "text-[15px] text-[#1C2B6D] font-semibold"
+                                    : "text-[15px] text-gray-700"
+                                }
                               >
                                 {opt.label}
                               </Text>
@@ -309,15 +202,8 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                       )}
                     </View>
 
-                    <View style={{ flex: 1 }}>
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "600",
-                          color: "#374151",
-                          marginBottom: 8,
-                        }}
-                      >
+                    <View className="flex-1">
+                      <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                         Quantity:
                       </Text>
                       <TextInput
@@ -326,43 +212,16 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                         placeholder="Enter quantity..."
                         placeholderTextColor="#9CA3AF"
                         keyboardType="number-pad"
-                        style={{
-                          borderWidth: 1,
-                          borderColor: "#E5E7EB",
-                          borderRadius: 999,
-                          paddingHorizontal: 16,
-                          paddingVertical: 14,
-                          fontSize: 15,
-                          color: "#1F2937",
-                        }}
+                        className="border border-gray-200 rounded-full px-4 py-3.5 text-[15px] text-gray-800"
                       />
                     </View>
                   </View>
 
                   {/* Goal */}
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "600",
-                      color: "#374151",
-                      marginBottom: 8,
-                    }}
-                  >
+                  <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                     Goal:
                   </Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "flex-start",
-                      borderWidth: 1,
-                      borderColor: "#E5E7EB",
-                      borderRadius: 16,
-                      paddingHorizontal: 16,
-                      paddingVertical: 4,
-                      minHeight: 100,
-                      marginBottom: 24,
-                    }}
-                  >
+                  <View className="flex-row items-start border border-gray-200 rounded-2xl px-4 py-1 min-h-[100px] mb-6">
                     <Target
                       size={16}
                       color="#9CA3AF"
@@ -375,52 +234,28 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                       placeholderTextColor="#9CA3AF"
                       multiline
                       textAlignVertical="top"
-                      style={{
-                        flex: 1,
-                        fontSize: 15,
-                        color: "#1F2937",
-                        paddingVertical: 10,
-                        marginLeft: 10,
-                        minHeight: 90,
-                      }}
+                      className="flex-1 text-[15px] text-gray-800 py-2.5 ml-2.5 min-h-[90px]"
                     />
                   </View>
 
                   {/* Generate Button */}
                   <TouchableOpacity
                     onPress={handleGenerate}
-                    disabled={loading || !topic.trim()}
+                    disabled={!canGenerate}
                     activeOpacity={0.8}
-                    style={{
-                      borderRadius: 999,
-                      paddingVertical: 14,
-                      paddingHorizontal: 32,
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      alignSelf: "center",
-                      backgroundColor:
-                        loading || !topic.trim() ? "#C4B5FD" : "#7C3AED",
-                      shadowColor: "#7C3AED",
-                      shadowOffset: { width: 0, height: 4 },
-                      shadowOpacity: 0.3,
-                      shadowRadius: 8,
-                      elevation: 5,
-                    }}
+                    className={
+                      canGenerate
+                        ? "self-center rounded-full py-3.5 px-8 flex-row items-center justify-center bg-[#FFB500]"
+                        : "self-center rounded-full py-3.5 px-8 flex-row items-center justify-center bg-[#FFB500]/50"
+                    }
+                    style={styles.generateShadow}
                   >
                     {loading ? (
                       <ActivityIndicator size="small" color="#fff" />
                     ) : (
                       <>
                         <Sparkles size={20} color="#fff" />
-                        <Text
-                          style={{
-                            color: "#fff",
-                            fontWeight: "700",
-                            fontSize: 16,
-                            marginLeft: 8,
-                          }}
-                        >
+                        <Text className="text-white font-bold text-base ml-2">
                           Generate
                         </Text>
                       </>
@@ -431,15 +266,9 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                 /* Results */
                 <View>
                   {loading && (
-                    <View style={{ alignItems: "center", paddingVertical: 32 }}>
+                    <View className="items-center py-8">
                       <ActivityIndicator size="large" color="#7C3AED" />
-                      <Text
-                        style={{
-                          marginTop: 12,
-                          color: "#7C3AED",
-                          fontWeight: "600",
-                        }}
-                      >
+                      <Text className="mt-3 text-[#7C3AED] font-semibold">
                         AI đang tạo mẫu câu...
                       </Text>
                     </View>
@@ -448,69 +277,24 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                   {sentences.map((sentence) => (
                     <View
                       key={sentence.id}
-                      style={{
-                        backgroundColor: "#2B5DA0",
-                        borderRadius: 16,
-                        padding: 16,
-                        marginBottom: 12,
-                        shadowColor: "#2B5DA0",
-                        shadowOffset: { width: 0, height: 3 },
-                        shadowOpacity: 0.2,
-                        shadowRadius: 6,
-                        elevation: 4,
-                      }}
+                      className="bg-[#2B5DA0] rounded-2xl p-4 mb-3"
+                      style={styles.resultCardShadow}
                     >
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "flex-start",
-                          justifyContent: "space-between",
-                          marginBottom: 6,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontSize: 16,
-                            fontWeight: "700",
-                            color: "#fff",
-                            flex: 1,
-                            marginRight: 10,
-                            lineHeight: 22,
-                          }}
-                        >
+                      <View className="flex-row items-start justify-between mb-1.5">
+                        <Text className="text-base font-bold text-white flex-1 mr-2.5 leading-[22px]">
                           {sentence.english}
                         </Text>
                         <TouchableOpacity
                           onPress={() => handleSpeak(sentence.english)}
-                          style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: 18,
-                            backgroundColor: "rgba(255,255,255,0.2)",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
+                          className="w-9 h-9 rounded-full bg-white/20 items-center justify-center"
                         >
                           <Volume2 size={18} color="#fff" />
                         </TouchableOpacity>
                       </View>
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          color: "rgba(255,255,255,0.8)",
-                          marginTop: 2,
-                        }}
-                      >
+                      <Text className="text-sm text-white/80 mt-0.5">
                         {sentence.vietnamese}
                       </Text>
-                      <Text
-                        style={{
-                          fontSize: 12,
-                          color: "#FFB500",
-                          marginTop: 6,
-                          fontStyle: "italic",
-                        }}
-                      >
+                      <Text className="text-xs text-[#FFB500] mt-1.5 italic">
                         {sentence.phonetic}
                       </Text>
                     </View>
@@ -520,32 +304,11 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                     <TouchableOpacity
                       onPress={handleBackToForm}
                       activeOpacity={0.8}
-                      style={{
-                        borderRadius: 999,
-                        paddingVertical: 14,
-                        paddingHorizontal: 32,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        alignSelf: "center",
-                        marginTop: 8,
-                        backgroundColor: "#7C3AED",
-                        shadowColor: "#7C3AED",
-                        shadowOffset: { width: 0, height: 4 },
-                        shadowOpacity: 0.3,
-                        shadowRadius: 8,
-                        elevation: 5,
-                      }}
+                      className="self-center rounded-full py-3.5 px-8 flex-row items-center justify-center bg-[#7C3AED] mt-2"
+                      style={styles.generateShadow}
                     >
                       <Sparkles size={20} color="#fff" />
-                      <Text
-                        style={{
-                          color: "#fff",
-                          fontWeight: "700",
-                          fontSize: 16,
-                          marginLeft: 8,
-                        }}
-                      >
+                      <Text className="text-white font-bold text-base ml-2">
                         Tạo lại
                       </Text>
                     </TouchableOpacity>
@@ -559,3 +322,34 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  formCard: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  dropdown: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  generateShadow: {
+    shadowColor: "#FFB500",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  resultCardShadow: {
+    shadowColor: "#2B5DA0",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+});

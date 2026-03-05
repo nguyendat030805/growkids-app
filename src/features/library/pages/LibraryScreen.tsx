@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  StyleSheet,
 } from "react-native";
 import { Volume2, Mic, Sparkles, MicOff } from "lucide-react-native";
 import * as Speech from "expo-speech";
@@ -21,7 +22,7 @@ const DIFFICULTIES: { key: Difficulty; label: string }[] = [
   { key: "advanced", label: "Advanced" },
 ];
 
-const LIBRARY_ICON = require("@/public/assets/images/imgStory.png");
+const LIBRARY_ICON = require("@/public/assets/images/imgLibraryIcon.png");
 
 export default function LibraryScreen() {
   const [selectedTopic, setSelectedTopic] = useState(TOPICS[0].id);
@@ -101,47 +102,32 @@ export default function LibraryScreen() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+    <View className="flex-1 bg-white">
       <ScrollView
-        style={{ flex: 1 }}
+        className="flex-1"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
       >
         {/* Header */}
-        <View
-          style={{
-            alignItems: "center",
-            paddingTop: 16,
-            paddingBottom: 8,
-            paddingHorizontal: 16,
-          }}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <View style={{ alignItems: "center", flex: 1 }}>
-              <Text
-                style={{ fontSize: 24, fontWeight: "800", color: "#1C2B6D" }}
-              >
+        <View className="items-center pt-4 pb-2 px-4">
+          <View className="flex-row items-center justify-center">
+            <View className="items-center flex-1">
+              <Text className="text-2xl font-bold text-[#1C2B6D]">
                 Sentence Library
               </Text>
-              <Text style={{ fontSize: 14, color: "#9CA3AF", marginTop: 4 }}>
+              <Text className="text-sm text-gray-400 mt-1">
                 Daily English Communication
               </Text>
             </View>
             <Image
               source={LIBRARY_ICON}
-              style={{ width: 56, height: 56, borderRadius: 12 }}
+              className="w-14 h-14 rounded-xl"
               resizeMode="contain"
             />
           </View>
         </View>
 
-        {/* Topic Tabs */}
+        {/* Topic Tabs - dùng ScrollView thay FlatList để tránh conflict */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -158,26 +144,19 @@ export default function LibraryScreen() {
                 key={topic.id}
                 onPress={() => setSelectedTopic(topic.id)}
                 activeOpacity={0.7}
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderRadius: 999,
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
-                  borderWidth: 1,
-                  backgroundColor: isActive ? "#fff" : "#F9FAFB",
-                  borderColor: isActive ? "#1C2B6D" : "#E5E7EB",
-                }}
+                className={
+                  isActive
+                    ? "flex-row items-center rounded-full px-4 py-2.5 border bg-white border-[#1C2B6D]"
+                    : "flex-row items-center rounded-full px-4 py-2.5 border bg-gray-50 border-gray-200"
+                }
               >
-                <Text style={{ fontSize: 16, marginRight: 6 }}>
-                  {topic.emoji}
-                </Text>
+                <Text className="text-base mr-1.5">{topic.emoji}</Text>
                 <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: "600",
-                    color: isActive ? "#1C2B6D" : "#6B7280",
-                  }}
+                  className={
+                    isActive
+                      ? "text-sm font-semibold text-[#1C2B6D]"
+                      : "text-sm font-semibold text-gray-500"
+                  }
                 >
                   {topic.name}
                 </Text>
@@ -187,16 +166,7 @@ export default function LibraryScreen() {
         </ScrollView>
 
         {/* Difficulty Tabs */}
-        <View
-          style={{
-            flexDirection: "row",
-            marginHorizontal: 16,
-            marginTop: 4,
-            backgroundColor: "#F3F4F6",
-            borderRadius: 12,
-            padding: 4,
-          }}
-        >
+        <View className="flex-row mx-4 mt-1 bg-gray-100 rounded-xl p-1">
           {DIFFICULTIES.map((d) => {
             const isActive = selectedDifficulty === d.key;
             return (
@@ -204,29 +174,19 @@ export default function LibraryScreen() {
                 key={d.key}
                 onPress={() => setSelectedDifficulty(d.key)}
                 activeOpacity={0.8}
-                style={{
-                  flex: 1,
-                  paddingVertical: 10,
-                  borderRadius: 8,
-                  alignItems: "center",
-                  backgroundColor: isActive ? "#1C2B6D" : "transparent",
-                  ...(isActive
-                    ? {
-                        shadowColor: "#1C2B6D",
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.3,
-                        shadowRadius: 4,
-                        elevation: 3,
-                      }
-                    : {}),
-                }}
+                className={
+                  isActive
+                    ? "flex-1 py-2.5 rounded-lg items-center bg-[#1C2B6D]/90"
+                    : "flex-1 py-2.5 rounded-lg items-center bg-transparent"
+                }
+                style={isActive ? styles.difficultyActiveShadow : undefined}
               >
                 <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: "600",
-                    color: isActive ? "#fff" : "#6B7280",
-                  }}
+                  className={
+                    isActive
+                      ? "text-sm font-semibold text-white"
+                      : "text-sm font-semibold text-gray-500"
+                  }
                 >
                   {d.label}
                 </Text>
@@ -236,154 +196,94 @@ export default function LibraryScreen() {
         </View>
 
         {/* AI Sentence Generator Button */}
-        <View style={{ marginHorizontal: 16, marginTop: 16, marginBottom: 8 }}>
+        <View className="mx-4 mt-4 mb-2">
           <TouchableOpacity
             onPress={() => setShowAIModal(true)}
             activeOpacity={0.8}
-            style={{
-              backgroundColor: "#FFB500",
-              borderRadius: 999,
-              paddingVertical: 12,
-              paddingHorizontal: 24,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              shadowColor: "#FFB500",
-              shadowOffset: { width: 0, height: 3 },
-              shadowOpacity: 0.35,
-              shadowRadius: 6,
-              elevation: 5,
-            }}
+            className="bg-[#FFB500] rounded-full py-3 px-6 flex-row items-center justify-center"
+            style={styles.aiButtonShadow}
           >
             <Sparkles size={18} color="#fff" />
-            <Text
-              style={{
-                color: "#fff",
-                fontWeight: "700",
-                fontSize: 16,
-                marginLeft: 8,
-              }}
-            >
+            <Text className="text-white font-bold text-base ml-2">
               AI Sentence Generator
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Sentence Cards */}
-        <View style={{ paddingHorizontal: 16, marginTop: 12 }}>
+        <View className="px-4 mt-3">
           {filteredSentences.length > 0 ? (
-            filteredSentences.map((sentence) => {
+            filteredSentences.map((sentence, index) => {
               const isRecording = recordingId === sentence.id;
               const isSpeaking = speakingId === sentence.id;
+              const isNavy = index % 2 === 0;
 
               return (
                 <View
                   key={sentence.id}
-                  style={{
-                    backgroundColor: "#2B5DA0",
-                    borderRadius: 16,
-                    padding: 16,
-                    marginBottom: 16,
-                    shadowColor: "#2B5DA0",
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 8,
-                    elevation: 6,
-                  }}
+                  className={
+                    isNavy
+                      ? "bg-[#9EC800]/10 rounded-2xl p-4 mb-4"
+                      : "bg-[#FFB500]/10 rounded-2xl p-4 mb-4"
+                  }
+                  style={styles.cardShadow}
                 >
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "flex-start",
-                      justifyContent: "space-between",
-                      marginBottom: 8,
-                    }}
-                  >
+                  <View className="flex-row items-start justify-between mb-2">
                     <Text
-                      style={{
-                        color: "#fff",
-                        fontSize: 17,
-                        fontWeight: "700",
-                        flex: 1,
-                        marginRight: 12,
-                        lineHeight: 24,
-                      }}
+                      className={
+                        isNavy
+                          ? "text-black/80 text-[17px] font-bold flex-1 mr-3 leading-6"
+                          : "text-black/80 text-[17px] font-bold flex-1 mr-3 leading-6"
+                      }
                     >
                       {sentence.english}
                     </Text>
                     <TouchableOpacity
                       onPress={() => handleSpeak(sentence)}
                       activeOpacity={0.7}
-                      style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 20,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: isSpeaking
-                          ? "#FFB500"
-                          : "rgba(255,255,255,0.2)",
-                      }}
+                      className={
+                        isSpeaking
+                          ? "w-10 h-10 rounded-full items-center justify-center bg-[#FFB500]"
+                          : isNavy
+                            ? "w-10 h-10 rounded-full items-center justify-center bg-[#9EC800]"
+                            : "w-10 h-10 rounded-full items-center justify-center bg-[#FFB500]"
+                      }
                     >
                       <Volume2 size={20} color="#fff" />
                     </TouchableOpacity>
                   </View>
 
-                  <Text
-                    style={{
-                      color: "rgba(255,255,255,0.8)",
-                      fontSize: 14,
-                      lineHeight: 20,
-                      marginBottom: 8,
-                    }}
-                  >
+                  <Text className="text-gray-700 text-sm leading-5 mb-2">
                     {sentence.vietnamese}
                   </Text>
 
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "flex-end",
-                      justifyContent: "space-between",
-                    }}
-                  >
+                  <View className="flex-row items-end justify-between">
                     <Text
-                      style={{
-                        color: "#FFB500",
-                        fontSize: 13,
-                        fontStyle: "italic",
-                        flex: 1,
-                        marginRight: 12,
-                        lineHeight: 20,
-                      }}
+                      className={
+                        isNavy
+                          ? "text-[#9EC800] text-[13px] italic flex-1 mr-3 leading-5"
+                          : "text-[#FFB500] text-[13px] italic flex-1 mr-3 leading-5"
+                      }
                     >
                       {sentence.phonetic}
                     </Text>
                     <TouchableOpacity
                       onPress={() => handleTrySaying(sentence.id)}
                       activeOpacity={0.8}
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        borderRadius: 999,
-                        paddingHorizontal: 16,
-                        paddingVertical: 8,
-                        backgroundColor: isRecording ? "#EF4444" : "#FF8C00",
-                      }}
+                      className={
+                        isRecording
+                          ? "flex-row items-center rounded-full px-4 py-2 bg-red-500"
+                          : isNavy
+                            ? "flex-row items-center rounded-full px-4 py-2 bg-[#9EC800]"
+                            : "flex-row items-center rounded-full px-4 py-2 bg-[#FFB500]"
+                      }
                     >
                       {isRecording ? (
                         <MicOff size={16} color="#fff" />
                       ) : (
                         <Mic size={16} color="#fff" />
                       )}
-                      <Text
-                        style={{
-                          color: "#fff",
-                          fontWeight: "600",
-                          fontSize: 12,
-                          marginLeft: 6,
-                        }}
-                      >
+                      <Text className="text-white font-semibold text-xs ml-1.5">
                         {isRecording ? "Stop" : "Try saying"}
                       </Text>
                     </TouchableOpacity>
@@ -392,8 +292,8 @@ export default function LibraryScreen() {
               );
             })
           ) : (
-            <View style={{ alignItems: "center", paddingVertical: 48 }}>
-              <Text style={{ color: "#9CA3AF", fontSize: 16 }}>
+            <View className="items-center py-12">
+              <Text className="text-gray-400 text-base">
                 Chưa có mẫu câu cho chủ đề này
               </Text>
             </View>
@@ -408,3 +308,27 @@ export default function LibraryScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  difficultyActiveShadow: {
+    shadowColor: "#1C2B6D",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  aiButtonShadow: {
+    shadowColor: "#FFB500",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  cardShadow: {
+    shadowColor: "#2B5DA0",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+});
