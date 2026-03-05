@@ -5,6 +5,7 @@ import {
   TextInput,
   View,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 
 import HeaderChild from "../../../core/components/ScreenHeader";
@@ -15,7 +16,12 @@ const MiniSongScreen = () => {
   const { songs, loading } = useSongs();
 
   if (loading) {
-    return <Text className="mt-10 text-center text-gray-500">Loading...</Text>;
+    return (
+      <View className="flex-1 justify-center items-center bg-[#F5F6FA]">
+        <ActivityIndicator size="large" color="#FFB800" />
+        <Text className="mt-3 text-amber-500 font-bold">Loading...</Text>
+      </View>
+    );
   }
 
   return (
@@ -40,7 +46,7 @@ const MiniSongScreen = () => {
       <FlatList
         className="mt-4"
         data={songs}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.mini_song_id.toString()}
         renderItem={({ item }) => <SongCard song={item} />}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{

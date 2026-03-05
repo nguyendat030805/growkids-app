@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../core/navigation/NavigationService";
 import NotFoundScreen from "../core/pages/PageNotFound";
 import LoginScreen from "../features/auth/pages/LoginScreen";
-import SongsRoute from "../features/minisong/routes/SongRoute";
 import OnboardingPage from "../features/schedules/pages/OnboardingPage";
 import RecordingScreen from "../features/voiceRecording/pages/RecordingScreen";
 import ExperienceScreen from "../features/experiences/pages/ExperienceScreen";
@@ -13,6 +12,9 @@ import StoryPlayerScreen from "../features/story/pages/StoryPlayerScreen";
 import GoldenTimeSummaryScreen from "../features/schedules/pages/GoldenTimeSummaryScreen";
 import HomepageScreen from "../features/homepage/pages/HomepageScreen";
 import GoldenTimeScreen from "../features/schedules/pages/GoldenTimeScreen";
+import CompletedScreen from "../features/minisong/pages/CompletedScreen";
+import SongDetailPlayScreen from "../features/minisong/pages/DetailPlayScreen";
+import MiniSongScreen from "../features/minisong/pages/MiniSongScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,7 +38,9 @@ export default function AppNavigator() {
         name="GoldenTimeSummary"
         component={GoldenTimeSummaryScreen}
       />
-      <Stack.Screen name="Songs" component={SongsRoute} />
+      <Stack.Screen name="Songs" component={MiniSongScreen} />
+      <Stack.Screen name="DetailPlay" component={SongDetailPlayScreen} />
+      <Stack.Screen name="Complete" component={CompletedScreen} />
     </Stack.Navigator>
   );
 }

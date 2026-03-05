@@ -1,31 +1,28 @@
+import { RouteProp, useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { Play } from "lucide-react-native";
-import { useState, useCallback } from "react";
-import { ScrollView, Text, View, Pressable } from "react-native";
+import { useState } from "react";
+import { ScrollView, Text, View } from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
 
 import { CircleIcon } from "../../../core/components/CircleIcon";
 import HeaderChild from "../../../core/components/ScreenHeader";
-import { headShouldersLyrics } from "../data/headShoulders.lyrics";
+import { RootStackParamList } from "../../../core/navigation/NavigationService";
+
+type DetailPlayRouteProp = RouteProp<RootStackParamList, "DetailPlay">;
 
 export default function SongDetailPlayScreen() {
   const router = useRouter();
+  const route = useRoute<DetailPlayRouteProp>();
+  const { song } = route.params;
   const [playing, setPlaying] = useState(false);
-  const [hasEnded, setHasEnded] = useState(false);
 
-  const onStateChange = useCallback(
-    (state: string) => {
-      if (state === "ended") {
-        setPlaying(false);
-        setHasEnded(true);
-
-        setTimeout(() => {
-          router.replace("/minisong/Completed");
-        }, 300);
-      }
-    },
-    [router],
-  );
+  const getYouTubeVideoId = (url: string) => {
+    const match = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+    );
+    return match ? match[1] : "";
+  };
 
   return (
     <View className="flex-1 bg-[#F5F6FA]">
@@ -39,41 +36,26 @@ export default function SongDetailPlayScreen() {
       </View>
 
       <ScrollView className="px-4 mt-2" showsVerticalScrollIndicator={false}>
-        {/* Video */}
         <View className="relative mb-4 overflow-hidden rounded-2xl bg-white shadow-md">
           <YoutubePlayer
             height={220}
             play={playing}
-            videoId="WX8HmogNyCY"
-            onChangeState={onStateChange}
+            videoId={getYouTubeVideoId(song.video_url)}
           />
-
-          {!playing && (
-            <Pressable
-              onPress={() => setPlaying(true)}
-              className="absolute inset-0 items-center justify-center"
-            >
-              <View className="w-14 h-14 rounded-full bg-black/60 items-center justify-center">
-                <Text className="text-white text-xl">▶</Text>
-              </View>
-            </Pressable>
-          )}
         </View>
 
-        {/* Title */}
-        <Text className="text-lg font-bold mb-3">
-          Head Shoulders Knees And Toes
-        </Text>
+        <Text className="text-lg font-bold mb-3">{song.title}</Text>
 
-        {/* Lyrics */}
-        {headShouldersLyrics.map((item, index) => (
+        {song.song_lyrics?.map((item, index) => (
           <View
-            key={index}
+            key={item.id}
             className="flex-row items-center justify-between bg-white rounded-xl px-4 py-3 mb-3 shadow-sm"
           >
             <View className="flex-1 pr-3">
-              <Text className="font-semibold text-sm">{item.title}</Text>
-              <Text className="text-xs text-orange-500 mt-1">{item.sub}</Text>
+              <Text className="font-semibold text-sm">{item.lyric_text}</Text>
+              <Text className="text-xs text-orange-500 mt-1">
+                {item.phonetic}
+              </Text>
             </View>
 
             <CircleIcon

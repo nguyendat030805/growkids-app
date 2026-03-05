@@ -1,3 +1,4 @@
+import { Song } from "@/src/features/minisong/types/Song.type";
 import {
   createNavigationContainerRef,
   CommonActions,
@@ -20,7 +21,8 @@ export type RootStackParamList = {
   NotFound: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
   Songs: undefined;
-  SongDetail: { songId: number };
+  DetailPlay: { song: Song };
+  Complete: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
