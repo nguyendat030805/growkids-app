@@ -7,6 +7,7 @@
     "strict": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
     "paths": {
       "@/*": [
         "*",

@@ -10,6 +10,8 @@ export type RootStackParamList = {
   MainTabs: undefined;
   GoldenTime: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
+  Songs: undefined;
+  SongDetail: { songId: number };
   NotFound: undefined;
 };
 
@@ -27,6 +29,12 @@ export type ExperienceStackParamList = {
   StoryPlayer: {
     storyId: number;
   };
+  GoldenTime: undefined;
+  RecordingScreen: undefined;
+  NotFound: undefined;
+  GoldenTimeSummary: { selectedSlots: any[] };
+  Songs: undefined;
+  SongDetail: { songId: number };
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
