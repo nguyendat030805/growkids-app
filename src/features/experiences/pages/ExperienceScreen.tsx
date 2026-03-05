@@ -22,7 +22,7 @@ const experiences = [
     iconComponent: Music,
     iconColor: "#9EC800",
     bgColor: "bg-[#A8D400]/10",
-    navigateTo: undefined as keyof RootStackParamList | undefined,
+    navigateTo: "Songs" as keyof RootStackParamList | undefined,
   },
   {
     title: "Interactive Story",

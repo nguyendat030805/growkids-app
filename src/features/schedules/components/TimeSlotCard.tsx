@@ -13,6 +13,7 @@ interface TimeSlotCardProps {
 }
 
 const TimeSlotCard: React.FC<TimeSlotCardProps> = ({
+  title,
   time,
   subtitle,
   duration,

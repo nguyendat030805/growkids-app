@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../core/navigation/NavigationService";
 import NotFoundScreen from "../core/pages/PageNotFound";
 import LoginScreen from "../features/auth/pages/LoginScreen";
+import SongsRoute from "../features/minisong/routes/SongRoute";
 import OnboardingPage from "../features/schedules/pages/OnboardingPage";
 import RecordingScreen from "../features/voiceRecording/pages/RecordingScreen";
 import ExperienceScreen from "../features/experiences/pages/ExperienceScreen";
@@ -38,6 +39,7 @@ export default function AppNavigator() {
         name="GoldenTimeSummary"
         component={GoldenTimeSummaryScreen}
       />
+      <Stack.Screen name="Songs" component={SongsRoute} />
       <Stack.Screen name="VisualSchedule" component={VisualScheduleScreen} />
     </Stack.Navigator>
   );
