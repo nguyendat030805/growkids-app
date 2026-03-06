@@ -58,12 +58,8 @@ const LoginScreen = () => {
   };
   return (
     <View className="flex-1 bg-yellow-400 items-center justify-start">
-      <AuthHeader
-        image={require("@/public/assets/images/login-boy.png")}
-        title="Hi There!"
-        subtitle="Sign in to continue"
-      />
-      <View className="mt-10 w-full">
+      <AuthHeader title="Hi There!" subtitle="Sign in to continue" />
+      <View className="mt-[15px] w-full">
         <View className="bg-white rounded-t-3xl px-6 py-8 h-full">
           <Text className="mb-8 text-4xl font-bold text-yellow-400 text-center">
             Sign in

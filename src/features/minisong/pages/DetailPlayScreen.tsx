@@ -1,4 +1,5 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useRouter } from "expo-router";
 import { Play } from "lucide-react-native";
 import { useState } from "react";
@@ -7,15 +8,18 @@ import YoutubePlayer from "react-native-youtube-iframe";
 
 import { CircleIcon } from "../../../core/components/CircleIcon";
 import HeaderChild from "../../../core/components/ScreenHeader";
+import SuccessModal from "../../../core/components/SuccessModal";
 import { RootStackParamList } from "../../../core/navigation/NavigationService";
 
 type DetailPlayRouteProp = RouteProp<RootStackParamList, "DetailPlay">;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function SongDetailPlayScreen() {
   const router = useRouter();
   const route = useRoute<DetailPlayRouteProp>();
   const { song } = route.params;
   const [playing, setPlaying] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const getYouTubeVideoId = (url: string) => {
     const match = url.match(
@@ -24,12 +28,18 @@ export default function SongDetailPlayScreen() {
     return match ? match[1] : "";
   };
 
+  const onStateChange = (state: string) => {
+    if (state === "ended") {
+      setShowSuccess(true);
+    }
+  };
+
   return (
     <View className="flex-1 bg-[#F5F6FA]">
       <View className="mx-4 mt-4">
         <HeaderChild
           title="Song"
-          subtitle="Let’s sing together 🎵"
+          subtitle="Let's sing together 🎵"
           showBack
           onBackPress={() => router.back()}
         />
@@ -41,6 +51,7 @@ export default function SongDetailPlayScreen() {
             height={220}
             play={playing}
             videoId={getYouTubeVideoId(song.video_url)}
+            onChangeState={onStateChange}
           />
         </View>
 
@@ -67,6 +78,11 @@ export default function SongDetailPlayScreen() {
           </View>
         ))}
       </ScrollView>
+
+      <SuccessModal
+        visible={showSuccess}
+        onClose={() => setShowSuccess(false)}
+      />
     </View>
   );
 }
