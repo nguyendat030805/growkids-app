@@ -9,7 +9,6 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
 } from "react-native";
 import {
   X,
@@ -18,12 +17,11 @@ import {
   ChevronLeft,
   ChevronDown,
   Pen,
-  Target,
 } from "lucide-react-native";
 import * as Speech from "expo-speech";
 
 import { Sentence, Difficulty } from "../types/LibraryType";
-import { AI_MOCK_SENTENCES } from "../data/mockSentences";
+import { AI_MOCK_SENTENCES } from "../datas/mockSentences";
 
 interface AISentenceModalProps {
   visible: boolean;
@@ -47,7 +45,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
   const [showResults, setShowResults] = useState(false);
 
   const handleGenerate = () => {
-    if (!topic.trim()) return;
     setLoading(true);
     setSentences([]);
     setTimeout(() => {
@@ -85,7 +82,7 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
 
   const selectedLevelLabel =
     LEVEL_OPTIONS.find((l) => l.key === level)?.label ?? "Level";
-  const canGenerate = topic.trim().length > 0 && !loading;
+  const canGenerate = topic.trim().length > 0 && level !== null && !loading;
 
   return (
     <Modal
@@ -127,27 +124,28 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
               keyboardShouldPersistTaps="handled"
             >
               {!showResults ? (
-                <View
-                  className="bg-white rounded-[20px] p-5"
-                  style={styles.formCard}
-                >
+                <View className="bg-white rounded-[20px] p-5 shadow-sm shadow-black/5">
                   {/* Topic */}
                   <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                     Topic:
                   </Text>
-                  <View className="flex-row items-center border border-gray-200 rounded-full px-4 py-1 mb-5">
+                  <View className="flex-row items-center border border-gray-200 rounded-full px-4 py-1 mb-1">
                     <Pen size={16} color="#9CA3AF" />
                     <TextInput
                       value={topic}
                       onChangeText={setTopic}
                       placeholder="Enter your topic..."
                       placeholderTextColor="#9CA3AF"
+                      maxLength={50}
                       className="flex-1 text-[15px] text-gray-800 py-2.5 ml-2.5"
                     />
                   </View>
+                  <Text className="text-gray-400 text-xs self-end mr-4 mb-4">
+                    {topic.length}/50
+                  </Text>
 
                   {/* Level & Quantity */}
-                  <View className="flex-row mb-5" style={{ gap: 12 }}>
+                  <View className="flex-row mb-5 gap-3">
                     <View className="flex-1">
                       <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                         Level:
@@ -170,10 +168,7 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                       </TouchableOpacity>
 
                       {showLevelPicker && (
-                        <View
-                          className="absolute top-20 left-0 right-0 bg-white rounded-xl border border-gray-200 z-10"
-                          style={styles.dropdown}
-                        >
+                        <View className="absolute top-20 left-0 right-0 bg-white rounded-xl border border-gray-200 z-10 shadow-lg shadow-black/10">
                           {LEVEL_OPTIONS.map((opt) => (
                             <TouchableOpacity
                               key={opt.key}
@@ -212,6 +207,7 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                         placeholder="Enter quantity..."
                         placeholderTextColor="#9CA3AF"
                         keyboardType="number-pad"
+                        maxLength={2}
                         className="border border-gray-200 rounded-full px-4 py-3.5 text-[15px] text-gray-800"
                       />
                     </View>
@@ -221,34 +217,30 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                   <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                     Goal:
                   </Text>
-                  <View className="flex-row items-start border border-gray-200 rounded-2xl px-4 py-1 min-h-[100px] mb-6">
-                    <Target
-                      size={16}
-                      color="#9CA3AF"
-                      style={{ marginTop: 14 }}
-                    />
+                  <View className="flex-row items-start border border-gray-200 rounded-2xl px-4 py-1 min-h-[100px] mb-1">
                     <TextInput
                       value={goal}
                       onChangeText={setGoal}
                       placeholder="Enter your goal..."
                       placeholderTextColor="#9CA3AF"
                       multiline
+                      maxLength={200}
                       textAlignVertical="top"
-                      className="flex-1 text-[15px] text-gray-800 py-2.5 ml-2.5 min-h-[90px]"
+                      className="flex-1 text-[15px] text-gray-800 py-2.5 ml-1 min-h-[90px]"
                     />
                   </View>
+                  <Text className="text-gray-400 text-xs self-end mr-4 mb-5">
+                    {goal.length}/200
+                  </Text>
 
                   {/* Generate Button */}
                   <TouchableOpacity
                     onPress={handleGenerate}
                     disabled={!canGenerate}
                     activeOpacity={0.8}
-                    className={
-                      canGenerate
-                        ? "self-center rounded-full py-3.5 px-8 flex-row items-center justify-center bg-[#FFB500]"
-                        : "self-center rounded-full py-3.5 px-8 flex-row items-center justify-center bg-[#FFB500]/50"
-                    }
-                    style={styles.generateShadow}
+                    className={`self-center rounded-full py-3.5 px-8 flex-row items-center justify-center shadow-md shadow-[#FFB500]/30 ${
+                      canGenerate ? "bg-[#FFB500]" : "bg-[#FFB500]/50"
+                    }`}
                   >
                     {loading ? (
                       <ActivityIndicator size="small" color="#fff" />
@@ -277,8 +269,7 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                   {sentences.map((sentence) => (
                     <View
                       key={sentence.id}
-                      className="bg-[#2B5DA0] rounded-2xl p-4 mb-3"
-                      style={styles.resultCardShadow}
+                      className="bg-[#2B5DA0] rounded-2xl p-4 mb-3 shadow-md shadow-[#2B5DA0]/20"
                     >
                       <View className="flex-row items-start justify-between mb-1.5">
                         <Text className="text-base font-bold text-white flex-1 mr-2.5 leading-[22px]">
@@ -304,8 +295,7 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                     <TouchableOpacity
                       onPress={handleBackToForm}
                       activeOpacity={0.8}
-                      className="self-center rounded-full py-3.5 px-8 flex-row items-center justify-center bg-[#7C3AED] mt-2"
-                      style={styles.generateShadow}
+                      className="self-center rounded-full py-3.5 px-8 flex-row items-center justify-center bg-[#7C3AED] mt-2 shadow-md shadow-[#FFB500]/30"
                     >
                       <Sparkles size={20} color="#fff" />
                       <Text className="text-white font-bold text-base ml-2">
@@ -322,34 +312,3 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  formCard: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  dropdown: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  generateShadow: {
-    shadowColor: "#FFB500",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  resultCardShadow: {
-    shadowColor: "#2B5DA0",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-});

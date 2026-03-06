@@ -13,7 +13,7 @@ import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
 
 import { Difficulty, Sentence } from "../types/LibraryType";
-import { TOPICS, SENTENCES } from "../data/mockSentences";
+import { TOPICS, SENTENCES } from "../datas/mockSentences";
 import { AISentenceModal } from "../components/AISentenceModal";
 
 const DIFFICULTIES: { key: Difficulty; label: string }[] = [
