@@ -21,7 +21,7 @@ export const useObjectScanning = () => {
       }
       return actualData;
     } catch {
-      console.error("Lỗi quét đối tượng:");
+      console.error("Object scanning error!");
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ export const useObjectScanning = () => {
         }
       });
     } catch {
-      console.error("Lỗi phát âm thanh:");
+      console.error("Audio playback error!");
     }
   };
 
