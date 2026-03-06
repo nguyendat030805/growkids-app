@@ -58,7 +58,6 @@ apiClient.interceptors.response.use(
         );
 
         const newAccessToken = res.data.accessToken;
-        console.log("newAccessToken", newAccessToken);
 
         await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
 

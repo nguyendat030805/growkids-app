@@ -376,30 +376,20 @@ export default function StoryPlayerScreen() {
             >
               <Image
                 source={segmentImage}
-                style={{ width: "100%", height: "100%" }}
+                className="w-full h-full"
                 resizeMode="cover"
               />
             </View>
           </View>
 
           <View className="items-center mb-4 px-6">
-            <Text
-              className="text-2xl font-extrabold text-[#1C2B6D] text-center"
-              style={{ fontStyle: "italic" }}
-            >
+            <Text className="text-2xl font-extrabold text-[#1C2B6D] text-center italic">
               {title}
             </Text>
           </View>
 
           <View className="mx-6 mb-6">
-            <View
-              className="rounded-2xl px-5 py-6"
-              style={{
-                backgroundColor: "#FFF8EE",
-                borderWidth: 2,
-                borderColor: "#E8D5B0",
-              }}
-            >
+            <View className="rounded-2xl px-5 py-6 bg-[#FFF8EE] border-2 border-[#E8D5B0]">
               <Text className="text-base text-gray-800 leading-7 text-center">
                 {currentSegment.content_text}
               </Text>
@@ -420,29 +410,12 @@ export default function StoryPlayerScreen() {
           </View>
 
           <View className="mx-6 mb-4">
-            <View
-              className="rounded-2xl px-5 py-5"
-              style={{
-                backgroundColor: "#C8A84E",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.2,
-                shadowRadius: 8,
-                elevation: 6,
-              }}
-            >
+            <View className="rounded-2xl px-5 py-5 bg-[#C8A84E] shadow-lg shadow-black/20">
               <View className="items-center mb-4">
                 <TouchableOpacity
                   onPress={togglePlay}
                   activeOpacity={0.7}
-                  className="w-16 h-16 rounded-full bg-[#4CAF50] items-center justify-center"
-                  style={{
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 4,
-                    elevation: 4,
-                  }}
+                  className="w-16 h-16 rounded-full bg-[#4CAF50] items-center justify-center shadow-md shadow-black/25"
                 >
                   {isPlaying ? (
                     <Pause size={28} color="#fff" fill="#fff" />
@@ -479,16 +452,11 @@ export default function StoryPlayerScreen() {
                     style={{ width: `${progressPercent}%` }}
                   />
                   <View
-                    className="absolute top-1/2 w-5 h-5 rounded-full bg-white"
+                    className="absolute top-1/2 w-5 h-5 rounded-full bg-white shadow-sm shadow-black/30"
                     style={{
                       left: `${progressPercent}%`,
                       marginLeft: -10,
                       marginTop: -10,
-                      shadowColor: "#000",
-                      shadowOffset: { width: 0, height: 1 },
-                      shadowOpacity: 0.3,
-                      shadowRadius: 2,
-                      elevation: 3,
                     }}
                   />
                 </View>
@@ -551,17 +519,7 @@ export default function StoryPlayerScreen() {
           <Text className="text-xl absolute top-36 left-16">✨</Text>
 
           <View className="items-center mb-8">
-            <View
-              className="w-44 h-44 rounded-full items-center justify-center"
-              style={{
-                backgroundColor: "#D8C4F0",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.15,
-                shadowRadius: 8,
-                elevation: 6,
-              }}
-            >
+            <View className="w-44 h-44 rounded-full items-center justify-center bg-[#D8C4F0] shadow-lg shadow-black/15">
               <View className="w-36 h-36 rounded-full bg-[#E8D8F4] items-center justify-center">
                 <Text className="text-5xl mb-1">🐉</Text>
                 <View className="bg-[#F4A623] rounded-full px-4 py-1.5 mt-1">
@@ -576,16 +534,10 @@ export default function StoryPlayerScreen() {
           <Text className="text-2xl absolute top-60 left-6">⭐</Text>
           <Text className="text-lg absolute top-64 right-10">⭐</Text>
 
-          <Text
-            className="text-3xl font-extrabold text-[#1C2B6D] text-center mb-1"
-            style={{ fontStyle: "italic" }}
-          >
+          <Text className="text-3xl font-extrabold text-[#1C2B6D] text-center mb-1 italic">
             Congratulations
           </Text>
-          <Text
-            className="text-3xl font-extrabold text-[#1C2B6D] text-center mb-8"
-            style={{ fontStyle: "italic" }}
-          >
+          <Text className="text-3xl font-extrabold text-[#1C2B6D] text-center mb-8 italic">
             You finished
           </Text>
 

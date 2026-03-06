@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  StyleSheet,
   ActivityIndicator,
 } from "react-native";
 import { ChevronLeft, Heart, Star } from "lucide-react-native";
@@ -115,7 +114,8 @@ export default function StoryScreen() {
                     <TouchableOpacity
                       key={story.story_id}
                       activeOpacity={0.9}
-                      style={[styles.card, { width: CARD_WIDTH }]}
+                      className="bg-white rounded-2xl overflow-hidden border border-[#E8ECF0] shadow-md shadow-black/10"
+                      style={{ width: CARD_WIDTH }}
                       onPress={() =>
                         navigation.navigate("StoryPlayer", {
                           storyId: story.story_id,
@@ -124,7 +124,8 @@ export default function StoryScreen() {
                     >
                       <Image
                         source={getCoverImage(story)}
-                        style={styles.cardImage}
+                        className="w-full rounded-t-2xl"
+                        style={{ height: IMAGE_HEIGHT }}
                         resizeMode="cover"
                       />
 
@@ -164,15 +165,8 @@ export default function StoryScreen() {
 
                         <View className="flex-row items-center justify-between mt-2">
                           {story.age_min != null && story.age_max != null && (
-                            <View
-                              style={[
-                                styles.ageBadge,
-                                { backgroundColor: "#A855F718" },
-                              ]}
-                            >
-                              <Text
-                                style={[styles.ageText, { color: "#A855F7" }]}
-                              >
+                            <View className="rounded-full px-2.5 py-1 bg-[#A855F718]">
+                              <Text className="text-[11px] font-bold text-[#A855F7]">
                                 {story.age_min}–{story.age_max} tuổi
                               </Text>
                             </View>
@@ -200,33 +194,3 @@ export default function StoryScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#E8ECF0",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  cardImage: {
-    width: "100%",
-    height: IMAGE_HEIGHT,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-  },
-  ageBadge: {
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  ageText: {
-    fontSize: 11,
-    fontWeight: "700",
-  },
-});

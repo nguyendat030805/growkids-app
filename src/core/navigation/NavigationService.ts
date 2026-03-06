@@ -10,9 +10,11 @@ export type RootStackParamList = {
   MainTabs: undefined;
   GoldenTime: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
-  NotFound: undefined;
   Songs: undefined;
   SongDetail: { songId: number };
+  ScanScreen: undefined;
+  ResultScreen: { imageBase64: string };
+  NotFound: undefined;
 };
 
 export type MainTabParamList = {

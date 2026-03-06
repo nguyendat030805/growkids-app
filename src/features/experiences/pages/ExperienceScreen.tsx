@@ -3,7 +3,10 @@ import { Music, BookOpen } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 
-import type { ExperienceStackParamList } from "@/src/core/navigation/NavigationService";
+import type {
+  ExperienceStackParamList,
+  RootStackParamList,
+} from "@/src/core/navigation/NavigationService";
 
 const experiences = [
   {

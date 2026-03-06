@@ -7,14 +7,14 @@ import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 const TAB_CONFIG = [
   {
     name: "HomeTab",
-    label: "Home",
+    label: "Trang chủ",
     icon: Home,
     activeColor: "#1C2B6D",
     inactiveColor: "#9CA3AF",
   },
   {
     name: "ExperienceTab",
-    label: "Experience",
+    label: "Trải nghiệm",
     icon: Zap,
     activeColor: "#1C2B6D",
     inactiveColor: "#9CA3AF",
@@ -28,14 +28,14 @@ const TAB_CONFIG = [
   },
   {
     name: "LibraryTab",
-    label: "Library",
+    label: "Thư viện",
     icon: BookOpen,
     activeColor: "#1C2B6D",
     inactiveColor: "#9CA3AF",
   },
   {
     name: "ProfileTab",
-    label: "Profile",
+    label: "Cá nhân",
     icon: User,
     activeColor: "#1C2B6D",
     inactiveColor: "#9CA3AF",
