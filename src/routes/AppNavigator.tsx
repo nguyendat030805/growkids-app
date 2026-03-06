@@ -29,10 +29,10 @@ export default function AppNavigator() {
         component={GoldenTimeSummaryScreen}
       />
       <Stack.Screen name="Songs" component={SongsRoute} />
-      <Stack.Screen name="ScanScreen" component={ScanScreen} />
-      <Stack.Screen name="ResultScreen" component={ResultScreen} />
       <Stack.Screen name="MainTabs" component={MainTabsScreen} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} />
+      <Stack.Screen name="ScanScreen" component={ScanScreen} />
+      <Stack.Screen name="ResultScreen" component={ResultScreen} />
     </Stack.Navigator>
   );
 }
