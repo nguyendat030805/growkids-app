@@ -4,7 +4,7 @@ export interface ObjectScanningResult {
   nameEn: string;
   nameVi: string;
   phonetic: string;
-  suggestions: Suggestion[];
+  suggestion: Suggestion;
   audioNameBase64: string;
   audioSuggestionBase64: string;
 }

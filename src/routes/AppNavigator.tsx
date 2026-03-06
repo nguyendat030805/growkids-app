@@ -13,6 +13,8 @@ import StoryPlayerScreen from "../features/story/pages/StoryPlayerScreen";
 import GoldenTimeSummaryScreen from "../features/schedules/pages/GoldenTimeSummaryScreen";
 import HomepageScreen from "../features/homepage/pages/HomepageScreen";
 import GoldenTimeScreen from "../features/schedules/pages/GoldenTimeScreen";
+import ScanScreen from "../features/object-scanning/pages/ScanScreen";
+import ResultScreen from "../features/object-scanning/pages/ResultScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -37,6 +39,8 @@ export default function AppNavigator() {
         component={GoldenTimeSummaryScreen}
       />
       <Stack.Screen name="Songs" component={SongsRoute} />
+      <Stack.Screen name="ScanScreen" component={ScanScreen} />
+      <Stack.Screen name="ResultScreen" component={ResultScreen} />
     </Stack.Navigator>
   );
 }

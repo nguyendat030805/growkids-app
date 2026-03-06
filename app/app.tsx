@@ -1,6 +1,6 @@
-import ScanScreen from "@/src/features/object-scanning/pages/ScanScreen";
 import "../global.css";
+import AppNavigator from "@/src/routes/AppNavigator";
 
 export default function App() {
-  return <ScanScreen />;
+  return <AppNavigator />;
 }

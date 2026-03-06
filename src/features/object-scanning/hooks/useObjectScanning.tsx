@@ -9,14 +9,19 @@ export const useObjectScanning = () => {
 
   const handleScan = async (imageBase64: string) => {
     setLoading(true);
-    setResult(null);
     try {
-      const data = await ObjectScanningService.identify(imageBase64);
-      setResult(data);
-      return data;
-    } catch (error) {
-      console.error("Lỗi quét vật thể:", error);
-      throw error;
+      const response: any = await ObjectScanningService.identify(imageBase64);
+
+      const actualData = response.data;
+
+      setResult(actualData);
+
+      if (actualData?.audioNameBase64) {
+        await playSound(actualData.audioNameBase64);
+      }
+      return actualData;
+    } catch {
+      console.error("Lỗi quét đối tượng:");
     } finally {
       setLoading(false);
     }
@@ -25,17 +30,23 @@ export const useObjectScanning = () => {
   const playSound = async (base64: string) => {
     if (!base64) return;
     try {
+      const cleanBase64 = base64.trim().replace(/\s/g, "");
+      const uri = cleanBase64.startsWith("data:audio")
+        ? cleanBase64
+        : `data:audio/mp3;base64,${cleanBase64}`;
+
       const { sound } = await Audio.Sound.createAsync(
-        { uri: `data:audio/mp3;base64,${base64}` },
-        { shouldPlay: true },
+        { uri },
+        { shouldPlay: true, volume: 1.0 },
       );
+
       sound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded && status.didJustFinish) {
           sound.unloadAsync();
         }
       });
-    } catch (error) {
-      console.error("Lỗi phát âm thanh:", error);
+    } catch {
+      console.error("Lỗi phát âm thanh:");
     }
   };
 
