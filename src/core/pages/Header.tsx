@@ -3,7 +3,7 @@ import { View, Image } from "react-native";
 
 export const Header = () => {
   return (
-    <View className="mb-8">
+    <View>
       <View className="flex-row items-center justify-between">
         {/* Logo GrowKids app */}
         <Image

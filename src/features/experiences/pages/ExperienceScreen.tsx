@@ -1,12 +1,9 @@
-import { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
 import { Music, BookOpen } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 
-import { BottomMenu } from "@/src/core/pages/BottomMenu";
-import { Header } from "@/src/core/pages/Header";
-import type { RootStackParamList } from "@/src/core/navigation/NavigationService";
+import type { ExperienceStackParamList } from "@/src/core/navigation/NavigationService";
 
 const experiences = [
   {
@@ -37,22 +34,13 @@ const experiences = [
     iconComponent: BookOpen,
     iconColor: "#FFB500",
     bgColor: "bg-[#FFB500]/10",
-    navigateTo: "Story" as keyof RootStackParamList,
+    navigateTo: "Story" as keyof ExperienceStackParamList,
   },
 ];
 
 export default function ExperienceScreen() {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const [activeTab, setActiveTab] = useState<
-    "home" | "experience" | "library" | "profile"
-  >("experience");
-
-  const handleTabPress = (
-    tab: "home" | "experience" | "library" | "profile",
-  ) => {
-    setActiveTab(tab);
-    console.log(`Switched to ${tab} tab`);
-  };
+  const navigation =
+    useNavigation<StackNavigationProp<ExperienceStackParamList>>();
 
   const calculateProgressPercentage = (progress: string) => {
     const [current, total] = progress.split("/").map(Number);
@@ -61,18 +49,9 @@ export default function ExperienceScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 80 }}
-        showsVerticalScrollIndicator={false}
-      >
-        <View className="py-4">
-          <View className="px-0">
-            <Header />
-          </View>
-
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="py-6">
           <View className="px-4">
-            {/* Page Title */}
             <Text className="text-2xl font-bold text-[#1C2B6D] text-center mb-3">
               Bilingual Learning Through Experience
             </Text>
@@ -213,10 +192,6 @@ export default function ExperienceScreen() {
           </View>
         </View>
       </ScrollView>
-
-      <View className="absolute bottom-0 left-0 right-0">
-        <BottomMenu activeTab={activeTab} onTabPress={handleTabPress} />
-      </View>
     </View>
   );
 }

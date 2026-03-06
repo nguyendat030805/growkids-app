@@ -2,9 +2,7 @@ import { useNavigation, CommonActions } from "@react-navigation/native";
 import { Lock, Mail } from "lucide-react-native";
 import { useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
-
 import { Button, ButtonText } from "@/components/ui/button";
-
 import AuthHeader from "../components/AuthHeader";
 import IconInput from "../components/IconInput";
 import { useLogin } from "../hooks/useLogin";
@@ -50,7 +48,7 @@ const LoginScreen = () => {
       alert("Login successful");
 
       navigation.dispatch(
-        CommonActions.reset({ index: 0, routes: [{ name: "MainHome" }] }),
+        CommonActions.reset({ index: 0, routes: [{ name: "Onboarding" }] }),
       );
     } else {
       alert(`Login failed: ${error}`);

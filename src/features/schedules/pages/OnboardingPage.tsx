@@ -44,7 +44,7 @@ const OnboardingPage = ({ navigation }: any) => {
         if (res.data.hasSchedule === true) {
           navigation.reset({
             index: 0,
-            routes: [{ name: "MainHome" }],
+            routes: [{ name: "MainTabs" }],
           });
         } else {
           setIsChecking(false);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -7,8 +7,11 @@ import {
   ScrollView,
   Image,
   TextInput,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { ChevronDown, Pencil } from "lucide-react-native";
+import { Pencil } from "lucide-react-native";
 
 const TOPICS = [
   { id: "animals", label: "Animals", emoji: "🐾" },
@@ -16,12 +19,11 @@ const TOPICS = [
   { id: "school", label: "School", emoji: "🏫" },
   { id: "daily_routine", label: "Daily Routine", emoji: "⏰" },
   { id: "feelings", label: "Feelings", emoji: "🎭" },
-  { id: "other", label: "Other", emoji: "✨" },
 ];
 
-const AGE_OPTIONS = ["1-3", "3-4", "4-5", "Other"];
+const AGE_OPTIONS = ["3-4.5", "4.5-6", "6-7.5", "7.5-9"];
 
-const LENGTH_OPTIONS = ["1 min", "2 min", "3 min", "Other"];
+const LENGTH_OPTIONS = ["1 min", "2 min", "3 min", "4 min"];
 
 const STORY_TYPES = [
   { id: "fairy_tales", label: "Fairy Tales", emoji: "🧚", bg: "#E8E0F0" },
@@ -31,13 +33,13 @@ const STORY_TYPES = [
   { id: "other", label: "Other", emoji: "✨", bg: "#F0F0F0" },
 ];
 
+const MAX_CUSTOM_TYPE_LENGTH = 50;
+const MAX_PROMPT_LENGTH = 300;
+
 export interface AIStoryParams {
-  topics: string[];
-  customTopic: string;
+  topic: string;
   age: string;
-  customAge: string;
   length: string;
-  customLength: string;
   type: string;
   customType: string;
   additionalPrompt: string;
@@ -54,33 +56,107 @@ export function AIStoryModal({
   onClose,
   onGenerate,
 }: AIStoryModalProps) {
-  const [selectedTopics, setSelectedTopics] = useState<string[]>(["animals"]);
-  const [customTopic, setCustomTopic] = useState("");
-  const [selectedAge, setSelectedAge] = useState("3-4");
-  const [customAge, setCustomAge] = useState("");
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const [selectedTopic, setSelectedTopic] = useState("animals");
+  const [selectedAge, setSelectedAge] = useState("3-4.5");
   const [selectedLength, setSelectedLength] = useState("2 min");
-  const [customLength, setCustomLength] = useState("");
   const [selectedType, setSelectedType] = useState("fairy_tales");
   const [customType, setCustomType] = useState("");
+  const [customTypeError, setCustomTypeError] = useState("");
   const [additionalPrompt, setAdditionalPrompt] = useState("");
+  const [promptError, setPromptError] = useState("");
 
-  const toggleTopic = (id: string) => {
-    setSelectedTopics((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
-    );
+  const resetForm = () => {
+    setSelectedTopic("animals");
+    setSelectedAge("3-4.5");
+    setSelectedLength("2 min");
+    setSelectedType("fairy_tales");
+    setCustomType("");
+    setCustomTypeError("");
+    setAdditionalPrompt("");
+    setPromptError("");
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
+  const validateCustomType = (value: string): boolean => {
+    if (selectedType !== "other") return true;
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setCustomTypeError("Please enter a story type");
+      return false;
+    }
+    if (trimmed.length < 2) {
+      setCustomTypeError("Story type must be at least 2 characters");
+      return false;
+    }
+    if (trimmed.length > MAX_CUSTOM_TYPE_LENGTH) {
+      setCustomTypeError(`Maximum ${MAX_CUSTOM_TYPE_LENGTH} characters`);
+      return false;
+    }
+    if (!/^[a-zA-Z\s\S]+$/.test(trimmed)) {
+      setCustomTypeError("Please enter a valid story type");
+      return false;
+    }
+    setCustomTypeError("");
+    return true;
+  };
+
+  const validatePrompt = (value: string): boolean => {
+    const trimmed = value.trim();
+    if (!trimmed) return true;
+
+    if (trimmed.length < 3) {
+      setPromptError("Prompt must be at least 3 characters");
+      return false;
+    }
+    if (trimmed.length > MAX_PROMPT_LENGTH) {
+      setPromptError(`Maximum ${MAX_PROMPT_LENGTH} characters`);
+      return false;
+    }
+    setPromptError("");
+    return true;
+  };
+
+  const handleCustomTypeChange = (value: string) => {
+    const filtered = value.replace(/[0-9]/g, "");
+    if (filtered.length <= MAX_CUSTOM_TYPE_LENGTH) {
+      setCustomType(filtered);
+      if (customTypeError) validateCustomType(filtered);
+    }
+  };
+
+  const handlePromptChange = (value: string) => {
+    if (value.length <= MAX_PROMPT_LENGTH) {
+      setAdditionalPrompt(value);
+      if (promptError) validatePrompt(value);
+    }
   };
 
   const handleGenerate = () => {
+    const isCustomTypeValid = validateCustomType(customType);
+    const isPromptValid = validatePrompt(additionalPrompt);
+
+    if (!isCustomTypeValid || !isPromptValid) {
+      Alert.alert(
+        "Please check your input",
+        "Fix the highlighted errors before generating.",
+      );
+      return;
+    }
+
     onGenerate({
-      topics: selectedTopics,
-      customTopic,
+      topic: selectedTopic,
       age: selectedAge,
-      customAge,
       length: selectedLength,
-      customLength,
       type: selectedType,
-      customType,
-      additionalPrompt,
+      customType: selectedType === "other" ? customType.trim() : "",
+      additionalPrompt: additionalPrompt.trim(),
     });
   };
 
@@ -89,246 +165,284 @@ export function AIStoryModal({
       visible={visible}
       transparent
       animationType="slide"
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
       <View className="flex-1 justify-end bg-black/40">
-        <View className="bg-[#F5F5F5] rounded-t-3xl max-h-[92%]">
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            bounces={false}
-            contentContainerStyle={{ paddingBottom: 30 }}
-          >
-            <View className="items-center pt-4 pb-2">
-              <Image
-                source={require("@/public/assets/images/logoGrowKids.png")}
-                className="h-20 w-40"
-                resizeMode="contain"
-              />
-            </View>
-
-            <View className="items-center mb-4 px-6">
-              <Text className="text-2xl font-bold text-center">
-                <Text className="text-[#4CAF50]">Create a </Text>
-                <Text className="text-[#FF9800]">Story </Text>
-                <Text className="text-[#4CAF50]">with </Text>
-                <Text className="text-[#2196F3]">AI</Text>
-              </Text>
-            </View>
-
-            <View className="px-6 mb-4">
-              <Text className="text-base font-bold text-gray-800 mb-2">
-                Topic
-              </Text>
-              <View className="flex-row flex-wrap gap-2">
-                {TOPICS.map((topic) => {
-                  const isSelected = selectedTopics.includes(topic.id);
-                  return (
-                    <TouchableOpacity
-                      key={topic.id}
-                      onPress={() => toggleTopic(topic.id)}
-                      activeOpacity={0.7}
-                      className={`flex-row items-center rounded-full px-4 py-2 border ${
-                        isSelected
-                          ? "bg-[#E8F5E9] border-[#4CAF50]"
-                          : "bg-white border-gray-200"
-                      }`}
-                    >
-                      <Text className="text-base mr-1.5">{topic.emoji}</Text>
-                      <Text
-                        className={`text-sm font-semibold ${
-                          isSelected ? "text-[#4CAF50]" : "text-gray-600"
-                        }`}
-                      >
-                        {topic.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-              {selectedTopics.includes("other") && (
-                <TextInput
-                  value={customTopic}
-                  onChangeText={setCustomTopic}
-                  placeholder="Enter your topic..."
-                  placeholderTextColor="#9CA3AF"
-                  className="mt-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800"
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="max-h-[92%]"
+        >
+          <View className="bg-[#F5F5F5] rounded-t-3xl">
+            <ScrollView
+              ref={scrollViewRef}
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 30 }}
+            >
+              {/* Header */}
+              <View className="items-center pt-4 pb-2">
+                <Image
+                  source={require("@/public/assets/images/logoGrowKids.png")}
+                  className="h-20 w-40"
+                  resizeMode="contain"
                 />
-              )}
-            </View>
-
-            <View className="px-6 mb-4">
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-base font-bold text-gray-800">
-                  Age Selection
-                </Text>
-                <Text className="text-sm text-gray-400">Years old</Text>
               </View>
-              <View className="flex-row items-center bg-white rounded-xl border border-gray-200 overflow-hidden">
-                {AGE_OPTIONS.map((age, idx) => {
-                  const isSelected = selectedAge === age;
-                  return (
-                    <TouchableOpacity
-                      key={age}
-                      onPress={() => setSelectedAge(age)}
-                      activeOpacity={0.7}
-                      className={`flex-1 py-3 items-center ${
-                        isSelected ? "bg-[#E8F5E9]" : ""
-                      } ${idx < AGE_OPTIONS.length - 1 ? "border-r border-gray-100" : ""}`}
-                    >
-                      <Text
-                        className={`text-sm font-bold ${
-                          isSelected ? "text-[#4CAF50]" : "text-gray-500"
+
+              {/* Title */}
+              <View className="items-center mb-4 px-6">
+                <Text className="text-2xl font-bold text-center">
+                  <Text className="text-[#4CAF50]">Create a </Text>
+                  <Text className="text-[#FF9800]">Story </Text>
+                  <Text className="text-[#4CAF50]">with </Text>
+                  <Text className="text-[#2196F3]">AI</Text>
+                </Text>
+              </View>
+
+              {/* Topic Selection - single select */}
+              <View className="px-6 mb-4">
+                <Text className="text-base font-bold text-gray-800 mb-2">
+                  Topic
+                </Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {TOPICS.map((topic) => {
+                    const isSelected = selectedTopic === topic.id;
+                    return (
+                      <TouchableOpacity
+                        key={topic.id}
+                        onPress={() => setSelectedTopic(topic.id)}
+                        activeOpacity={0.7}
+                        className={`flex-row items-center rounded-full px-4 py-2 border ${
+                          isSelected
+                            ? "bg-[#E8F5E9] border-[#4CAF50]"
+                            : "bg-white border-gray-200"
                         }`}
                       >
-                        {age}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-                <View className="px-3 py-3 border-l border-gray-200">
-                  <ChevronDown size={18} color="#9CA3AF" />
+                        <Text className="text-base mr-1.5">{topic.emoji}</Text>
+                        <Text
+                          className={`text-sm font-semibold ${
+                            isSelected ? "text-[#4CAF50]" : "text-gray-600"
+                          }`}
+                        >
+                          {topic.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               </View>
-              {selectedAge === "Other" && (
-                <TextInput
-                  value={customAge}
-                  onChangeText={setCustomAge}
-                  placeholder="Enter age range (e.g. 5-6)..."
-                  placeholderTextColor="#9CA3AF"
-                  className="mt-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800"
-                />
-              )}
-            </View>
 
-            <View className="px-6 mb-4">
-              <Text className="text-base font-bold text-gray-800 mb-2">
-                Story Length
-              </Text>
-              <View className="flex-row gap-2">
-                {LENGTH_OPTIONS.map((len) => {
-                  const isSelected = selectedLength === len;
-                  return (
-                    <TouchableOpacity
-                      key={len}
-                      onPress={() => setSelectedLength(len)}
-                      activeOpacity={0.7}
-                      className={`flex-1 py-3 items-center rounded-xl border ${
-                        isSelected
-                          ? "bg-white border-[#4CAF50]"
-                          : "bg-white border-gray-200"
-                      }`}
-                    >
-                      <Text
-                        className={`text-sm font-bold ${
-                          isSelected ? "text-[#4CAF50]" : "text-gray-500"
-                        }`}
+              {/* Age Selection - no Other */}
+              <View className="px-6 mb-4">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-base font-bold text-gray-800">
+                    Age Selection
+                  </Text>
+                  <Text className="text-sm text-gray-400">Years old</Text>
+                </View>
+                <View className="flex-row items-center bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  {AGE_OPTIONS.map((age, idx) => {
+                    const isSelected = selectedAge === age;
+                    return (
+                      <TouchableOpacity
+                        key={age}
+                        onPress={() => setSelectedAge(age)}
+                        activeOpacity={0.7}
+                        className={`flex-1 py-3 items-center ${
+                          isSelected ? "bg-[#E8F5E9]" : ""
+                        } ${idx < AGE_OPTIONS.length - 1 ? "border-r border-gray-100" : ""}`}
                       >
-                        {len}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
+                        <Text
+                          className={`text-sm font-bold ${
+                            isSelected ? "text-[#4CAF50]" : "text-gray-500"
+                          }`}
+                        >
+                          {age}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
               </View>
-              {selectedLength === "Other" && (
-                <TextInput
-                  value={customLength}
-                  onChangeText={setCustomLength}
-                  placeholder="Enter story length (e.g. 5 min)..."
-                  placeholderTextColor="#9CA3AF"
-                  className="mt-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800"
-                />
-              )}
-            </View>
 
-            <View className="px-6 mb-4">
-              <Text className="text-base font-bold text-gray-800 mb-3">
-                Story Type
-              </Text>
-              <View className="flex-row flex-wrap justify-between">
-                {STORY_TYPES.map((type) => {
-                  const isSelected = selectedType === type.id;
-                  return (
-                    <TouchableOpacity
-                      key={type.id}
-                      onPress={() => setSelectedType(type.id)}
-                      activeOpacity={0.7}
-                      className="items-center mb-3"
-                      style={{ width: "19%" }}
-                    >
-                      <View
-                        className={`w-14 h-14 rounded-2xl items-center justify-center mb-1.5 ${
-                          isSelected ? "border-2 border-[#4CAF50]" : ""
-                        }`}
-                        style={{ backgroundColor: type.bg }}
-                      >
-                        <Text className="text-xl">{type.emoji}</Text>
-                      </View>
-                      <Text
-                        className={`text-[10px] font-semibold text-center ${
-                          isSelected ? "text-[#4CAF50]" : "text-gray-500"
-                        }`}
-                        numberOfLines={2}
-                      >
-                        {type.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-              {selectedType === "other" && (
-                <TextInput
-                  value={customType}
-                  onChangeText={setCustomType}
-                  placeholder="Enter story type..."
-                  placeholderTextColor="#9CA3AF"
-                  className="mt-1 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800"
-                />
-              )}
-            </View>
-
-            <View className="px-6 mb-5">
-              <View className="flex-row items-center mb-2">
-                <Pencil size={16} color="#4CAF50" />
-                <Text className="text-base font-bold text-gray-800 ml-1.5">
-                  Additional Prompt
+              {/* Story Length - no Other */}
+              <View className="px-6 mb-4">
+                <Text className="text-base font-bold text-gray-800 mb-2">
+                  Story Length
                 </Text>
-                <Text className="text-xs text-gray-400 ml-1">(optional)</Text>
+                <View className="flex-row gap-2">
+                  {LENGTH_OPTIONS.map((len) => {
+                    const isSelected = selectedLength === len;
+                    return (
+                      <TouchableOpacity
+                        key={len}
+                        onPress={() => setSelectedLength(len)}
+                        activeOpacity={0.7}
+                        className={`flex-1 py-3 items-center rounded-xl border ${
+                          isSelected
+                            ? "bg-white border-[#4CAF50]"
+                            : "bg-white border-gray-200"
+                        }`}
+                      >
+                        <Text
+                          className={`text-sm font-bold ${
+                            isSelected ? "text-[#4CAF50]" : "text-gray-500"
+                          }`}
+                        >
+                          {len}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
               </View>
-              <TextInput
-                value={additionalPrompt}
-                onChangeText={setAdditionalPrompt}
-                placeholder="E.g. Include a dragon character, set in a forest..."
-                placeholderTextColor="#9CA3AF"
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-                className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 min-h-[80px]"
-              />
-            </View>
 
-            <View className="px-6 mb-3">
+              {/* Story Type */}
+              <View className="px-6 mb-4">
+                <Text className="text-base font-bold text-gray-800 mb-3">
+                  Story Type
+                </Text>
+                <View className="flex-row flex-wrap justify-between">
+                  {STORY_TYPES.map((type) => {
+                    const isSelected = selectedType === type.id;
+                    return (
+                      <TouchableOpacity
+                        key={type.id}
+                        onPress={() => {
+                          setSelectedType(type.id);
+                          if (type.id !== "other") setCustomTypeError("");
+                        }}
+                        activeOpacity={0.7}
+                        className="items-center mb-3"
+                        style={{ width: "19%" }}
+                      >
+                        <View
+                          className={`w-14 h-14 rounded-2xl items-center justify-center mb-1.5 ${
+                            isSelected ? "border-2 border-[#4CAF50]" : ""
+                          }`}
+                          style={{ backgroundColor: type.bg }}
+                        >
+                          <Text className="text-xl">{type.emoji}</Text>
+                        </View>
+                        <Text
+                          className={`text-[10px] font-semibold text-center ${
+                            isSelected ? "text-[#4CAF50]" : "text-gray-500"
+                          }`}
+                          numberOfLines={2}
+                        >
+                          {type.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+                {selectedType === "other" && (
+                  <View className="mt-1">
+                    <TextInput
+                      value={customType}
+                      onChangeText={handleCustomTypeChange}
+                      onBlur={() => validateCustomType(customType)}
+                      onFocus={() =>
+                        setTimeout(
+                          () =>
+                            scrollViewRef.current?.scrollToEnd({
+                              animated: true,
+                            }),
+                          300,
+                        )
+                      }
+                      placeholder="Enter story type..."
+                      placeholderTextColor="#9CA3AF"
+                      maxLength={MAX_CUSTOM_TYPE_LENGTH}
+                      autoCorrect={false}
+                      className={`bg-white border rounded-xl px-4 py-2.5 text-sm text-gray-800 ${
+                        customTypeError ? "border-red-400" : "border-gray-200"
+                      }`}
+                    />
+                    <View className="flex-row justify-between mt-1 px-1">
+                      {customTypeError ? (
+                        <Text className="text-xs text-red-500">
+                          {customTypeError}
+                        </Text>
+                      ) : (
+                        <View />
+                      )}
+                      <Text className="text-xs text-gray-400">
+                        {customType.length}/{MAX_CUSTOM_TYPE_LENGTH}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              </View>
+
+              {/* Additional Prompt */}
+              <View className="px-6 mb-5">
+                <View className="flex-row items-center mb-2">
+                  <Pencil size={16} color="#4CAF50" />
+                  <Text className="text-base font-bold text-gray-800 ml-1.5">
+                    Additional Prompt
+                  </Text>
+                  <Text className="text-xs text-gray-400 ml-1">(optional)</Text>
+                </View>
+                <TextInput
+                  value={additionalPrompt}
+                  onChangeText={handlePromptChange}
+                  onBlur={() => validatePrompt(additionalPrompt)}
+                  onFocus={() =>
+                    setTimeout(
+                      () =>
+                        scrollViewRef.current?.scrollToEnd({ animated: true }),
+                      300,
+                    )
+                  }
+                  placeholder="E.g. Include a dragon character, set in a forest..."
+                  placeholderTextColor="#9CA3AF"
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                  maxLength={MAX_PROMPT_LENGTH}
+                  className={`bg-white border rounded-xl px-4 py-3 text-sm text-gray-800 min-h-[80px] ${
+                    promptError ? "border-red-400" : "border-gray-200"
+                  }`}
+                />
+                <View className="flex-row justify-between mt-1 px-1">
+                  {promptError ? (
+                    <Text className="text-xs text-red-500">{promptError}</Text>
+                  ) : (
+                    <View />
+                  )}
+                  <Text className="text-xs text-gray-400">
+                    {additionalPrompt.length}/{MAX_PROMPT_LENGTH}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Generate Button */}
+              <View className="px-6 mb-3">
+                <TouchableOpacity
+                  onPress={handleGenerate}
+                  activeOpacity={0.8}
+                  className="bg-[#4CAF50] rounded-full py-4 items-center"
+                >
+                  <Text className="text-white font-bold text-base">
+                    Generate Story
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Cancel */}
               <TouchableOpacity
-                onPress={handleGenerate}
-                activeOpacity={0.8}
-                className="bg-[#4CAF50] rounded-full py-4 items-center"
+                onPress={handleClose}
+                activeOpacity={0.7}
+                className="items-center py-2"
               >
-                <Text className="text-white font-bold text-base">
-                  Generate Story
+                <Text className="text-gray-400 text-sm font-semibold">
+                  Cancel
                 </Text>
               </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity
-              onPress={onClose}
-              activeOpacity={0.7}
-              className="items-center py-2"
-            >
-              <Text className="text-gray-400 text-sm font-semibold">
-                Cancel
-              </Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   );
