@@ -35,6 +35,8 @@ export type ExperienceStackParamList = {
   GoldenTimeSummary: { selectedSlots: any[] };
   Songs: undefined;
   SongDetail: { songId: number };
+  ScanScreen: undefined;
+  ResultScreen: { imageBase64: string };
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
