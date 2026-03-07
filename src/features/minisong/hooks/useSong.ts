@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { SongsService } from "../services/SongService";
 import { Song } from "../types/Song.type";
 
@@ -6,35 +6,43 @@ export const useSongs = () => {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const loadSongs = async () => {
+    try {
+      setLoading(true);
+      const data = await SongsService.getSongs();
+      setSongs(data);
+    } catch (err) {
+      setError("Failed to fetch songs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredSongs = useMemo(() => {
+    if (!searchQuery.trim()) return songs;
+    return songs.filter((song) =>
+      song.title.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }, [songs, searchQuery]);
 
   useEffect(() => {
-    let isMounted = true;
-
-    const loadSongs = async () => {
-      try {
-        const data = await SongsService.getSongs();
-        if (isMounted) {
-          setSongs(data);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError("Failed to fetch songs");
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
     loadSongs();
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
-  return { songs, loading, error };
+  const refetch = () => {
+    loadSongs();
+  };
+
+  return {
+    songs: filteredSongs,
+    loading,
+    error,
+    refetch,
+    searchQuery,
+    setSearchQuery,
+  };
 };
 
 export const useSongById = () => {

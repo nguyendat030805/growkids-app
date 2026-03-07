@@ -22,7 +22,6 @@ export type RootStackParamList = {
   GoldenTimeSummary: { selectedSlots: any[] };
   Songs: undefined;
   DetailPlay: { song: Song };
-  Complete: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

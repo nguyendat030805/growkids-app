@@ -13,6 +13,25 @@ export const SongCard = ({ song }: { song: Song }) => {
   const navigation = useNavigation<NavigationProp>();
   const { getSongById } = useSongById();
 
+  const calculateProgress = () => {
+    if (song.learningLog?.is_completed) return 100;
+    if (!song.learningLog?.last_position_seconds || !song.duration) return 0;
+    return Math.min(
+      Math.round(
+        (song.learningLog.last_position_seconds / song.duration) * 100,
+      ),
+      100,
+    );
+  };
+
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+
+  const progressPercent = calculateProgress();
+
   const handlePress = async () => {
     const fullSong = await getSongById(song.mini_song_id);
     if (fullSong) {
@@ -26,7 +45,7 @@ export const SongCard = ({ song }: { song: Song }) => {
       onPress={handlePress}
       className="mb-5"
     >
-      <View className="overflow-hidden rounded-2xl bg-white shadow-sm">
+      <View className="overflow-hidden rounded-2xl bg-white shadow-sm border border-gray-200">
         <View className="relative">
           <Image
             source={{ uri: song.thumbnail }}
@@ -49,15 +68,32 @@ export const SongCard = ({ song }: { song: Song }) => {
             >
               {song.title}
             </Text>
-
-            <Ionicons name="heart-outline" size={18} color="#9CA3AF" />
+            {song.learningLog?.is_completed && (
+              <Ionicons name="checkmark-circle" size={20} color="#34D399" />
+            )}
           </View>
 
           <Text className="mt-2 text-xs text-gray-400">
-            ⏱ {song.duration} ·{" "}
+            ⏱ {formatDuration(song.duration)} ·{" "}
             <Text className="font-semibold text-orange-500">
               {song.views} views
             </Text>
+          </Text>
+        </View>
+        <View className="flex-row items-center gap-4 px-4 py-3">
+          <View className="flex-1">
+            <View className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <View
+                className="h-full rounded-full"
+                style={{
+                  width: `${progressPercent}%`,
+                  backgroundColor: "#FFB500",
+                }}
+              />
+            </View>
+          </View>
+          <Text className="font-bold text-black text-sm">
+            {progressPercent}%
           </Text>
         </View>
       </View>

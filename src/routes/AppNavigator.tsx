@@ -12,7 +12,6 @@ import StoryPlayerScreen from "../features/story/pages/StoryPlayerScreen";
 import GoldenTimeSummaryScreen from "../features/schedules/pages/GoldenTimeSummaryScreen";
 import HomepageScreen from "../features/homepage/pages/HomepageScreen";
 import GoldenTimeScreen from "../features/schedules/pages/GoldenTimeScreen";
-import CompletedScreen from "../features/minisong/pages/CompletedScreen";
 import SongDetailPlayScreen from "../features/minisong/pages/DetailPlayScreen";
 import MiniSongScreen from "../features/minisong/pages/MiniSongScreen";
 
@@ -40,7 +39,6 @@ export default function AppNavigator() {
       />
       <Stack.Screen name="Songs" component={MiniSongScreen} />
       <Stack.Screen name="DetailPlay" component={SongDetailPlayScreen} />
-      <Stack.Screen name="Complete" component={CompletedScreen} />
     </Stack.Navigator>
   );
 }
