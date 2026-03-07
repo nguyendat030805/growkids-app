@@ -116,7 +116,7 @@ export default function ScanScreen() {
 
         <View className="mb-10 flex-row items-center justify-around px-8">
           <TouchableOpacity
-            onPress={() => navigation.navigate("MainHome")}
+            onPress={() => navigation.navigate("MainTabs")}
             className="h-14 w-14 items-center justify-center rounded-full bg-white/20"
           >
             <Ionicons name="home-outline" size={30} color="white" />

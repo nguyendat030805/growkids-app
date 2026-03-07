@@ -24,6 +24,13 @@ export const useLogin = () => {
         res.data.refreshToken,
       );
 
+      if (res.data.user) {
+        await AsyncStorage.setItem(
+          STORAGE_KEYS.USER,
+          JSON.stringify(res.data.user),
+        );
+      }
+
       return true;
     } catch (e: any) {
       setError(e?.response?.data?.message ?? "Login failed");
