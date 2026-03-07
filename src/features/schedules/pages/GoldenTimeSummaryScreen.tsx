@@ -148,7 +148,7 @@ const GoldenTimeSummaryScreen = ({ route, navigation }: any) => {
         <TouchableOpacity
           onPress={() =>
             navigation.dispatch(
-              CommonActions.reset({ index: 0, routes: [{ name: "MainHome" }] }),
+              CommonActions.reset({ index: 0, routes: [{ name: "MainTabs" }] }),
             )
           }
           className="bg-lime-500 py-4 rounded-xl items-center"

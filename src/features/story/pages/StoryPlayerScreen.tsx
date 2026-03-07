@@ -5,10 +5,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  ImageSourcePropType,
   Dimensions,
   PanResponder,
   GestureResponderEvent,
+  ActivityIndicator,
 } from "react-native";
 import {
   ChevronLeft,
@@ -18,160 +18,15 @@ import {
   CheckCircle,
 } from "lucide-react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+import { Audio, AVPlaybackStatus } from "expo-av";
 
-import { RootStackParamList } from "@/src/core/navigation/NavigationService";
-import { BottomMenu } from "@/src/core/pages/BottomMenu";
-import { Header } from "@/src/core/pages/Header";
+import { ExperienceStackParamList } from "@/src/core/navigation/NavigationService";
+import { useStories } from "@/src/features/story/hooks/useStories";
+import { useStorySegments } from "@/src/features/story/hooks/useStorySegments";
 
-type StoryPlayerRouteProp = RouteProp<RootStackParamList, "StoryPlayer">;
+const FALLBACK_IMAGE = require("@/public/assets/images/imgStory.png");
 
-interface StorySegment {
-  text: string;
-  image: ImageSourcePropType;
-  startTime: number;
-  endTime: number;
-}
-
-const STORY_SEGMENTS: Record<number, StorySegment[]> = {
-  1: [
-    {
-      text: "Once upon a time, a tiny mouse was playing in the forest. A big lion was sleeping nearby under a large tree.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 30,
-    },
-    {
-      text: "The mouse accidentally ran across the lion's nose and woke him up! The lion caught the mouse, but the mouse begged for mercy.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 30,
-      endTime: 60,
-    },
-    {
-      text: 'The lion laughed and let the mouse go. "You are too small to be my meal," he said kindly.',
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 60,
-      endTime: 80,
-    },
-    {
-      text: "Later, the lion was caught in a hunter's net. The tiny mouse heard his roar and came running to help.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 80,
-      endTime: 100,
-    },
-    {
-      text: "She gnawed through the ropes and set the lion free. From that day on, they became the best of friends.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 100,
-      endTime: 120,
-    },
-  ],
-  2: [
-    {
-      text: "In a small village, there was a garden that bloomed only at night. No one knew why.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 30,
-    },
-    {
-      text: "A curious girl named Lily discovered it one evening. The flowers glowed with golden light.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 30,
-      endTime: 60,
-    },
-    {
-      text: "Lily learned that the garden grew brighter when someone did a good deed. She started helping everyone in the village.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 60,
-      endTime: 90,
-    },
-  ],
-  3: [
-    {
-      text: "Once there was a sweet little girl who always wore a red riding hood. Everyone in the village loved her.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 37,
-    },
-    {
-      text: "One day, her mother asked her to take food to her grandmother who lived in the woods.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 37,
-      endTime: 75,
-    },
-    {
-      text: "On the way through the forest, she met a cunning wolf. The wolf tricked her and ran ahead.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 75,
-      endTime: 112,
-    },
-    {
-      text: "But a brave woodcutter saved them both. Red Riding Hood learned to always stay on the safe path.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 112,
-      endTime: 150,
-    },
-  ],
-  4: [
-    {
-      text: "A little bird fell from its nest during a storm. It was cold and afraid.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 27,
-    },
-    {
-      text: "A kind boy named Tom found it shivering under a bush. He carefully picked it up and made a warm nest.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 27,
-      endTime: 54,
-    },
-    {
-      text: "Soon the bird was strong enough to fly again. It sang a beautiful song for Tom before flying home.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 54,
-      endTime: 80,
-    },
-  ],
-  5: [
-    {
-      text: "A little bird fell from its nest during a storm. It was cold and afraid.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 27,
-    },
-    {
-      text: "A kind boy named Tom found it shivering under a bush. He carefully picked it up and made a warm nest.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 27,
-      endTime: 54,
-    },
-    {
-      text: "Soon the bird was strong enough to fly again. It sang a beautiful song for Tom before flying home.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 54,
-      endTime: 80,
-    },
-  ],
-  6: [
-    {
-      text: "Bunny was lost in the big meadow. He hopped left and right but could not find his home.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 0,
-      endTime: 20,
-    },
-    {
-      text: "A friendly squirrel offered to help. Together they crossed the stream and passed the tall oak tree.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 20,
-      endTime: 40,
-    },
-    {
-      text: "Finally, they found the cozy burrow under the hill. Bunny was so happy he shared his carrots with his new friend.",
-      image: require("@/public/assets/images/imgStory.png"),
-      startTime: 40,
-      endTime: 60,
-    },
-  ],
-};
+type StoryPlayerRouteProp = RouteProp<ExperienceStackParamList, "StoryPlayer">;
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const IMAGE_WIDTH = SCREEN_WIDTH - 48;
@@ -180,57 +35,202 @@ const IMAGE_HEIGHT = IMAGE_WIDTH * 0.7;
 export default function StoryPlayerScreen() {
   const navigation = useNavigation();
   const route = useRoute<StoryPlayerRouteProp>();
-  const { storyId, title, duration } = route.params;
+  const { storyId } = route.params;
 
-  const totalSeconds = useMemo(() => {
-    const num = parseInt(duration, 10);
-    return isNaN(num) ? 60 : num;
-  }, [duration]);
+  const { stories, loading: storiesLoading } = useStories();
+  const story = useMemo(
+    () => stories.find((s) => s.story_id === storyId),
+    [stories, storyId],
+  );
+  const { segments } = useStorySegments(story);
 
-  const segments = useMemo(() => STORY_SEGMENTS[storyId] ?? [], [storyId]);
+  const title = story?.title ?? "";
 
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
+  const [segmentPositionMs, setSegmentPositionMs] = useState(0);
+  const [segmentDurationsMs, setSegmentDurationsMs] = useState<number[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [audioReady, setAudioReady] = useState(false);
+  const [audioFinished, setAudioFinished] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1.0);
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const segIndexRef = useRef(0);
+  const playbackRateRef = useRef(1.0);
   const barWidthRef = useRef(0);
   const barPageXRef = useRef(0);
-
-  const currentSegmentIndex = useMemo(() => {
-    for (let i = segments.length - 1; i >= 0; i--) {
-      if (currentTime >= segments[i].startTime) return i;
-    }
-    return 0;
-  }, [currentTime, segments]);
+  const isSeekingRef = useRef(false);
+  const wasPlayingRef = useRef(false);
+  const seekTargetRef = useRef<{ segIdx: number; offsetMs: number } | null>(
+    null,
+  );
+  const loadIdRef = useRef(0);
+  const isPlayingRef = useRef(false);
+  const totalDurationMsRef = useRef(0);
+  const segmentOffsetsRef = useRef<number[]>([]);
 
   const currentSegment = segments[currentSegmentIndex];
   const isLastSegment = currentSegmentIndex === segments.length - 1;
 
-  useEffect(() => {
-    if (isPlaying) {
-      timerRef.current = setInterval(() => {
-        setCurrentTime((prev) => {
-          if (prev >= totalSeconds) {
-            setIsPlaying(false);
-            if (timerRef.current) clearInterval(timerRef.current);
-            return totalSeconds;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-    } else if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isPlaying, totalSeconds]);
+  const totalDurationMs = useMemo(
+    () => segmentDurationsMs.reduce((sum, d) => sum + d, 0),
+    [segmentDurationsMs],
+  );
 
-  const togglePlay = () => {
-    if (currentTime >= totalSeconds) {
-      setCurrentTime(0);
+  const segmentOffsets = useMemo(() => {
+    const offsets: number[] = [];
+    let acc = 0;
+    for (const d of segmentDurationsMs) {
+      offsets.push(acc);
+      acc += d;
     }
-    setIsPlaying((prev) => !prev);
+    return offsets;
+  }, [segmentDurationsMs]);
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+  useEffect(() => {
+    totalDurationMsRef.current = totalDurationMs;
+  }, [totalDurationMs]);
+  useEffect(() => {
+    segmentOffsetsRef.current = segmentOffsets;
+  }, [segmentOffsets]);
+
+  const globalPositionMs =
+    (segmentOffsets[currentSegmentIndex] ?? 0) + segmentPositionMs;
+
+  const totalSeconds = Math.round(totalDurationMs / 1000);
+  const currentTime = Math.round(globalPositionMs / 1000);
+
+  // Preload all segment durations on mount
+  useEffect(() => {
+    if (segments.length === 0) return;
+    let cancelled = false;
+
+    const preload = async () => {
+      const durations: number[] = [];
+      for (const seg of segments) {
+        if (!seg.audio_url) {
+          durations.push(0);
+          continue;
+        }
+        try {
+          const { sound } = await Audio.Sound.createAsync(
+            { uri: seg.audio_url },
+            { shouldPlay: false },
+          );
+          const status = await sound.getStatusAsync();
+          durations.push(status.isLoaded ? (status.durationMillis ?? 0) : 0);
+          await sound.unloadAsync();
+        } catch {
+          durations.push(0);
+        }
+      }
+      if (!cancelled) {
+        setSegmentDurationsMs(durations);
+        setAudioReady(true);
+      }
+    };
+
+    Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+    preload();
+    return () => {
+      cancelled = true;
+    };
+  }, [segments]);
+
+  const loadFnRef = useRef<
+    | ((index: number, autoPlay: boolean, startAtMs?: number) => Promise<void>)
+    | undefined
+  >(undefined);
+
+  const loadAndPlaySegment = useCallback(
+    async (index: number, autoPlay: boolean, startAtMs = 0) => {
+      const myLoadId = ++loadIdRef.current;
+
+      if (soundRef.current) {
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+
+      if (myLoadId !== loadIdRef.current) return;
+
+      const seg = segments[index];
+      if (!seg?.audio_url) return;
+
+      segIndexRef.current = index;
+      setCurrentSegmentIndex(index);
+      setSegmentPositionMs(startAtMs);
+
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: seg.audio_url },
+        {
+          shouldPlay: autoPlay,
+          positionMillis: startAtMs,
+          rate: playbackRateRef.current,
+          shouldCorrectPitch: true,
+        },
+        (status: AVPlaybackStatus) => {
+          if (!status.isLoaded) return;
+          if (!isSeekingRef.current) {
+            setSegmentPositionMs(status.positionMillis);
+          }
+
+          if (status.didJustFinish && !isSeekingRef.current) {
+            const nextIdx = segIndexRef.current + 1;
+            if (nextIdx < segments.length) {
+              loadFnRef.current?.(nextIdx, true);
+            } else {
+              setIsPlaying(false);
+              setAudioFinished(true);
+            }
+          }
+        },
+      );
+
+      if (myLoadId !== loadIdRef.current) {
+        await sound.unloadAsync();
+        return;
+      }
+
+      soundRef.current = sound;
+      if (autoPlay) {
+        setIsPlaying(true);
+        setAudioFinished(false);
+      }
+    },
+    [segments],
+  );
+
+  useEffect(() => {
+    loadFnRef.current = loadAndPlaySegment;
+  }, [loadAndPlaySegment]);
+
+  useEffect(() => {
+    return () => {
+      soundRef.current?.unloadAsync();
+    };
+  }, []);
+
+  const togglePlay = async () => {
+    if (audioFinished || !soundRef.current) {
+      setAudioFinished(false);
+      setSegmentPositionMs(0);
+      await loadAndPlaySegment(0, true);
+      return;
+    }
+
+    const status = await soundRef.current.getStatusAsync();
+    if (!status.isLoaded) return;
+
+    if (status.isPlaying) {
+      await soundRef.current.pauseAsync();
+      setIsPlaying(false);
+    } else {
+      await soundRef.current.playAsync();
+      setIsPlaying(true);
+    }
   };
 
   const formatTime = (sec: number) => {
@@ -239,15 +239,34 @@ export default function StoryPlayerScreen() {
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  const seekToPosition = useCallback(
-    (pageX: number) => {
-      const x = pageX - barPageXRef.current;
-      const clamped = Math.max(0, Math.min(x, barWidthRef.current));
-      const ratio = barWidthRef.current > 0 ? clamped / barWidthRef.current : 0;
-      setCurrentTime(Math.round(ratio * totalSeconds));
-    },
-    [totalSeconds],
-  );
+  const changeSpeed = async (rate: number) => {
+    setPlaybackRate(rate);
+    playbackRateRef.current = rate;
+    if (soundRef.current) {
+      await soundRef.current.setRateAsync(rate, true);
+    }
+  };
+
+  const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5];
+
+  const computeSeekPosition = (pageX: number) => {
+    const total = totalDurationMsRef.current;
+    if (total === 0) return null;
+    const x = pageX - barPageXRef.current;
+    const clamped = Math.max(0, Math.min(x, barWidthRef.current));
+    const ratio = barWidthRef.current > 0 ? clamped / barWidthRef.current : 0;
+    const targetMs = Math.round(ratio * total);
+
+    const offsets = segmentOffsetsRef.current;
+    let segIdx = 0;
+    for (let i = offsets.length - 1; i >= 0; i--) {
+      if (targetMs >= offsets[i]) {
+        segIdx = i;
+        break;
+      }
+    }
+    return { segIdx, offsetMs: targetMs - offsets[segIdx] };
+  };
 
   const panResponder = useMemo(
     () =>
@@ -255,33 +274,79 @@ export default function StoryPlayerScreen() {
         onStartShouldSetPanResponder: () => true,
         onMoveShouldSetPanResponder: () => true,
         onPanResponderGrant: (evt: GestureResponderEvent) => {
-          seekToPosition(evt.nativeEvent.pageX);
+          isSeekingRef.current = true;
+          wasPlayingRef.current = isPlayingRef.current;
+
+          if (soundRef.current) {
+            soundRef.current.pauseAsync().catch(() => {});
+          }
+
+          const pos = computeSeekPosition(evt.nativeEvent.pageX);
+          if (pos) {
+            seekTargetRef.current = pos;
+            setCurrentSegmentIndex(pos.segIdx);
+            setSegmentPositionMs(pos.offsetMs);
+          }
         },
         onPanResponderMove: (evt: GestureResponderEvent) => {
-          seekToPosition(evt.nativeEvent.pageX);
+          const pos = computeSeekPosition(evt.nativeEvent.pageX);
+          if (pos) {
+            seekTargetRef.current = pos;
+            setCurrentSegmentIndex(pos.segIdx);
+            setSegmentPositionMs(pos.offsetMs);
+          }
+        },
+        onPanResponderRelease: async () => {
+          isSeekingRef.current = false;
+          const target = seekTargetRef.current;
+          if (!target) return;
+
+          setAudioFinished(false);
+          const shouldPlay = wasPlayingRef.current;
+
+          if (target.segIdx === segIndexRef.current && soundRef.current) {
+            await soundRef.current.setPositionAsync(target.offsetMs);
+            setSegmentPositionMs(target.offsetMs);
+            if (shouldPlay) {
+              await soundRef.current.playAsync();
+              setIsPlaying(true);
+            }
+          } else {
+            await loadFnRef.current?.(
+              target.segIdx,
+              shouldPlay,
+              target.offsetMs,
+            );
+          }
+        },
+        onPanResponderTerminate: () => {
+          isSeekingRef.current = false;
         },
       }),
-    [seekToPosition],
+    [],
   );
 
   const progressPercent =
-    totalSeconds > 0 ? (currentTime / totalSeconds) * 100 : 0;
+    totalDurationMs > 0 ? (globalPositionMs / totalDurationMs) * 100 : 0;
+
+  if (storiesLoading || (!audioReady && segments.length > 0)) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center">
+        <ActivityIndicator size="large" color="#FFB500" />
+      </View>
+    );
+  }
 
   if (!currentSegment) return null;
 
+  const segmentImage = currentSegment.image_url
+    ? { uri: currentSegment.image_url }
+    : FALLBACK_IMAGE;
+
   return (
     <View className="flex-1 bg-white">
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="py-4">
-          <View className="px-0">
-            <Header />
-          </View>
-
-          {/* Sub Header */}
           <View className="flex-row items-center justify-between px-4 mb-4">
             <TouchableOpacity
               className="flex-row items-center"
@@ -304,46 +369,32 @@ export default function StoryPlayerScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Story Illustration - changes per segment */}
           <View className="mx-6 mb-5 items-center">
             <View
               className="rounded-2xl overflow-hidden border-4 border-[#E8D5B0]"
               style={{ width: IMAGE_WIDTH, height: IMAGE_HEIGHT }}
             >
               <Image
-                source={currentSegment.image}
-                style={{ width: "100%", height: "100%" }}
+                source={segmentImage}
+                className="w-full h-full"
                 resizeMode="cover"
               />
             </View>
           </View>
 
-          {/* Story Title */}
           <View className="items-center mb-4 px-6">
-            <Text
-              className="text-2xl font-extrabold text-[#1C2B6D] text-center"
-              style={{ fontStyle: "italic" }}
-            >
+            <Text className="text-2xl font-extrabold text-[#1C2B6D] text-center italic">
               {title}
             </Text>
           </View>
 
-          {/* Story Content - current segment only */}
           <View className="mx-6 mb-6">
-            <View
-              className="rounded-2xl px-5 py-6"
-              style={{
-                backgroundColor: "#FFF8EE",
-                borderWidth: 2,
-                borderColor: "#E8D5B0",
-              }}
-            >
+            <View className="rounded-2xl px-5 py-6 bg-[#FFF8EE] border-2 border-[#E8D5B0]">
               <Text className="text-base text-gray-800 leading-7 text-center">
-                {currentSegment.text}
+                {currentSegment.content_text}
               </Text>
             </View>
 
-            {/* Segment indicator dots */}
             <View className="flex-row justify-center mt-3 gap-2">
               {segments.map((_, idx) => (
                 <View
@@ -358,32 +409,13 @@ export default function StoryPlayerScreen() {
             </View>
           </View>
 
-          {/* Audio Player */}
           <View className="mx-6 mb-4">
-            <View
-              className="rounded-2xl px-5 py-5"
-              style={{
-                backgroundColor: "#C8A84E",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.2,
-                shadowRadius: 8,
-                elevation: 6,
-              }}
-            >
-              {/* Single Play/Pause Button */}
+            <View className="rounded-2xl px-5 py-5 bg-[#C8A84E] shadow-lg shadow-black/20">
               <View className="items-center mb-4">
                 <TouchableOpacity
                   onPress={togglePlay}
                   activeOpacity={0.7}
-                  className="w-16 h-16 rounded-full bg-[#4CAF50] items-center justify-center"
-                  style={{
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 4,
-                    elevation: 4,
-                  }}
+                  className="w-16 h-16 rounded-full bg-[#4CAF50] items-center justify-center shadow-md shadow-black/25"
                 >
                   {isPlaying ? (
                     <Pause size={28} color="#fff" fill="#fff" />
@@ -398,7 +430,6 @@ export default function StoryPlayerScreen() {
                 </TouchableOpacity>
               </View>
 
-              {/* Seekable Progress Bar */}
               <View className="flex-row items-center gap-2">
                 <Text className="text-xs text-white font-semibold w-10 text-center">
                   {formatTime(currentTime)}
@@ -420,18 +451,12 @@ export default function StoryPlayerScreen() {
                     className="h-full bg-white rounded-full"
                     style={{ width: `${progressPercent}%` }}
                   />
-                  {/* Thumb */}
                   <View
-                    className="absolute top-1/2 w-5 h-5 rounded-full bg-white"
+                    className="absolute top-1/2 w-5 h-5 rounded-full bg-white shadow-sm shadow-black/30"
                     style={{
                       left: `${progressPercent}%`,
                       marginLeft: -10,
                       marginTop: -10,
-                      shadowColor: "#000",
-                      shadowOffset: { width: 0, height: 1 },
-                      shadowOpacity: 0.3,
-                      shadowRadius: 2,
-                      elevation: 3,
                     }}
                   />
                 </View>
@@ -440,13 +465,36 @@ export default function StoryPlayerScreen() {
                   {formatTime(totalSeconds)}
                 </Text>
               </View>
+
+              <View className="flex-row items-center justify-center mt-3 gap-1">
+                {SPEED_OPTIONS.map((rate) => (
+                  <TouchableOpacity
+                    key={rate}
+                    onPress={() => changeSpeed(rate)}
+                    activeOpacity={0.7}
+                    className={`px-3 py-1.5 rounded-full ${
+                      playbackRate === rate ? "bg-white" : "bg-[#A88A3D]"
+                    }`}
+                  >
+                    <Text
+                      className={`text-xs font-bold ${
+                        playbackRate === rate ? "text-[#C8A84E]" : "text-white"
+                      }`}
+                    >
+                      {rate}x
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
           </View>
-          {/* Complete Story Button - shows on last segment */}
+
           {isLastSegment && (
             <View className="mx-6 mb-4">
               <TouchableOpacity
-                onPress={() => {
+                onPress={async () => {
+                  if (soundRef.current) await soundRef.current.unloadAsync();
+                  soundRef.current = null;
                   setIsPlaying(false);
                   setIsCompleted(true);
                 }}
@@ -463,33 +511,15 @@ export default function StoryPlayerScreen() {
         </View>
       </ScrollView>
 
-      {/* BottomMenu */}
-      <View className="absolute bottom-0 left-0 right-0">
-        <BottomMenu />
-      </View>
-
-      {/* Completion Screen Overlay */}
       {isCompleted && (
         <View className="absolute inset-0 bg-[#EEF0F8] items-center justify-center px-8">
-          {/* Stars decoration */}
           <Text className="text-4xl absolute top-20 left-8">⭐</Text>
           <Text className="text-2xl absolute top-28 right-12">✨</Text>
           <Text className="text-3xl absolute top-16 right-6">⭐</Text>
           <Text className="text-xl absolute top-36 left-16">✨</Text>
 
-          {/* Badge */}
           <View className="items-center mb-8">
-            <View
-              className="w-44 h-44 rounded-full items-center justify-center"
-              style={{
-                backgroundColor: "#D8C4F0",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.15,
-                shadowRadius: 8,
-                elevation: 6,
-              }}
-            >
+            <View className="w-44 h-44 rounded-full items-center justify-center bg-[#D8C4F0] shadow-lg shadow-black/15">
               <View className="w-36 h-36 rounded-full bg-[#E8D8F4] items-center justify-center">
                 <Text className="text-5xl mb-1">🐉</Text>
                 <View className="bg-[#F4A623] rounded-full px-4 py-1.5 mt-1">
@@ -501,37 +531,26 @@ export default function StoryPlayerScreen() {
             </View>
           </View>
 
-          {/* More stars around badge */}
           <Text className="text-2xl absolute top-60 left-6">⭐</Text>
           <Text className="text-lg absolute top-64 right-10">⭐</Text>
 
-          {/* Congratulations text */}
-          <Text
-            className="text-3xl font-extrabold text-[#1C2B6D] text-center mb-1"
-            style={{ fontStyle: "italic" }}
-          >
+          <Text className="text-3xl font-extrabold text-[#1C2B6D] text-center mb-1 italic">
             Congratulations
           </Text>
-          <Text
-            className="text-3xl font-extrabold text-[#1C2B6D] text-center mb-8"
-            style={{ fontStyle: "italic" }}
-          >
+          <Text className="text-3xl font-extrabold text-[#1C2B6D] text-center mb-8 italic">
             You finished
           </Text>
 
-          {/* Book illustration */}
           <View className="mb-10">
             <Text className="text-6xl">📖</Text>
           </View>
 
-          {/* Story title */}
           <View className="bg-white/60 rounded-2xl px-6 py-3 mb-8">
             <Text className="text-lg font-bold text-[#1C2B6D] text-center">
               {title}
             </Text>
           </View>
 
-          {/* Action Buttons */}
           <View className="w-full gap-3">
             <TouchableOpacity
               onPress={() => navigation.goBack()}
@@ -544,10 +563,10 @@ export default function StoryPlayerScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => {
+              onPress={async () => {
                 setIsCompleted(false);
-                setCurrentTime(0);
-                setIsPlaying(false);
+                setSegmentPositionMs(0);
+                await loadAndPlaySegment(0, false);
               }}
               activeOpacity={0.7}
               className="bg-white rounded-full py-4 items-center border border-gray-200"
