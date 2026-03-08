@@ -5,7 +5,11 @@ import { Image, ScrollView, Text, View } from "react-native";
 
 import { CircleIcon } from "../../../core/components/CircleIcon";
 import HeaderChild from "../../../core/components/ScreenHeader";
-import { MiniSongStackParamList } from "../routes/SongRoute";
+import { Song } from "../types/Song.type";
+type MiniSongStackParamList = {
+  Detail: { song: Song };
+  DetailPlay: { song: Song };
+};
 
 type RouteProps = RouteProp<MiniSongStackParamList, "Detail">;
 
@@ -30,7 +34,7 @@ const SongDetailPage = () => {
       <ScrollView className="mt-2 px-4" showsVerticalScrollIndicator={false}>
         <View className="relative mb-4 overflow-hidden rounded-2xl bg-white shadow-md">
           <Image
-            source={song.thumbnail}
+            source={{ uri: song.thumbnail }}
             className="h-[200px] w-full"
             resizeMode="cover"
           />

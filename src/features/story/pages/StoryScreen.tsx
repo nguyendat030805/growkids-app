@@ -5,121 +5,71 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  ImageSourcePropType,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
-import { ChevronLeft, Star } from "lucide-react-native";
+import { ChevronLeft, Heart, Star } from "lucide-react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { RootStackParamList } from "@/src/core/navigation/NavigationService";
-
-import { BottomMenu } from "@/src/core/pages/BottomMenu";
-import { Header } from "@/src/core/pages/Header";
+import { ExperienceStackParamList } from "@/src/core/navigation/NavigationService";
 import {
   AIStoryModal,
   AIStoryParams,
 } from "@/src/features/story/components/AIStoryModal";
+import { useStories } from "@/src/features/story/hooks/useStories";
+import { useCreateStory } from "@/src/features/story/hooks/useCreateStory";
+import { Story } from "@/src/features/story/types/StoryType";
 
-interface Story {
-  id: number;
-  title: string;
-  difficulty: string;
-  duration: string;
-  content: string;
-  image: ImageSourcePropType;
-}
+const FALLBACK_IMAGE = require("@/public/assets/images/imgStory.png");
 
-interface Topic {
-  name: string;
-  stories: Story[];
-}
+const formatDuration = (seconds: number | null) => {
+  if (!seconds) return "";
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  if (min === 0) return `${sec}s`;
+  if (sec === 0) return `${min} min`;
+  return `${min} min ${sec}s`;
+};
 
-const topicsData: Topic[] = [
-  {
-    name: "Animals",
-    stories: [
-      {
-        id: 1,
-        title: "The Lion & Mouse",
-        difficulty: "Easy",
-        duration: "120",
-        content:
-          "Once upon a time, a tiny mouse was playing. A big lion was sleeping nearby. The mouse accidentally ran across the lion's nose and woke him up. The lion caught the mouse, but the mouse begged for mercy. The lion laughed and let the mouse go. Later, the lion was caught in a hunter's net. The tiny mouse heard his roar and came to help. She gnawed through the ropes and set the lion free. From that day on, they became the best of friends.",
-        image: require("@/public/assets/images/imgStory.png"),
-      },
-      {
-        id: 2,
-        title: "The Magic Garden",
-        difficulty: "Easy",
-        duration: "90",
-        content:
-          "In a small village, there was a garden that bloomed only at night. A curious girl named Lily discovered it one evening. The flowers glowed with golden light and whispered secrets of kindness. Lily learned that the garden grew brighter when someone did a good deed. She started helping everyone in the village, and the garden became the most beautiful place in the world.",
-        image: require("@/public/assets/images/imgStory.png"),
-      },
-      {
-        id: 3,
-        title: "Red Riding Hood",
-        difficulty: "Easy",
-        duration: "150",
-        content:
-          "Once there was a sweet little girl who always wore a red riding hood. One day, her mother asked her to take food to her grandmother. On the way through the forest, she met a wolf. The wolf tricked her and ran to grandmother's house first. But a brave woodcutter saved them both. Red Riding Hood learned to always stay on the safe path.",
-        image: require("@/public/assets/images/imgStory.png"),
-      },
-      {
-        id: 4,
-        title: "Save the Little Bird",
-        difficulty: "Easy",
-        duration: "80",
-        content:
-          "A little bird fell from its nest during a storm. A kind boy named Tom found it shivering under a bush. He carefully picked it up and made a warm nest in a box. Every day, he fed the bird and talked to it gently. Soon the bird was strong enough to fly again. It sang a beautiful song for Tom before flying home.",
-        image: require("@/public/assets/images/imgStory.png"),
-      },
-      {
-        id: 5,
-        title: "Save the Little Bird",
-        difficulty: "Easy",
-        duration: "80",
-        content:
-          "A little bird fell from its nest during a storm. A kind boy named Tom found it shivering under a bush. He carefully picked it up and made a warm nest in a box. Every day, he fed the bird and talked to it gently. Soon the bird was strong enough to fly again. It sang a beautiful song for Tom before flying home.",
-        image: require("@/public/assets/images/imgStory.png"),
-      },
-      {
-        id: 6,
-        title: "Help Bunny Find Home",
-        difficulty: "Easy",
-        duration: "60",
-        content:
-          "Bunny was lost in the big meadow. He hopped left and right but could not find his home. A friendly squirrel offered to help. Together they crossed the stream and passed the tall oak tree. Finally, they found the cozy burrow under the hill. Bunny was so happy he shared his carrots with his new friend.",
-        image: require("@/public/assets/images/imgStory.png"),
-      },
-    ],
-  },
-];
+const getCoverImage = (story: Story) => {
+  if (story.cover_image_url) return { uri: story.cover_image_url };
+  const firstSegment = story.story_segments?.[0];
+  if (firstSegment?.image_url) return { uri: firstSegment.image_url };
+  return FALLBACK_IMAGE;
+};
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CARD_GAP = 12;
+const CARD_GAP = 14;
 const HORIZONTAL_PADDING = 16;
 const CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
+const IMAGE_HEIGHT = CARD_WIDTH * 0.85;
 
 export default function StoryScreen() {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NavigationProp<ExperienceStackParamList>>();
+  const { stories, loading, refetch } = useStories();
+  const { createStory, loading: creating } = useCreateStory(() => {
+    setShowAIModal(false);
+    refetch();
+  });
   const [showAIModal, setShowAIModal] = useState(false);
+  const [favorites, setFavorites] = useState<Set<number>>(new Set());
+
+  const toggleFavorite = (id: number) => {
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const handleAIGenerate = (params: AIStoryParams) => {
-    setShowAIModal(false);
+    createStory(params);
   };
 
   return (
     <View className="flex-1 bg-white">
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 80 }}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="py-4">
-          <View className="px-0">
-            <Header />
-          </View>
-
           <View className="flex-row items-center justify-between px-4 mb-4">
             <TouchableOpacity
               className="flex-row items-center"
@@ -151,76 +101,90 @@ export default function StoryScreen() {
             </TouchableOpacity>
           </View>
 
-          {topicsData.map((topic, topicIdx) => (
-            <View key={topicIdx} className="px-4 mb-6">
+          <View className="px-4">
+            {loading ? (
+              <View className="items-center py-12">
+                <ActivityIndicator size="large" color="#FFB500" />
+              </View>
+            ) : (
               <View className="flex-row flex-wrap" style={{ gap: CARD_GAP }}>
-                {topic.stories.map((story) => (
-                  <TouchableOpacity
-                    key={story.id}
-                    activeOpacity={0.85}
-                    style={{ width: CARD_WIDTH }}
-                    className="rounded-2xl overflow-hidden"
-                    onPress={() =>
-                      navigation.navigate("StoryPlayer", {
-                        storyId: story.id,
-                        title: story.title,
-                        duration: story.duration,
-                      })
-                    }
-                  >
-                    <View
-                      className="relative"
-                      style={{ height: CARD_WIDTH * 1.15 }}
+                {stories.map((story) => {
+                  const isFav = favorites.has(story.story_id);
+                  return (
+                    <TouchableOpacity
+                      key={story.story_id}
+                      activeOpacity={0.9}
+                      className="bg-white rounded-2xl overflow-hidden border border-[#E8ECF0] shadow-md shadow-black/10"
+                      style={{ width: CARD_WIDTH }}
+                      onPress={() =>
+                        navigation.navigate("StoryPlayer", {
+                          storyId: story.story_id,
+                        })
+                      }
                     >
                       <Image
-                        source={story.image}
-                        style={{ width: "100%", height: "100%" }}
+                        source={getCoverImage(story)}
+                        className="w-full rounded-t-2xl"
+                        style={{ height: IMAGE_HEIGHT }}
                         resizeMode="cover"
                       />
 
-                      <View
-                        className="absolute inset-0"
-                        style={{ backgroundColor: "rgba(0,0,0,0.2)" }}
-                      />
+                      <View className="px-2.5 pt-2 pb-2.5">
+                        <View className="flex-row items-center justify-between">
+                          <Text
+                            className="text-[13px] font-bold text-gray-900 flex-1 mr-1"
+                            numberOfLines={1}
+                          >
+                            {story.title}
+                          </Text>
+                          <TouchableOpacity
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(story.story_id);
+                            }}
+                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                            activeOpacity={0.6}
+                          >
+                            {isFav ? (
+                              <Heart
+                                size={18}
+                                color="#EF4444"
+                                fill="#EF4444"
+                                strokeWidth={2}
+                              />
+                            ) : (
+                              <Heart
+                                size={18}
+                                color="#D1D5DB"
+                                fill="#FFFFFF"
+                                strokeWidth={2}
+                              />
+                            )}
+                          </TouchableOpacity>
+                        </View>
 
-                      <View className="absolute top-0 left-0 right-0 p-2.5">
-                        <Text
-                          className="text-white font-extrabold text-sm"
-                          style={{
-                            textShadowColor: "rgba(0,0,0,0.6)",
-                            textShadowOffset: { width: 0, height: 1 },
-                            textShadowRadius: 3,
-                          }}
-                          numberOfLines={2}
-                        >
-                          {story.title}
-                        </Text>
-                      </View>
+                        <View className="flex-row items-center justify-between mt-2">
+                          {story.age_min != null && story.age_max != null && (
+                            <View className="rounded-full px-2.5 py-1 bg-[#A855F718]">
+                              <Text className="text-[11px] font-bold text-[#A855F7]">
+                                {story.age_min}–{story.age_max} tuổi
+                              </Text>
+                            </View>
+                          )}
 
-                      <View className="absolute bottom-0 left-0 right-0 flex-row items-center justify-between p-2.5">
-                        <View className="bg-[#9EC800] rounded-full px-3 py-1">
-                          <Text className="text-white text-xs font-bold">
-                            {story.difficulty}
+                          <Text className="text-[11px] text-gray-400">
+                            {formatDuration(story.duration_seconds)}
                           </Text>
                         </View>
-                        <View className="bg-[#9EC800] rounded-full px-3 py-1">
-                          <Text className="text-white text-xs font-bold">
-                            {story.duration}
-                          </Text>
-                        </View>
                       </View>
-                    </View>
-                  </TouchableOpacity>
-                ))}
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
-            </View>
-          ))}
+            )}
+          </View>
         </View>
       </ScrollView>
-
-      <View className="absolute bottom-0 left-0 right-0">
-        <BottomMenu />
-      </View>
 
       <AIStoryModal
         visible={showAIModal}
