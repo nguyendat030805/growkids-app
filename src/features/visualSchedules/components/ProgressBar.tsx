@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text } from "react-native";
 interface Props {
   progress: number;
-  duration: number;
+  duration: string;
 }
 const ProgressBar: React.FC<Props> = ({ progress, duration }) => {
   return (

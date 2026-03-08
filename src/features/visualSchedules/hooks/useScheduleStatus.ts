@@ -1,12 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
 import { TimeSlot } from "../types/schedule.type";
+
 type IoniconName = ComponentProps<typeof Ionicons>["name"];
+
 interface StatusConfig {
   icon: IoniconName;
   iconColor: string;
   badgeStyle: string;
 }
+
 export const useScheduleStatus = (status: TimeSlot["status"]): StatusConfig => {
   const statusConfig: Record<TimeSlot["status"], StatusConfig> = {
     upcoming: {
@@ -24,6 +27,19 @@ export const useScheduleStatus = (status: TimeSlot["status"]): StatusConfig => {
       iconColor: "#FF6200",
       badgeStyle: "bg-orange-50 border border-orange-400",
     },
+
+    "in progress": {
+      icon: "play-circle-outline",
+      iconColor: "#FFB81F",
+      badgeStyle: "bg-orange-50 border border-orange-200",
+    },
   };
-  return statusConfig[status];
+
+  return (
+    statusConfig[status] ||
+    statusConfig.upcoming ||
+    statusConfig["in progress"] ||
+    statusConfig.completed ||
+    statusConfig.missed
+  );
 };
