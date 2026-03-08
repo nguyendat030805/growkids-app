@@ -213,7 +213,7 @@ export default function SongDetailPlayScreen() {
 
   return (
     <View className="flex-1 bg-[#F5F6FA]">
-      <View className="mx-4 mt-4">
+      <View className="mx-4 mt-4 pt-4">
         <HeaderChild
           title="Song"
           subtitle="Let's sing together 🎵"

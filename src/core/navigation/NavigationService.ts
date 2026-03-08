@@ -23,9 +23,9 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   HomeTab: undefined;
   ExperienceTab: undefined;
+  ScanTab: undefined;
   VoiceTab: undefined;
   LibraryTab: undefined;
-  ProfileTab: undefined;
 };
 
 export type ExperienceStackParamList = {
@@ -54,7 +54,7 @@ export const NavigationService = {
       navigationRef.navigate(name, params);
     }
   },
-  reset(name: string) {
+  reset(name: keyof RootStackParamList) {
     if (navigationRef.isReady()) {
       navigationRef.dispatch(
         CommonActions.reset({ index: 0, routes: [{ name }] }),

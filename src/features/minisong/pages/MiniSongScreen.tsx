@@ -34,7 +34,7 @@ const MiniSongScreen = () => {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="mx-4 mt-4">
+      <View className="mx-4 mt-4 pt-4">
         <HeaderChild
           title="Songs"
           subtitle="Let’s enjoy the music!"
