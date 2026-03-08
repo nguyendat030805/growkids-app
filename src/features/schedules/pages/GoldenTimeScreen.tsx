@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 
 import ChatBubble from "../components/ChatBubble";
 import TimeSlotCard from "../components/TimeSlotCard";
@@ -78,7 +85,12 @@ const GoldenTimeScreen = ({ route }: any) => {
             animatedStyle={{}}
           />
         </View>
-
+        {loading && (
+          <View className="my-[120px] items-center">
+            <ActivityIndicator size="large" color="#FFB800" />
+            <Text className="mt-3 text-amber-500 font-bold">Loading...</Text>
+          </View>
+        )}
         <View className="px-6 mt-6">
           {data.map((slot, index) => {
             const formatted = formatTimeSlot(slot);
