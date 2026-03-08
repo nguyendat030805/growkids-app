@@ -1,3 +1,4 @@
+import { Song } from "@/src/features/minisong/types/Song.type";
 import {
   createNavigationContainerRef,
   CommonActions,
@@ -11,7 +12,7 @@ export type RootStackParamList = {
   GoldenTime: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
   Songs: undefined;
-  SongDetail: { songId: number };
+  DetailPlay: { songId: number };
   ScanScreen: undefined;
   ResultScreen: { imageBase64: string };
   NotFound: undefined;
@@ -36,7 +37,7 @@ export type ExperienceStackParamList = {
   NotFound: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
   Songs: undefined;
-  SongDetail: { songId: number };
+  DetailPlay: { song: Song };
   ScanScreen: undefined;
   ResultScreen: { imageBase64: string };
 };
