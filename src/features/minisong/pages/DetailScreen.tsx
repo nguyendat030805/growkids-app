@@ -7,7 +7,7 @@ import { CircleIcon } from "../../../core/components/CircleIcon";
 import HeaderChild from "../../../core/components/ScreenHeader";
 import { MiniSongStackParamList } from "../routes/SongRoute";
 
-type RouteProps = RouteProp<MiniSongStackParamList, "SongDetail">;
+type RouteProps = RouteProp<MiniSongStackParamList, "Detail">;
 
 type NavigationProp = NativeStackNavigationProp<MiniSongStackParamList>;
 
@@ -18,7 +18,7 @@ const SongDetailPage = () => {
   const navigation = useNavigation<NavigationProp>();
 
   const handlePlay = () => {
-    navigation.navigate("SongDetailPlay", { song });
+    navigation.navigate("DetailPlay", { song });
   };
 
   return (
