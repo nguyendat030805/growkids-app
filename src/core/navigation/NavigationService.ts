@@ -16,6 +16,8 @@ export type RootStackParamList = {
   ScanScreen: undefined;
   ResultScreen: { imageBase64: string };
   NotFound: undefined;
+  VisualSchedule: undefined;
+  Homepage: undefined;
 };
 
 export type MainTabParamList = {
@@ -35,6 +37,7 @@ export type ExperienceStackParamList = {
   GoldenTime: undefined;
   RecordingScreen: undefined;
   NotFound: undefined;
+  VisualSchedule: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
   Songs: undefined;
   DetailPlay: { song: Song };

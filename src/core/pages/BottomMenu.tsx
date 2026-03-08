@@ -3,7 +3,6 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Home, Zap, Mic, BookOpen, User } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-
 const TAB_CONFIG = [
   {
     name: "HomeTab",
