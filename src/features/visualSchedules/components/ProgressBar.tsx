@@ -13,9 +13,7 @@ const ProgressBar: React.FC<Props> = ({ progress, duration }) => {
           style={{ width: `${progress ?? 0}%` }}
         />
       </View>
-      <Text className="text-center text-xs text-gray-600 mt-1">
-        {duration} mins
-      </Text>
+      <Text className="text-center text-xs text-gray-600 mt-1">{duration}</Text>
     </View>
   );
 };

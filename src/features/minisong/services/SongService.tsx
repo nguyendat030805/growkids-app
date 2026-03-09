@@ -1,54 +1,37 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Song } from "../types/Song.type";
+import apiClient from "@/src/core/services/apiClient";
+import { STORAGE_KEYS } from "@/src/core/constants";
 
 export const SongsService = {
-  fetchSongs: async (): Promise<Song[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          {
-            id: 1,
-            title: "Head Shoulders Knees And Toes",
-            thumbnail: require("../../../../public/assets/images/song-body.png"),
-            duration: 4,
-            views: 132000000,
-            category: "Body",
-            videoUrl: "https://youtube.com/watch?v=abc123",
-            lyrics: [
-              {
-                title: "Head and shoulders knees and toes",
-                sub: "/hed ænd ˈʃoʊldərz niːz ænd toʊz/",
-              },
-              { title: "Knees and toes", sub: "/niːz ænd toʊz/" },
-              {
-                title: "Head and shoulders knees and toes",
-                sub: "/hed ænd ˈʃoʊldərz niːz ænd toʊz/",
-              },
-              { title: "Knees and toes", sub: "/niːz ænd toʊz/" },
-            ],
-          },
-          {
-            id: 2,
-            title: "ABC song for Kids",
-            thumbnail: require("../../../../public/assets/images/song-mid.png"),
-            duration: 4.5,
-            views: 227000000,
-            category: "School",
-            videoUrl: "https://youtube.com/watch?v=abc123",
-            lyrics: [
-              {
-                title: "Head and shoulders knees and toes",
-                sub: "/hed ænd ˈʃoʊldərz niːz ænd toʊz/",
-              },
-              { title: "Knees and toes", sub: "/niːz ænd toʊz/" },
-              {
-                title: "Head and shoulders knees and toes",
-                sub: "/hed ænd ˈʃoʊldərz niːz ænd toʊz/",
-              },
-              { title: "Knees and toes", sub: "/niːz ænd toʊz/" },
-            ],
-          },
-        ]);
-      }, 1000);
-    });
+  getSongs: async (): Promise<Song[]> => {
+    const res = await apiClient.get("/mini-songs");
+    return res.data.data;
+  },
+  getSongById: async (songId: string): Promise<Song> => {
+    const childId = await AsyncStorage.getItem(STORAGE_KEYS.SELECTED_CHILD_ID);
+    const res = await apiClient.get(`/mini-songs/${songId}?childId=${childId}`);
+    return res.data.data;
+  },
+  updateLearningLog: async (
+    learningLogId: string,
+    timeSpentSeconds: number,
+    lastPositionSeconds: number,
+    isCompleted: boolean,
+  ) => {
+    try {
+      const response = await apiClient.patch(
+        `/mini-songs/learning-log/${learningLogId}`,
+        {
+          time_spent_seconds: timeSpentSeconds,
+          last_position_seconds: lastPositionSeconds,
+          isCompleted,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to update learning log:", error);
+      throw error;
+    }
   },
 };

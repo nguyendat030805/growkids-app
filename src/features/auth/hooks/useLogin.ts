@@ -23,7 +23,12 @@ export const useLogin = () => {
         STORAGE_KEYS.REFRESH_TOKEN,
         res.data.refreshToken,
       );
-
+      if (res.data.childId) {
+        await AsyncStorage.setItem(
+          STORAGE_KEYS.SELECTED_CHILD_ID,
+          String(res.data.childId),
+        );
+      }
       return true;
     } catch (e: any) {
       setError(e?.response?.data?.message ?? "Login failed");

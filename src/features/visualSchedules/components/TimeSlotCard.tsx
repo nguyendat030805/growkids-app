@@ -42,7 +42,6 @@ const TimeSlotCard: React.FC<Props> = ({ slot }) => {
 
       <Text className="text-gray-700 font-medium">{slot.time_range}</Text>
       <Text className="text-[#0F5E47] mt-1 text-sm">{slot.activity_type}</Text>
-
       <View className="mt-3">
         <ProgressBar
           progress={slot.progress_percent}
