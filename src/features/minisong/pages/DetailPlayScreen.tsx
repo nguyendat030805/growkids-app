@@ -158,7 +158,21 @@ export default function SongDetailPlayScreen() {
   };
 
   const handleBackPress = () => {
-    if (totalWatchTime > 0) {
+    if (playing && startTimeRef.current) {
+      const watchTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      const updatedTotalTime = totalWatchTime + watchTime;
+
+      if (updatedTotalTime > 0) {
+        SongsService.updateLearningLog(
+          song.learningLogId?.toString() || "",
+          updatedTotalTime,
+          Math.floor(currentTime),
+          false,
+        ).finally(() => router.back());
+      } else {
+        router.back();
+      }
+    } else if (totalWatchTime > 0) {
       updateLearningLog(false).finally(() => router.back());
     } else {
       router.back();
