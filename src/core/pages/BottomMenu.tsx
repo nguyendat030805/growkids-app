@@ -1,21 +1,27 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { Home, Zap, Mic, BookOpen, User } from "lucide-react-native";
+import { Home, Zap, ScanLine, Mic, BookOpen } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-
 const TAB_CONFIG = [
   {
     name: "HomeTab",
-    label: "Trang chủ",
+    label: "Home",
     icon: Home,
     activeColor: "#1C2B6D",
     inactiveColor: "#9CA3AF",
   },
   {
     name: "ExperienceTab",
-    label: "Trải nghiệm",
+    label: "Experience",
     icon: Zap,
+    activeColor: "#1C2B6D",
+    inactiveColor: "#9CA3AF",
+  },
+  {
+    name: "ScanTab",
+    label: "Scan",
+    icon: ScanLine,
     activeColor: "#1C2B6D",
     inactiveColor: "#9CA3AF",
   },
@@ -28,15 +34,8 @@ const TAB_CONFIG = [
   },
   {
     name: "LibraryTab",
-    label: "Thư viện",
+    label: "Library",
     icon: BookOpen,
-    activeColor: "#1C2B6D",
-    inactiveColor: "#9CA3AF",
-  },
-  {
-    name: "ProfileTab",
-    label: "Cá nhân",
-    icon: User,
     activeColor: "#1C2B6D",
     inactiveColor: "#9CA3AF",
   },
@@ -51,16 +50,21 @@ export const BottomMenu: React.FC<BottomTabBarProps> = ({
       <View className="flex-row items-center justify-between bg-white border-t border-gray-200 px-6 py-3">
         {TAB_CONFIG.map((item, index) => {
           const Icon = item.icon;
-          const isActive = state.index === index;
+          const isScan = item.name === "ScanTab";
+          const isActive = !isScan && state.index === index;
           const color = isActive ? item.activeColor : item.inactiveColor;
-          const route = state.routes[index];
 
           return (
             <TouchableOpacity
               key={item.name}
               className="items-center justify-center"
               onPress={() => {
+                if (isScan) {
+                  navigation.navigate("ScanTab");
+                  return;
+                }
                 if (!isActive) {
+                  const route = state.routes[index];
                   navigation.navigate(route.name);
                 }
               }}

@@ -9,7 +9,7 @@ interface AuthHeaderProps {
 
 const AuthHeader: React.FC<AuthHeaderProps> = ({ title, subtitle }) => {
   return (
-    <View className="mt-10 items-center">
+    <View className="mt-10 pt-10 items-center">
       <View className="w-64 h-20 mt-[15px] items-center justify-center">
         <LottieView
           source={require("../../../../public/assets/animation/welcome baby.json")}

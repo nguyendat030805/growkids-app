@@ -16,14 +16,16 @@ export type RootStackParamList = {
   ScanScreen: undefined;
   ResultScreen: { imageBase64: string };
   NotFound: undefined;
+  VisualSchedule: undefined;
+  Homepage: undefined;
 };
 
 export type MainTabParamList = {
   HomeTab: undefined;
   ExperienceTab: undefined;
+  ScanTab: undefined;
   VoiceTab: undefined;
   LibraryTab: undefined;
-  ProfileTab: undefined;
 };
 
 export type ExperienceStackParamList = {
@@ -35,6 +37,7 @@ export type ExperienceStackParamList = {
   GoldenTime: undefined;
   RecordingScreen: undefined;
   NotFound: undefined;
+  VisualSchedule: undefined;
   GoldenTimeSummary: { selectedSlots: any[] };
   Songs: undefined;
   DetailPlay: { song: Song };
@@ -51,7 +54,7 @@ export const NavigationService = {
       navigationRef.navigate(name, params);
     }
   },
-  reset(name: string) {
+  reset(name: keyof RootStackParamList) {
     if (navigationRef.isReady()) {
       navigationRef.dispatch(
         CommonActions.reset({ index: 0, routes: [{ name }] }),
