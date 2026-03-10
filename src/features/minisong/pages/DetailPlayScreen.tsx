@@ -158,7 +158,21 @@ export default function SongDetailPlayScreen() {
   };
 
   const handleBackPress = () => {
-    if (totalWatchTime > 0) {
+    if (playing && startTimeRef.current) {
+      const watchTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      const updatedTotalTime = totalWatchTime + watchTime;
+
+      if (updatedTotalTime > 0) {
+        SongsService.updateLearningLog(
+          song.learningLogId?.toString() || "",
+          updatedTotalTime,
+          Math.floor(currentTime),
+          false,
+        ).finally(() => router.back());
+      } else {
+        router.back();
+      }
+    } else if (totalWatchTime > 0) {
       updateLearningLog(false).finally(() => router.back());
     } else {
       router.back();
@@ -213,7 +227,7 @@ export default function SongDetailPlayScreen() {
 
   return (
     <View className="flex-1 bg-[#F5F6FA]">
-      <View className="mx-4 mt-4">
+      <View className="mx-4 mt-4 pt-4">
         <HeaderChild
           title="Song"
           subtitle="Let's sing together 🎵"

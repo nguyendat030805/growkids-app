@@ -5,7 +5,8 @@ import { STORAGE_KEYS } from "@/src/core/constants";
 
 export const SongsService = {
   getSongs: async (): Promise<Song[]> => {
-    const res = await apiClient.get("/mini-songs");
+    const childId = await AsyncStorage.getItem(STORAGE_KEYS.SELECTED_CHILD_ID);
+    const res = await apiClient.get(`/mini-songs?childId=${childId}`);
     return res.data.data;
   },
   getSongById: async (songId: string): Promise<Song> => {

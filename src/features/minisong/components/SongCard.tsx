@@ -14,7 +14,6 @@ export const SongCard = ({ song }: { song: Song }) => {
   const { getSongById } = useSongById();
 
   const calculateProgress = () => {
-    if (song.learningLog?.is_completed) return 100;
     if (!song.learningLog?.last_position_seconds || !song.duration) return 0;
     return Math.min(
       Math.round(
@@ -24,13 +23,17 @@ export const SongCard = ({ song }: { song: Song }) => {
     );
   };
 
+  const isCompleted = () => {
+    return song.learningLog?.is_completed || calculateProgress() >= 90;
+  };
+
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
-  const progressPercent = calculateProgress();
+  const progressPercent = isCompleted() ? 100 : calculateProgress();
 
   const handlePress = async () => {
     const fullSong = await getSongById(song.mini_song_id);
@@ -68,7 +71,7 @@ export const SongCard = ({ song }: { song: Song }) => {
             >
               {song.title}
             </Text>
-            {song.learningLog?.is_completed && (
+            {isCompleted() && (
               <Ionicons name="checkmark-circle" size={20} color="#34D399" />
             )}
           </View>
