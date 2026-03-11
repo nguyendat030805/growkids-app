@@ -59,7 +59,7 @@ export const Header = () => {
 
   const handleProfile = useCallback(() => {
     setShowDropdown(false);
-    navigation.navigate("NotFound" as never);
+    navigation.navigate("VisualSchedule" as never);
   }, [navigation]);
 
   return (

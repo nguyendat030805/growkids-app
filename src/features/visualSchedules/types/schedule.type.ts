@@ -1,10 +1,28 @@
-export type ScheduleStatus = "upcoming" | "completed" | "missed";
+export type ScheduleStatus =
+  | "upcoming"
+  | "completed"
+  | "missed"
+  | "in progress";
+
 export interface TimeSlot {
-  id: string;
+  slot_id: string;
   title: string;
-  subtitle?: string;
-  time: string;
-  duration: number;
+  time_range: string;
+  activity_type: string;
+  target_seconds: number;
+  spent_seconds: number;
+  progress_percent: number;
   status: ScheduleStatus;
-  progress: number;
+  duration_label: string;
+}
+
+export interface DailyScheduleResponseDto {
+  total_progress: number;
+  schedules: TimeSlot[];
+}
+
+export interface DailyScheduleApiResponse {
+  success: boolean;
+  message: string;
+  data: DailyScheduleResponseDto;
 }
