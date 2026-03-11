@@ -15,15 +15,32 @@ import TimeSlotCard from "../components/TimeSlotCard";
 import { scheduleService } from "../services/VisualScheduleService";
 import { DailyScheduleResponseDto } from "../types/schedule.type";
 
+import { useFlexibleFlow } from "../../flexible-schedule/hooks/useFlexibleSchedule";
+import { MissedAlert } from "../../flexible-schedule/components/MissedAlert";
+import { FlexibleModal } from "../../flexible-schedule/components/FlexibleModal";
+
 const VisualScheduleScreen = () => {
   const [data, setData] = useState<DailyScheduleResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const {
+    missedSlots,
+    isModalVisible,
+    suggestion,
+    loadingAi,
+    setIsModalVisible,
+    runCheck,
+    handleGetAi,
+    handleConfirm,
+  } = useFlexibleFlow(async () => {
+    await fetchData();
+  });
 
   const fetchData = async () => {
     try {
       const result = await scheduleService.getDailySchedule();
       setData(result);
+      await runCheck();
     } catch (error) {
       console.error("Lỗi khi tải lịch trình:", error);
     } finally {
@@ -50,6 +67,7 @@ const VisualScheduleScreen = () => {
       </View>
     );
   }
+
   const schedules = data?.schedules || [];
   const completedCount = (schedules || []).filter(
     (s) => s.status === "completed",
@@ -76,8 +94,13 @@ const VisualScheduleScreen = () => {
             resizeMode="contain"
           />
         </View>
-
-        <View className="bg-white rounded-2xl p-5 mb-6 border border-gray-300 shadow-sm elevation: 5">
+        {missedSlots.length > 0 && (
+          <MissedAlert
+            count={missedSlots.length}
+            onPress={() => setIsModalVisible(true)}
+          />
+        )}
+        <View className="bg-white rounded-2xl p-5 mb-6 border border-gray-300 shadow-sm">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="font-semibold text-gray-800 text-base">
               Today&apos;s Learning
@@ -102,7 +125,6 @@ const VisualScheduleScreen = () => {
         <Text className="text-gray-800 font-semibold mb-3 text-base">
           Golden Time (Main)
         </Text>
-
         {data?.schedules.map((item) => (
           <TimeSlotCard
             key={item.slot_id}
@@ -122,6 +144,17 @@ const VisualScheduleScreen = () => {
 
         <View className="h-24" />
       </ScrollView>
+      {missedSlots.length > 0 && (
+        <FlexibleModal
+          visible={isModalVisible}
+          missedSlot={missedSlots[0]}
+          suggestion={suggestion}
+          loading={loadingAi}
+          onClose={() => setIsModalVisible(false)}
+          onGetAi={handleGetAi}
+          onConfirm={handleConfirm}
+        />
+      )}
     </View>
   );
 };
