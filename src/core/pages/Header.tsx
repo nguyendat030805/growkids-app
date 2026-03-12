@@ -13,6 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, CommonActions } from "@react-navigation/native";
 
 import { STORAGE_KEYS } from "../constants";
+import { NotificationBadge } from "@/src/features/notifications/components/NotificationBadge";
 
 interface UserData {
   username?: string;
@@ -62,6 +63,10 @@ export const Header = () => {
     navigation.navigate("VisualSchedule" as never);
   }, [navigation]);
 
+  const handleNotificationPress = useCallback(() => {
+    navigation.navigate("Notifications" as never);
+  }, [navigation]);
+
   return (
     <View>
       {/* HEADER */}
@@ -72,26 +77,36 @@ export const Header = () => {
           resizeMode="contain"
         />
 
-        <TouchableOpacity
-          className="flex-row items-center"
-          activeOpacity={0.7}
-          onPress={() => setShowDropdown((prev) => !prev)}
-        >
-          {avatarUri ? (
-            <Image
-              source={{ uri: avatarUri }}
-              className="w-8 h-8 rounded-full mr-2"
+        <View className="flex-row items-center">
+          <View className="mr-4">
+            <NotificationBadge
+              onPress={handleNotificationPress}
+              size={24}
+              color="#1C2B6D"
             />
-          ) : (
-            <View className="w-8 h-8 rounded-full bg-[#FFE4C4] items-center justify-center mr-2">
-              <Text className="text-base">👦</Text>
-            </View>
-          )}
+          </View>
 
-          <Text className="text-sm font-semibold text-[#1C2B6D]">
-            {displayName}
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            className="flex-row items-center"
+            activeOpacity={0.7}
+            onPress={() => setShowDropdown((prev) => !prev)}
+          >
+            {avatarUri ? (
+              <Image
+                source={{ uri: avatarUri }}
+                className="w-8 h-8 rounded-full mr-2"
+              />
+            ) : (
+              <View className="w-8 h-8 rounded-full bg-[#FFE4C4] items-center justify-center mr-2">
+                <Text className="text-base">👦</Text>
+              </View>
+            )}
+
+            <Text className="text-sm font-semibold text-[#1C2B6D]">
+              {displayName}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View className="h-[2px] bg-[#B4D540] mt-3 rounded-full" />

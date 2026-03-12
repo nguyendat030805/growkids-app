@@ -16,6 +16,7 @@ import ResultScreen from "../features/object-scanning/pages/ResultScreen";
 import SongDetailPlayScreen from "../features/minisong/pages/DetailPlayScreen";
 import MiniSongScreen from "../features/minisong/pages/MiniSongScreen";
 import RegisterScreen from "../features/auth/pages/RegisterScreen";
+import NotificationsScreen from "../features/notifications/pages/NotificationsScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -41,6 +42,7 @@ export default function AppNavigator() {
       <Stack.Screen name="ScanScreen" component={ScanScreen} />
       <Stack.Screen name="ResultScreen" component={ResultScreen} />
       <Stack.Screen name="VisualSchedule" component={VisualScheduleScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
     </Stack.Navigator>
   );
 }

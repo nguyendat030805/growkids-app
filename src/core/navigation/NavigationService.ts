@@ -18,6 +18,7 @@ export type RootStackParamList = {
   NotFound: undefined;
   VisualSchedule: undefined;
   Homepage: undefined;
+  Notifications: undefined;
 };
 
 export type MainTabParamList = {
