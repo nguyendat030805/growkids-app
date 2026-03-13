@@ -58,4 +58,26 @@ export const NotificationService = {
       throw error;
     }
   },
+  async updateExpoPushToken(token: string) {
+    return apiClient.post("/notifications/fcm-token", {
+      fcmToken: token,
+    });
+  },
+
+  async registerPushToken() {
+    try {
+      const NavigationService = (
+        await import("../../../core/services/NotificationService")
+      ).default;
+      const token = await NavigationService.registerForPushNotificationsAsync();
+      if (token) {
+        await this.updateExpoPushToken(token);
+        console.log("Push token registered successfully");
+        return token;
+      }
+    } catch (error) {
+      console.error("Failed to register push token:", error);
+      throw error;
+    }
+  },
 };

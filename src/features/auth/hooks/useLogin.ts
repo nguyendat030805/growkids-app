@@ -3,10 +3,13 @@ import { useState } from "react";
 
 import { STORAGE_KEYS } from "../../../core/constants";
 import { login } from "../services/auth.service";
+import { NotificationService } from "../../notifications/services/NotificationService";
+import { useNotificationContext } from "../../notifications/context/NotificationContext";
 
 export const useLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { initializeAfterLogin } = useNotificationContext();
 
   const handleLogin = async (email: string, password: string) => {
     try {
@@ -29,6 +32,14 @@ export const useLogin = () => {
           String(res.data.childId),
         );
       }
+
+      try {
+        await initializeAfterLogin();
+        await NotificationService.registerPushToken();
+      } catch (notificationError) {
+        console.error("Notification initialization failed:", notificationError);
+      }
+
       return true;
     } catch (e: any) {
       setError(e?.response?.data?.message ?? "Login failed");

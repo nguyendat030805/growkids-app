@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Alert } from "react-native";
 import { NotificationResponse } from "../services/NotificationService";
 import { NotificationService } from "../services/NotificationService";
+import { useNotificationContext } from "../context/NotificationContext";
 
 export const useNotifications = () => {
   const [notifications, setNotifications] = useState<NotificationResponse[]>(
@@ -10,6 +11,7 @@ export const useNotifications = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { fetchUnreadCount, resetCount } = useNotificationContext();
 
   const fetchNotifications = useCallback(async (isRefresh = false) => {
     try {
@@ -36,33 +38,37 @@ export const useNotifications = () => {
     }
   }, []);
 
-  const markAsRead = useCallback(async (notificationId: string) => {
-    try {
-      const response = await NotificationService.markAsRead(notificationId);
+  const markAsRead = useCallback(
+    async (notificationId: string) => {
+      try {
+        const response = await NotificationService.markAsRead(notificationId);
 
-      if (response.success) {
-        setNotifications((prev) =>
-          prev.map((notification) =>
-            notification.notification_id === notificationId
-              ? {
-                  ...notification,
-                  is_read: true,
-                  read_at: new Date().toISOString(),
-                }
-              : notification,
-          ),
-        );
-      } else {
-        Alert.alert(
-          "Error",
-          response.message || "Failed to mark notification as read",
-        );
+        if (response.success) {
+          setNotifications((prev) =>
+            prev.map((notification) =>
+              notification.notification_id === notificationId
+                ? {
+                    ...notification,
+                    is_read: true,
+                    read_at: new Date().toISOString(),
+                  }
+                : notification,
+            ),
+          );
+          fetchUnreadCount();
+        } else {
+          Alert.alert(
+            "Error",
+            response.message || "Failed to mark notification as read",
+          );
+        }
+      } catch (err) {
+        Alert.alert("Error", "Network error. Please try again.");
+        console.error("Error marking notification as read:", err);
       }
-    } catch (err) {
-      Alert.alert("Error", "Network error. Please try again.");
-      console.error("Error marking notification as read:", err);
-    }
-  }, []);
+    },
+    [fetchUnreadCount],
+  );
 
   const clearAllNotifications = useCallback(async () => {
     try {
@@ -70,6 +76,7 @@ export const useNotifications = () => {
 
       if (response.success) {
         setNotifications([]);
+        resetCount();
         Alert.alert("Success", "All notifications cleared");
       } else {
         Alert.alert(
@@ -81,7 +88,7 @@ export const useNotifications = () => {
       Alert.alert("Error", "Network error. Please try again.");
       console.error("Error clearing notifications:", err);
     }
-  }, []);
+  }, [resetCount]);
 
   const handleClearAll = useCallback(() => {
     if (notifications.length === 0) return;

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import * as Notifications from "expo-notifications";
 import { NotificationService } from "../services/NotificationService";
 
 export const useUnreadCount = () => {
@@ -21,6 +22,8 @@ export const useUnreadCount = () => {
               : 0;
 
         setUnreadCount(count);
+
+        await Notifications.setBadgeCountAsync(count);
       }
     } catch (error) {
       console.error("Error fetching unread count:", error);
@@ -29,12 +32,17 @@ export const useUnreadCount = () => {
     }
   }, []);
 
-  const decrementCount = useCallback(() => {
-    setUnreadCount((prev) => Math.max(0, prev - 1));
+  const decrementCount = useCallback(async () => {
+    setUnreadCount((prev) => {
+      const newCount = Math.max(0, prev - 1);
+      Notifications.setBadgeCountAsync(newCount);
+      return newCount;
+    });
   }, []);
 
-  const resetCount = useCallback(() => {
+  const resetCount = useCallback(async () => {
     setUnreadCount(0);
+    await Notifications.setBadgeCountAsync(0);
   }, []);
 
   useEffect(() => {

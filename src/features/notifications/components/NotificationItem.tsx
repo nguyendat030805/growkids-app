@@ -40,7 +40,7 @@ export default function NotificationItem({ notification, onPress }: Props) {
       className={`mb-3 rounded-2xl overflow-hidden ${
         isUnread
           ? "bg-[#9EC800]/10 border border-[#9EC800]/30"
-          : "bg-white border border-gray-100"
+          : "bg-gray-100 border border-gray-200"
       }`}
       style={styles.cardShadow}
     >

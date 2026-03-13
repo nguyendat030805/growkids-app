@@ -17,10 +17,14 @@ import SongDetailPlayScreen from "../features/minisong/pages/DetailPlayScreen";
 import MiniSongScreen from "../features/minisong/pages/MiniSongScreen";
 import RegisterScreen from "../features/auth/pages/RegisterScreen";
 import NotificationsScreen from "../features/notifications/pages/NotificationsScreen";
+import { useRegisterNotifications } from "../features/notifications/hooks/useRegisterNotifications";
+import { NotificationProvider } from "../features/notifications/context/NotificationContext";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-export default function AppNavigator() {
+function AppNavigatorContent() {
+  useRegisterNotifications();
+
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
@@ -44,5 +48,13 @@ export default function AppNavigator() {
       <Stack.Screen name="VisualSchedule" component={VisualScheduleScreen} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
     </Stack.Navigator>
+  );
+}
+
+export default function AppNavigator() {
+  return (
+    <NotificationProvider>
+      <AppNavigatorContent />
+    </NotificationProvider>
   );
 }

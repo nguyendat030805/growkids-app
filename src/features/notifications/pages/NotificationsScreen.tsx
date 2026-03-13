@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { Bell, BellOff, ArrowLeft } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useEffect } from "react";
 import NotificationItem from "../components/NotificationItem";
 import { useNotifications } from "../hooks/useNotifications";
 import {
@@ -15,9 +16,11 @@ import {
   groupNotificationsBySection,
 } from "../utils/notificationUtils";
 import { Header } from "@/src/core/pages/Header";
+import { useNotificationContext } from "../context/NotificationContext";
 
 export default function NotificationsScreen() {
   const navigation = useNavigation();
+  const { setOnNotificationReceived } = useNotificationContext();
   const {
     notifications: apiNotifications,
     loading,
@@ -28,6 +31,17 @@ export default function NotificationsScreen() {
     handleClearAll,
     refetch,
   } = useNotifications();
+
+  useEffect(() => {
+    setOnNotificationReceived(() => {
+      console.log("NotificationsScreen: Refreshing due to new notification");
+      refetch();
+    });
+
+    return () => {
+      setOnNotificationReceived(() => {});
+    };
+  }, [setOnNotificationReceived, refetch]);
 
   const notifications = apiNotifications.map(transformNotificationData);
   const { today, yesterday, earlier } =

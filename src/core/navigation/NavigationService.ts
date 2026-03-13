@@ -1,8 +1,5 @@
 import { Song } from "@/src/features/minisong/types/Song.type";
-import {
-  createNavigationContainerRef,
-  CommonActions,
-} from "@react-navigation/native";
+import { router } from "expo-router";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -46,22 +43,51 @@ export type ExperienceStackParamList = {
   ResultScreen: { imageBase64: string };
 };
 
-export const navigationRef = createNavigationContainerRef<RootStackParamList>();
-
 export const NavigationService = {
-  navigate(name: keyof RootStackParamList, params?: object) {
-    if (navigationRef.isReady()) {
-      // @ts-ignore
-      navigationRef.navigate(name, params);
+  navigate(name: keyof RootStackParamList, params?: Record<string, any>) {
+    try {
+      if (params) {
+        router.push({ pathname: `/${name.toLowerCase()}`, params });
+      } else {
+        router.push(`/${name.toLowerCase()}`);
+      }
+    } catch (error) {
+      console.error("Navigation error:", error);
     }
   },
+
   reset(name: keyof RootStackParamList) {
-    if (navigationRef.isReady()) {
-      navigationRef.dispatch(
-        CommonActions.reset({ index: 0, routes: [{ name }] }),
-      );
-    } else {
-      console.warn("Navigation is not ready yet!");
+    try {
+      router.replace(`/${name.toLowerCase()}`);
+    } catch (error) {
+      console.error("Navigation reset error:", error);
+    }
+  },
+
+  handleNotificationNavigation(data: any) {
+    try {
+      if (data?.screen) {
+        switch (data.screen) {
+          case "notifications":
+            router.push("/notifications");
+            break;
+          case "golden-time":
+            router.push("/goldentime");
+            break;
+          case "songs":
+            router.push("/songs");
+            break;
+          case "main-tabs":
+            router.push("/maintabs");
+            break;
+          default:
+            console.log("Unknown notification screen:", data.screen);
+        }
+      } else {
+        router.push("/notifications");
+      }
+    } catch (error) {
+      console.error("Error handling notification navigation:", error);
     }
   },
 };

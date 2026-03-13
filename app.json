@@ -1,3 +1,23 @@
 {
-  "plugins": ["expo-router"]
+  "expo": {
+    "name": "Growkids",
+    "slug": "growkids-fe",
+    "version": "1.0.0",
+    "extra": {
+      "eas": {
+        "projectId": "f404caec-9769-4ba1-8328-2dc07e928eca"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/growkids-logo.png",
+          "color": "#1C2B6D",
+          "defaultChannel": "default"
+        }
+      ]
+    ]
+  }
 }

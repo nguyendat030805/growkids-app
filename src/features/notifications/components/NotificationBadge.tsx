@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Bell } from "lucide-react-native";
-import { useUnreadCount } from "../hooks/useUnreadCount";
+import { useNotificationContext } from "../context/NotificationContext";
 
 interface NotificationBadgeProps {
   onPress?: () => void;
@@ -14,7 +14,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
   size = 24,
   color = "#1C2B6D",
 }) => {
-  const { unreadCount } = useUnreadCount();
+  const { unreadCount } = useNotificationContext();
 
   return (
     <TouchableOpacity
