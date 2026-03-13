@@ -18,13 +18,20 @@ import HeaderChild from "../../../core/components/ScreenHeader";
 import SuccessModal from "../../../core/components/SuccessModal";
 import { RootStackParamList } from "../../../core/navigation/NavigationService";
 import { SongsService } from "../services/SongService";
+import { QuizModal } from "../components/QuizModal";
 
 type DetailPlayRouteProp = RouteProp<RootStackParamList, "DetailPlay">;
 
 export default function SongDetailPlayScreen() {
   const router = useRouter();
   const route = useRoute<DetailPlayRouteProp>();
-  const { song } = route.params;
+  const { song: initialSong } = route.params;
+
+  const [song, setSong] = useState(initialSong);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [activeQuestion, setActiveQuestion] = useState<any>(null);
+  const [answeredIds, setAnsweredIds] = useState<string[]>([]);
+
   const [playing, setPlaying] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -35,6 +42,20 @@ export default function SongDetailPlayScreen() {
   const playerRef = useRef<any>(null);
   const listRef = useRef<FlatList>(null);
 
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const fullData = await SongsService.getSongById(
+          initialSong.mini_song_id,
+        );
+        setSong(fullData);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    loadData();
+  }, []);
+
   const getYouTubeVideoId = (url: string) => {
     const match = url.match(
       /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
@@ -44,8 +65,25 @@ export default function SongDetailPlayScreen() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (playing && playerRef.current) {
+      if (playing && playerRef.current && !showQuiz) {
         playerRef.current.getCurrentTime().then((time: number) => {
+          const roundTime = Math.floor(time);
+
+          const question = song.questions?.find(
+            (q: any) =>
+              Math.floor(q.start_time) === roundTime &&
+              !answeredIds.includes(q.question_id),
+          );
+
+          if (question) {
+            setPlaying(false);
+            if (playerRef.current) playerRef.current.pauseVideo?.();
+
+            setActiveQuestion(question);
+            setShowQuiz(true);
+            return;
+          }
+
           setCurrentTime(time);
           const currentLyricIndex =
             song.song_lyrics?.findIndex((lyric, index) => {
@@ -69,7 +107,17 @@ export default function SongDetailPlayScreen() {
       }
     }, 500);
     return () => clearInterval(interval);
-  }, [playing, activeLyricIndex, song.song_lyrics]);
+  }, [playing, song, answeredIds, showQuiz]);
+
+  const handleCorrectAnswer = () => {
+    if (activeQuestion) {
+      setAnsweredIds((prev) => [...prev, activeQuestion.question_id]);
+    }
+    setTimeout(() => {
+      setShowQuiz(false);
+      setPlaying(true);
+    }, 1200);
+  };
 
   useEffect(() => {
     if (!listRef.current || itemHeight === 0 || !song.song_lyrics) return;
@@ -143,13 +191,17 @@ export default function SongDetailPlayScreen() {
   };
 
   const onStateChange = (state: string) => {
+    if (showQuiz) {
+      setPlaying(false);
+      if (playerRef.current) playerRef.current.pauseVideo?.();
+      return;
+    }
+
     if (state === "playing") {
       setPlaying(true);
     } else if (state === "paused") {
       setPlaying(false);
-      if (totalWatchTime > 0) {
-        updateLearningLog(false);
-      }
+      if (totalWatchTime > 0) updateLearningLog(false);
     } else if (state === "ended") {
       setPlaying(false);
       updateLearningLog(true);
@@ -267,6 +319,16 @@ export default function SongDetailPlayScreen() {
           })}
         />
       </ScrollView>
+
+      <QuizModal
+        visible={showQuiz}
+        question={activeQuestion}
+        onCorrect={handleCorrectAnswer}
+        onClose={() => {
+          setShowQuiz(false);
+          setPlaying(true);
+        }}
+      />
 
       <SuccessModal
         visible={showSuccess}
