@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native"; // Thêm TouchableOpacity vào import
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { TimeSlot } from "../types/schedule.type";
 import { useScheduleStatus } from "../hooks/useScheduleStatus";

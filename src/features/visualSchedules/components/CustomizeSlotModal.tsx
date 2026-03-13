@@ -12,24 +12,9 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { goldenTimeService } from "../services/GoldenTimeService";
-import { TimeSlot } from "../types/schedule.type";
+import { CustomizeModalProps, SlotForm } from "../types/golden-time.type";
 
-interface CustomizeSlotModalProps {
-  visible: boolean;
-  routineId: string;
-  slotData: TimeSlot | null;
-  onClose: () => void;
-  onSuccess: () => void;
-}
-
-interface SlotForm {
-  slot_type: string;
-  start_time: string;
-  duration_minutes: number;
-  context: string;
-}
-
-export const CustomizeSlotModal: React.FC<CustomizeSlotModalProps> = ({
+export const CustomizeSlotModal: React.FC<CustomizeModalProps> = ({
   visible,
   routineId,
   slotData,

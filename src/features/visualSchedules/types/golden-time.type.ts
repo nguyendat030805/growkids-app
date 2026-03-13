@@ -14,3 +14,10 @@ export interface CustomizeModalProps {
   onClose: () => void;
   onSuccess: () => void;
 }
+
+export interface SlotForm {
+  slot_type: string;
+  start_time: string;
+  duration_minutes: number;
+  context: string;
+}
