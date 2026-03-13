@@ -15,6 +15,7 @@ import CircularProgress from "../components/CircularProgress";
 import TimeSlotCard from "../components/TimeSlotCard";
 import { scheduleService } from "../services/VisualScheduleService";
 import { DailyScheduleResponseDto } from "../types/schedule.type";
+import { useNavigation } from "@react-navigation/native";
 
 import { useFlexibleFlow } from "../../flexible-schedule/hooks/useFlexibleSchedule";
 import { MissedAlert } from "../../flexible-schedule/components/MissedAlert";
@@ -55,8 +56,8 @@ const VisualScheduleScreen = () => {
       const result = await scheduleService.getDailySchedule();
       setData(result);
       await runCheck();
-    } catch (error) {
-      console.error("Lỗi khi tải lịch trình:", error);
+    } catch {
+      console.error("Error loading schedule:");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -74,6 +75,8 @@ const VisualScheduleScreen = () => {
     fetchData();
   };
 
+  const navigation = useNavigation();
+
   if (loading && !refreshing) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
@@ -90,14 +93,20 @@ const VisualScheduleScreen = () => {
   return (
     <View className="flex-1 bg-white">
       <ScrollView
-        className="flex-1 px-4 pt-12"
+        className="flex-1 px-4 pt-6"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <View className="flex-row items-center justify-between mb-6">
+        <View className="flex-row items-center justify-between mb-1 ">
           <View className="flex-row items-center">
-            <Ionicons name="arrow-back" size={22} color="#1F2937" />
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              className="p-1"
+              hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
+            >
+              <Ionicons name="arrow-back" size={22} color="#1F2937" />
+            </TouchableOpacity>
             <Text className="text-lg font-semibold ml-3 text-gray-800">
               Visual Schedule
             </Text>
@@ -173,7 +182,7 @@ const VisualScheduleScreen = () => {
           />
         ))}
 
-        <View className="h-24" />
+        <View className="h-5" />
       </ScrollView>
 
       <CustomizeSlotModal
