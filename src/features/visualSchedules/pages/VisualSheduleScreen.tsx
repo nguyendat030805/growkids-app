@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
@@ -19,10 +20,23 @@ import { useFlexibleFlow } from "../../flexible-schedule/hooks/useFlexibleSchedu
 import { MissedAlert } from "../../flexible-schedule/components/MissedAlert";
 import { FlexibleModal } from "../../flexible-schedule/components/FlexibleModal";
 
+import { useCustomizeSlot } from "../hooks/useCustomizeSlot";
+import { CustomizeSlotModal } from "../components/CustomizeSlotModal";
+
 const VisualScheduleScreen = () => {
   const [data, setData] = useState<DailyScheduleResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  const {
+    isModalVisible: isCustomizeVisible,
+    selectedSlot,
+    setIsModalVisible: setCustomizeVisible,
+    openCreate,
+    openEdit,
+    handleDelete,
+  } = useCustomizeSlot(() => fetchData());
+
   const {
     missedSlots,
     isModalVisible,
@@ -70,7 +84,7 @@ const VisualScheduleScreen = () => {
 
   const schedules = data?.schedules || [];
   const completedCount = (schedules || []).filter(
-    (s) => s.status === "completed",
+    (s) => s.status?.toLowerCase() === "completed",
   ).length;
 
   return (
@@ -94,20 +108,35 @@ const VisualScheduleScreen = () => {
             resizeMode="contain"
           />
         </View>
+
         {missedSlots.length > 0 && (
           <MissedAlert
             count={missedSlots.length}
             onPress={() => setIsModalVisible(true)}
           />
         )}
+
         <View className="bg-white rounded-2xl p-5 mb-6 border border-gray-300 shadow-sm">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="font-semibold text-gray-800 text-base">
               Today&apos;s Learning
             </Text>
-            <TouchableOpacity className="flex-row items-center border border-[#FFB81F]/50 bg-white px-3 py-1 rounded-full">
-              <Ionicons name="create-outline" size={14} color="#FFB81F" />
-              <Text className="text-black text-xs ml-1 font-medium">Edit</Text>
+
+            <TouchableOpacity
+              onPress={() => {
+                if (!data?.routine_id) {
+                  Alert.alert(
+                    "Error",
+                    "Unable to add a new time slot due to missing schedule information.",
+                  );
+                  return;
+                }
+                openCreate();
+              }}
+              className="flex-row items-center border border-[#FFB81F]/50 bg-white px-3 py-1 rounded-full"
+            >
+              <Ionicons name="add-circle-outline" size={14} color="#FFB81F" />
+              <Text className="text-black text-xs ml-1 font-medium">Add</Text>
             </TouchableOpacity>
           </View>
           <View className="bg-[#FF6200]/10 border border-[#FFB81F] rounded-2xl p-4 flex-row justify-between items-center">
@@ -139,11 +168,25 @@ const VisualScheduleScreen = () => {
               target_seconds: item.target_seconds,
               spent_seconds: item.spent_seconds,
             }}
+            onEdit={() => openEdit(item)}
+            onDelete={() => handleDelete(item.slot_id)}
           />
         ))}
 
         <View className="h-24" />
       </ScrollView>
+
+      <CustomizeSlotModal
+        visible={isCustomizeVisible}
+        routineId={data?.routine_id || (data as any)?.routineId || ""}
+        slotData={selectedSlot}
+        onClose={() => setCustomizeVisible(false)}
+        onSuccess={() => {
+          setCustomizeVisible(false);
+          fetchData();
+        }}
+      />
+
       {missedSlots.length > 0 && (
         <FlexibleModal
           visible={isModalVisible}
