@@ -11,12 +11,12 @@ import { User, LogOut } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, CommonActions } from "@react-navigation/native";
-
+import { jwtDecode } from "jwt-decode";
 import { STORAGE_KEYS } from "../constants";
 import { NotificationBadge } from "@/src/features/notifications/components/NotificationBadge";
 
 interface UserData {
-  username?: string;
+  fullName?: string;
   email?: string;
   avatar?: string;
 }
@@ -28,20 +28,22 @@ export const Header = () => {
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    const loadUser = async () => {
+    const loadUserFromToken = async () => {
       try {
-        const raw = await AsyncStorage.getItem(STORAGE_KEYS.USER);
-        if (raw) {
-          setUserData(JSON.parse(raw));
+        const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+
+        if (token) {
+          const decoded: UserData = jwtDecode(token);
+          setUserData(decoded);
         }
-      } catch {
-        // ignore error
+      } catch (error) {
+        console.error("Failed to decode token:", error);
       }
     };
-    loadUser();
+    loadUserFromToken();
   }, []);
 
-  const displayName = userData?.username || "User";
+  const displayName = userData?.fullName || "User";
   const avatarUri = userData?.avatar;
 
   const handleLogout = useCallback(async () => {
@@ -69,7 +71,6 @@ export const Header = () => {
 
   return (
     <View>
-      {/* HEADER */}
       <View className="flex-row items-center justify-between px-3">
         <Image
           source={require("@/public/assets/images/logoGrowKids.png")}
@@ -111,7 +112,6 @@ export const Header = () => {
 
       <View className="h-[2px] bg-[#B4D540] mt-3 rounded-full" />
 
-      {/* DROPDOWN */}
       <Modal
         transparent
         visible={showDropdown}
@@ -119,18 +119,15 @@ export const Header = () => {
         onRequestClose={() => setShowDropdown(false)}
       >
         <View className="flex-1">
-          {/* Background overlay */}
           <Pressable
             className="absolute inset-0"
             onPress={() => setShowDropdown(false)}
           />
 
-          {/* Dropdown menu */}
           <View
             style={{ top: insets.top + 48 }}
             className="absolute right-4 w-44 bg-white rounded-xl border border-gray-200 py-1 shadow-lg"
           >
-            {/* Profile */}
             <TouchableOpacity
               className="flex-row items-center px-4 py-3"
               onPress={handleProfile}
@@ -138,13 +135,12 @@ export const Header = () => {
             >
               <User size={18} color="#1C2B6D" />
               <Text className="ml-3 text-sm font-medium text-[#1C2B6D]">
-                Profile
+                Visual Schedule
               </Text>
             </TouchableOpacity>
 
             <View className="h-px bg-gray-100 mx-3" />
 
-            {/* Logout */}
             <TouchableOpacity
               className="flex-row items-center px-4 py-3"
               onPress={handleLogout}
@@ -152,7 +148,7 @@ export const Header = () => {
             >
               <LogOut size={18} color="#EF4444" />
               <Text className="ml-3 text-sm font-medium text-red-500">
-                Đăng xuất
+                Logout
               </Text>
             </TouchableOpacity>
           </View>

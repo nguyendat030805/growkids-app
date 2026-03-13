@@ -19,6 +19,7 @@ export interface TimeSlot {
 export interface DailyScheduleResponseDto {
   total_progress: number;
   schedules: TimeSlot[];
+  routine_id: string;
 }
 
 export interface DailyScheduleApiResponse {
