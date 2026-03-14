@@ -12,10 +12,10 @@ import {
 import { Volume2, Mic, Sparkles, MicOff } from "lucide-react-native";
 import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
-
 import { Difficulty } from "../types/LibraryType";
 import { AISentenceModal } from "../components/AISentenceModal";
 import { useLibrary } from "../hooks/useLibrary";
+import PronunciationResultModal from "../components/PronunciationResultModal";
 
 const DIFFICULTIES: { key: Difficulty; label: string }[] = [
   { key: "easy", label: "Easy" },
@@ -43,6 +43,8 @@ export default function LibraryScreen() {
   const [checkingPronunciation, setCheckingPronunciation] = useState<
     string | null
   >(null);
+  const [resultModalVisible, setResultModalVisible] = useState(false);
+  const [pronunciationResult, setPronunciationResult] = useState<any>(null);
   const recordingRef = useRef<Audio.Recording | null>(null);
 
   useEffect(() => {
@@ -155,14 +157,13 @@ export default function LibraryScreen() {
               const feedback = result.data.feedback || "Good job!";
               const transcribedText = result.data.transcribedText || "";
 
-              Alert.alert(
-                accuracy >= 80
-                  ? "Excellent! 🎉"
-                  : accuracy >= 60
-                    ? "Good! 👍"
-                    : "Keep practicing! 💪",
-                `Accuracy: ${accuracy}%\n\nYou said: "${transcribedText}"\n\n${feedback}`,
-              );
+              setPronunciationResult({
+                accuracy,
+                feedback,
+                transcribedText,
+              });
+
+              setResultModalVisible(true);
             } else {
               Alert.alert(
                 "Error",
@@ -445,10 +446,16 @@ export default function LibraryScreen() {
         visible={showAIModal}
         onClose={() => setShowAIModal(false)}
         onSuccess={() => {
+          fetchTopics();
           if (selectedTopic) {
             fetchSentencesByTopic(selectedTopic);
           }
         }}
+      />
+      <PronunciationResultModal
+        visible={resultModalVisible}
+        result={pronunciationResult}
+        onClose={() => setResultModalVisible(false)}
       />
     </View>
   );

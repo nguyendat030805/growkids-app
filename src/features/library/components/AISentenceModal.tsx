@@ -11,18 +11,14 @@ import {
   Platform,
   Alert,
 } from "react-native";
-import {
-  X,
-  Sparkles,
-  Volume2,
-  ChevronLeft,
-  ChevronDown,
-  Pen,
-} from "lucide-react-native";
+import { X, Sparkles, Volume2, ChevronLeft, Pen } from "lucide-react-native";
 import * as Speech from "expo-speech";
+import { Audio } from "expo-av";
 
 import { Sentence, Difficulty } from "../types/LibraryType";
 import { useLibrary } from "../hooks/useLibrary";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STORAGE_KEYS } from "@/src/core/constants";
 
 interface AISentenceModalProps {
   visible: boolean;
@@ -43,42 +39,42 @@ export function AISentenceModal({
 }: AISentenceModalProps) {
   const { createSentenceSet, loading: apiLoading } = useLibrary();
   const [topic, setTopic] = useState("");
-  const [level, setLevel] = useState<Difficulty | null>(null);
   const [quantity, setQuantity] = useState("");
   const [goal, setGoal] = useState("");
-  const [showLevelPicker, setShowLevelPicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sentences, setSentences] = useState<Sentence[]>([]);
   const [showResults, setShowResults] = useState(false);
-
   const handleGenerate = async () => {
-    if (!level) return;
+    const childId = await AsyncStorage.getItem(STORAGE_KEYS.SELECTED_CHILD_ID);
 
     setLoading(true);
     setSentences([]);
 
     try {
       const payload = {
-        topic_name: topic,
-        difficulty: level,
+        topic: topic,
         quantity: parseInt(quantity) || 3,
-        goal: goal || undefined,
+        goal: goal || "No",
+        childId: childId || "",
       };
 
       const result = await createSentenceSet(payload);
+      console.log("Create sentence set response:", result);
 
-      if (result.success && result.data) {
-        const generatedSentences: Sentence[] = result.data.map(
+      if (result.success && result.data?.sentences) {
+        const generatedSentences: Sentence[] = result.data.sentences.map(
           (item: any, index: number) => ({
             id: item.sentence_id || `gen-${index}`,
-            english: item.english_text,
-            vietnamese: item.vietnamese_text,
+            english: item.sentence_text || "",
+            vietnamese: item.meaning || "",
             phonetic: item.phonetic || "",
-            difficulty: item.difficulty,
+            difficulty: item.levels?.level_name?.toLowerCase() || "medium",
             topicId: item.topic_id,
+            audio_url: item.audio_url,
           }),
         );
 
+        console.log("Generated sentences:", generatedSentences);
         setSentences(generatedSentences);
         setShowResults(true);
 
@@ -95,18 +91,40 @@ export function AISentenceModal({
     }
   };
 
-  const handleSpeak = (text: string) => {
-    Speech.speak(text, { language: "en-US", rate: 0.85 });
+  const handleSpeak = async (text: string, audioUrl?: string) => {
+    if (audioUrl && audioUrl.startsWith("http")) {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+        });
+
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: audioUrl },
+          { shouldPlay: true },
+        );
+
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            sound.unloadAsync();
+          }
+        });
+      } catch (error) {
+        console.log("Audio playback error:", error);
+        Speech.speak(text, { language: "en-US", rate: 0.85 });
+      }
+    } else {
+      Speech.speak(text, { language: "en-US", rate: 0.85 });
+    }
   };
 
   const handleClose = () => {
     setTopic("");
-    setLevel(null);
     setQuantity("");
     setGoal("");
     setSentences([]);
     setShowResults(false);
-    setShowLevelPicker(false);
     setLoading(false);
     onClose();
   };
@@ -116,10 +134,7 @@ export function AISentenceModal({
     setSentences([]);
   };
 
-  const selectedLevelLabel =
-    LEVEL_OPTIONS.find((l) => l.key === level)?.label ?? "Level";
-  const canGenerate =
-    topic.trim().length > 0 && level !== null && !loading && !apiLoading;
+  const canGenerate = topic.trim().length > 0 && !loading && !apiLoading;
 
   return (
     <Modal
@@ -180,57 +195,6 @@ export function AISentenceModal({
                   </Text>
 
                   <View className="flex-row mb-5 gap-3">
-                    <View className="flex-1">
-                      <Text className="text-[15px] font-semibold text-gray-700 mb-2">
-                        Level:
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => setShowLevelPicker(!showLevelPicker)}
-                        activeOpacity={0.7}
-                        className="flex-row items-center justify-between border border-gray-200 rounded-full px-4 py-3.5"
-                      >
-                        <Text
-                          className={
-                            level
-                              ? "text-[15px] text-gray-800 font-medium"
-                              : "text-[15px] text-gray-400"
-                          }
-                        >
-                          {selectedLevelLabel}
-                        </Text>
-                        <ChevronDown size={18} color="#9CA3AF" />
-                      </TouchableOpacity>
-
-                      {showLevelPicker && (
-                        <View className="absolute top-20 left-0 right-0 bg-white rounded-xl border border-gray-200 z-10 shadow-lg shadow-black/10">
-                          {LEVEL_OPTIONS.map((opt) => (
-                            <TouchableOpacity
-                              key={opt.key}
-                              onPress={() => {
-                                setLevel(opt.key);
-                                setShowLevelPicker(false);
-                              }}
-                              className={
-                                level === opt.key
-                                  ? "px-4 py-3 bg-blue-50"
-                                  : "px-4 py-3 bg-transparent"
-                              }
-                            >
-                              <Text
-                                className={
-                                  level === opt.key
-                                    ? "text-[15px] text-[#1C2B6D] font-semibold"
-                                    : "text-[15px] text-gray-700"
-                                }
-                              >
-                                {opt.label}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </View>
-                      )}
-                    </View>
-
                     <View className="flex-1">
                       <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                         Quantity:
@@ -307,7 +271,9 @@ export function AISentenceModal({
                           {sentence.english}
                         </Text>
                         <TouchableOpacity
-                          onPress={() => handleSpeak(sentence.english)}
+                          onPress={() =>
+                            handleSpeak(sentence.english, sentence.audio_url)
+                          }
                           className="w-9 h-9 rounded-full bg-white/20 items-center justify-center"
                         >
                           <Volume2 size={18} color="#fff" />
