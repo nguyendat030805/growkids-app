@@ -40,7 +40,9 @@ export default function LibraryScreen() {
   const [showAIModal, setShowAIModal] = useState(false);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const [recordingId, setRecordingId] = useState<string | null>(null);
-  const [checkingPronunciation, setCheckingPronunciation] = useState(false);
+  const [checkingPronunciation, setCheckingPronunciation] = useState<
+    string | null
+  >(null);
   const recordingRef = useRef<Audio.Recording | null>(null);
 
   useEffect(() => {
@@ -140,7 +142,7 @@ export default function LibraryScreen() {
 
       if (recordingId === sentenceId && recordingRef.current) {
         try {
-          setCheckingPronunciation(true);
+          setCheckingPronunciation(sentenceId);
           await recordingRef.current.stopAndUnloadAsync();
           const uri = recordingRef.current.getURI();
           await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
@@ -176,7 +178,7 @@ export default function LibraryScreen() {
         } finally {
           recordingRef.current = null;
           setRecordingId(null);
-          setCheckingPronunciation(false);
+          setCheckingPronunciation(null);
         }
         return;
       }
@@ -342,6 +344,7 @@ export default function LibraryScreen() {
               const sentenceId = sentence.sentence_id || sentence.id;
               const isRecording = recordingId === sentenceId;
               const isSpeaking = speakingId === sentenceId;
+              const isChecking = checkingPronunciation === sentenceId;
               const isNavy = index % 2 === 0;
 
               return (
@@ -400,7 +403,7 @@ export default function LibraryScreen() {
                     <TouchableOpacity
                       onPress={() => handleTrySaying(sentence)}
                       activeOpacity={0.8}
-                      disabled={checkingPronunciation}
+                      disabled={isChecking}
                       className={
                         isRecording
                           ? "flex-row items-center rounded-full px-4 py-2 bg-red-500"
@@ -409,7 +412,7 @@ export default function LibraryScreen() {
                             : "flex-row items-center rounded-full px-4 py-2 bg-[#FFB500]"
                       }
                     >
-                      {checkingPronunciation ? (
+                      {isChecking ? (
                         <ActivityIndicator size="small" color="#fff" />
                       ) : isRecording ? (
                         <MicOff size={16} color="#fff" />
@@ -417,7 +420,7 @@ export default function LibraryScreen() {
                         <Mic size={16} color="#fff" />
                       )}
                       <Text className="text-white font-semibold text-xs ml-1.5">
-                        {checkingPronunciation
+                        {isChecking
                           ? "Checking..."
                           : isRecording
                             ? "Stop"
