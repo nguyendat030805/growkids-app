@@ -13,4 +13,5 @@ export interface Sentence {
   english: string;
   vietnamese: string;
   phonetic: string;
+  audio_url?: string;
 }
