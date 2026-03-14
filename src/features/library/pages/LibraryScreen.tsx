@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,14 +7,15 @@ import {
   Alert,
   Image,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { Volume2, Mic, Sparkles, MicOff } from "lucide-react-native";
 import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
 
-import { Difficulty, Sentence } from "../types/LibraryType";
-import { TOPICS, SENTENCES } from "../datas/mockSentences";
+import { Difficulty } from "../types/LibraryType";
 import { AISentenceModal } from "../components/AISentenceModal";
+import { useLibrary } from "../hooks/useLibrary";
 
 const DIFFICULTIES: { key: Difficulty; label: string }[] = [
   { key: "easy", label: "Easy" },
@@ -25,48 +26,158 @@ const DIFFICULTIES: { key: Difficulty; label: string }[] = [
 const LIBRARY_ICON = require("@/public/assets/images/imgLibraryIcon.png");
 
 export default function LibraryScreen() {
-  const [selectedTopic, setSelectedTopic] = useState(TOPICS[0].id);
+  const {
+    topics,
+    sentences,
+    loading,
+    fetchTopics,
+    fetchSentencesByTopic,
+    checkPronunciation,
+  } = useLibrary();
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [selectedDifficulty, setSelectedDifficulty] =
-    useState<Difficulty>("advanced");
+    useState<Difficulty>("easy");
   const [showAIModal, setShowAIModal] = useState(false);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const [recordingId, setRecordingId] = useState<string | null>(null);
+  const [checkingPronunciation, setCheckingPronunciation] = useState(false);
   const recordingRef = useRef<Audio.Recording | null>(null);
 
-  const filteredSentences = SENTENCES.filter(
-    (s) => s.topicId === selectedTopic && s.difficulty === selectedDifficulty,
-  );
+  useEffect(() => {
+    fetchTopics();
+  }, [fetchTopics]);
 
-  const handleSpeak = useCallback(async (sentence: Sentence) => {
+  useEffect(() => {
+    if (topics.length > 0 && !selectedTopic) {
+      setSelectedTopic(topics[0].topic_id || topics[0].id);
+    }
+  }, [topics, selectedTopic]);
+
+  useEffect(() => {
+    if (selectedTopic) {
+      fetchSentencesByTopic(selectedTopic);
+    }
+  }, [selectedTopic, fetchSentencesByTopic]);
+
+  const filteredSentences = (sentences || []).filter((s: any) => {
+    const levelName =
+      s.levels?.level_name?.toLowerCase() || s.difficulty?.toLowerCase() || "";
+    const match = levelName === selectedDifficulty.toLowerCase();
+    return match;
+  });
+
+  const handleSpeak = useCallback(async (sentence: any) => {
     const isSpeaking = await Speech.isSpeakingAsync();
     if (isSpeaking) {
       Speech.stop();
       setSpeakingId(null);
       return;
     }
-    setSpeakingId(sentence.id);
-    Speech.speak(sentence.english, {
-      language: "en-US",
-      rate: 0.85,
-      onDone: () => setSpeakingId(null),
-      onError: () => setSpeakingId(null),
-      onStopped: () => setSpeakingId(null),
-    });
+
+    const sentenceId = sentence.sentence_id || sentence.id;
+    const audioUrl = sentence.audio_url;
+    const sentenceText =
+      sentence.sentence_text || sentence.english_text || sentence.english;
+
+    setSpeakingId(sentenceId);
+
+    if (audioUrl && audioUrl.startsWith("http")) {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+        });
+
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: audioUrl },
+          { shouldPlay: true },
+          (status) => {
+            if (status.isLoaded && status.didJustFinish) {
+              setSpeakingId(null);
+              sound.unloadAsync();
+            }
+          },
+        );
+
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded === false && status.error) {
+            setSpeakingId(null);
+            sound.unloadAsync();
+            Speech.speak(sentenceText, {
+              language: "en-US",
+              rate: 0.85,
+              onDone: () => setSpeakingId(null),
+              onError: () => setSpeakingId(null),
+            });
+          }
+        });
+      } catch (error) {
+        Speech.speak(sentenceText, {
+          language: "en-US",
+          rate: 0.85,
+          onDone: () => setSpeakingId(null),
+          onError: () => setSpeakingId(null),
+          onStopped: () => setSpeakingId(null),
+        });
+      }
+    } else {
+      Speech.speak(sentenceText, {
+        language: "en-US",
+        rate: 0.85,
+        onDone: () => setSpeakingId(null),
+        onError: () => setSpeakingId(null),
+        onStopped: () => setSpeakingId(null),
+      });
+    }
   }, []);
 
   const handleTrySaying = useCallback(
-    async (sentenceId: string) => {
+    async (sentence: any) => {
+      const sentenceId = sentence.sentence_id || sentence.id;
+      const sentenceText =
+        sentence.sentence_text || sentence.english_text || sentence.english;
+
       if (recordingId === sentenceId && recordingRef.current) {
         try {
+          setCheckingPronunciation(true);
           await recordingRef.current.stopAndUnloadAsync();
+          const uri = recordingRef.current.getURI();
           await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
-        } catch {}
-        recordingRef.current = null;
-        setRecordingId(null);
-        Alert.alert(
-          "Great job! 🎉",
-          "Phát âm tốt lắm! Hãy tiếp tục luyện tập nhé!",
-        );
+
+          if (uri) {
+            const result = await checkPronunciation(sentenceText, uri);
+
+            if (result.success && result.data) {
+              const accuracy = result.data.accuracy || 0;
+              const feedback = result.data.feedback || "Good job!";
+              const transcribedText = result.data.transcribedText || "";
+
+              Alert.alert(
+                accuracy >= 80
+                  ? "Excellent! 🎉"
+                  : accuracy >= 60
+                    ? "Good! 👍"
+                    : "Keep practicing! 💪",
+                `Accuracy: ${accuracy}%\n\nYou said: "${transcribedText}"\n\n${feedback}`,
+              );
+            } else {
+              Alert.alert(
+                "Error",
+                result.message || "Failed to check pronunciation",
+              );
+            }
+          }
+        } catch (error: any) {
+          Alert.alert(
+            "Error",
+            error.message || "Failed to check pronunciation",
+          );
+        } finally {
+          recordingRef.current = null;
+          setRecordingId(null);
+          setCheckingPronunciation(false);
+        }
         return;
       }
 
@@ -98,8 +209,21 @@ export default function LibraryScreen() {
         Alert.alert("Error", "Không thể bắt đầu ghi âm");
       }
     },
-    [recordingId],
+    [recordingId, checkPronunciation],
   );
+
+  const handleTopicSelect = (topicId: string) => {
+    setSelectedTopic(topicId);
+  };
+
+  if (loading && (topics.length === 0 || sentences.length === 0)) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center">
+        <ActivityIndicator size="large" color="#1C2B6D" />
+        <Text className="text-gray-500 mt-4">Loading library...</Text>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-white">
@@ -108,7 +232,6 @@ export default function LibraryScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
       >
-        {/* Header */}
         <View className="items-center pt-4 pb-2 px-4">
           <View className="flex-row items-center justify-center">
             <View className="items-center flex-1">
@@ -127,7 +250,6 @@ export default function LibraryScreen() {
           </View>
         </View>
 
-        {/* Topic Tabs - dùng ScrollView thay FlatList để tránh conflict */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -137,12 +259,13 @@ export default function LibraryScreen() {
             gap: 8,
           }}
         >
-          {TOPICS.map((topic) => {
-            const isActive = selectedTopic === topic.id;
+          {topics.map((topic: any) => {
+            const topicId = topic.topic_id || topic.id;
+            const isActive = selectedTopic === topicId;
             return (
               <TouchableOpacity
-                key={topic.id}
-                onPress={() => setSelectedTopic(topic.id)}
+                key={topicId}
+                onPress={() => handleTopicSelect(topicId)}
                 activeOpacity={0.7}
                 className={
                   isActive
@@ -150,7 +273,7 @@ export default function LibraryScreen() {
                     : "flex-row items-center rounded-full px-4 py-2.5 border bg-gray-50 border-gray-200"
                 }
               >
-                <Text className="text-base mr-1.5">{topic.emoji}</Text>
+                <Text className="text-base mr-1.5">{topic.emoji || "📚"}</Text>
                 <Text
                   className={
                     isActive
@@ -158,14 +281,13 @@ export default function LibraryScreen() {
                       : "text-sm font-semibold text-gray-500"
                   }
                 >
-                  {topic.name}
+                  {topic.topic_name || topic.name}
                 </Text>
               </TouchableOpacity>
             );
           })}
         </ScrollView>
 
-        {/* Difficulty Tabs */}
         <View className="flex-row mx-4 mt-1 bg-gray-100 rounded-xl p-1">
           {DIFFICULTIES.map((d) => {
             const isActive = selectedDifficulty === d.key;
@@ -195,7 +317,6 @@ export default function LibraryScreen() {
           })}
         </View>
 
-        {/* AI Sentence Generator Button */}
         <View className="mx-4 mt-4 mb-2">
           <TouchableOpacity
             onPress={() => setShowAIModal(true)}
@@ -210,17 +331,22 @@ export default function LibraryScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Sentence Cards */}
         <View className="px-4 mt-3">
-          {filteredSentences.length > 0 ? (
-            filteredSentences.map((sentence, index) => {
-              const isRecording = recordingId === sentence.id;
-              const isSpeaking = speakingId === sentence.id;
+          {loading && sentences.length === 0 ? (
+            <View className="items-center py-12">
+              <ActivityIndicator size="large" color="#1C2B6D" />
+              <Text className="text-gray-500 mt-4">Loading sentences...</Text>
+            </View>
+          ) : filteredSentences.length > 0 ? (
+            filteredSentences.map((sentence: any, index: number) => {
+              const sentenceId = sentence.sentence_id || sentence.id;
+              const isRecording = recordingId === sentenceId;
+              const isSpeaking = speakingId === sentenceId;
               const isNavy = index % 2 === 0;
 
               return (
                 <View
-                  key={sentence.id}
+                  key={sentenceId}
                   className={
                     isNavy
                       ? "bg-[#9EC800]/10 rounded-2xl p-4 mb-4"
@@ -236,7 +362,9 @@ export default function LibraryScreen() {
                           : "text-black/80 text-[17px] font-bold flex-1 mr-3 leading-6"
                       }
                     >
-                      {sentence.english}
+                      {sentence.sentence_text ||
+                        sentence.english_text ||
+                        sentence.english}
                     </Text>
                     <TouchableOpacity
                       onPress={() => handleSpeak(sentence)}
@@ -254,7 +382,9 @@ export default function LibraryScreen() {
                   </View>
 
                   <Text className="text-gray-700 text-sm leading-5 mb-2">
-                    {sentence.vietnamese}
+                    {sentence.meaning ||
+                      sentence.vietnamese_text ||
+                      sentence.vietnamese}
                   </Text>
 
                   <View className="flex-row items-end justify-between">
@@ -268,8 +398,9 @@ export default function LibraryScreen() {
                       {sentence.phonetic}
                     </Text>
                     <TouchableOpacity
-                      onPress={() => handleTrySaying(sentence.id)}
+                      onPress={() => handleTrySaying(sentence)}
                       activeOpacity={0.8}
+                      disabled={checkingPronunciation}
                       className={
                         isRecording
                           ? "flex-row items-center rounded-full px-4 py-2 bg-red-500"
@@ -278,13 +409,19 @@ export default function LibraryScreen() {
                             : "flex-row items-center rounded-full px-4 py-2 bg-[#FFB500]"
                       }
                     >
-                      {isRecording ? (
+                      {checkingPronunciation ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                      ) : isRecording ? (
                         <MicOff size={16} color="#fff" />
                       ) : (
                         <Mic size={16} color="#fff" />
                       )}
                       <Text className="text-white font-semibold text-xs ml-1.5">
-                        {isRecording ? "Stop" : "Try saying"}
+                        {checkingPronunciation
+                          ? "Checking..."
+                          : isRecording
+                            ? "Stop"
+                            : "Try saying"}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -304,6 +441,11 @@ export default function LibraryScreen() {
       <AISentenceModal
         visible={showAIModal}
         onClose={() => setShowAIModal(false)}
+        onSuccess={() => {
+          if (selectedTopic) {
+            fetchSentencesByTopic(selectedTopic);
+          }
+        }}
       />
     </View>
   );

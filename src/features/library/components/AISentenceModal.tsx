@@ -9,6 +9,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import {
   X,
@@ -21,11 +22,12 @@ import {
 import * as Speech from "expo-speech";
 
 import { Sentence, Difficulty } from "../types/LibraryType";
-import { AI_MOCK_SENTENCES } from "../datas/mockSentences";
+import { useLibrary } from "../hooks/useLibrary";
 
 interface AISentenceModalProps {
   visible: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 const LEVEL_OPTIONS: { key: Difficulty; label: string }[] = [
@@ -34,7 +36,12 @@ const LEVEL_OPTIONS: { key: Difficulty; label: string }[] = [
   { key: "advanced", label: "Advanced" },
 ];
 
-export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
+export function AISentenceModal({
+  visible,
+  onClose,
+  onSuccess,
+}: AISentenceModalProps) {
+  const { createSentenceSet, loading: apiLoading } = useLibrary();
   const [topic, setTopic] = useState("");
   const [level, setLevel] = useState<Difficulty | null>(null);
   const [quantity, setQuantity] = useState("");
@@ -44,19 +51,48 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
   const [sentences, setSentences] = useState<Sentence[]>([]);
   const [showResults, setShowResults] = useState(false);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    if (!level) return;
+
     setLoading(true);
     setSentences([]);
-    setTimeout(() => {
-      const count = parseInt(quantity) || 3;
-      const mockResults: Sentence[] = AI_MOCK_SENTENCES.slice(
-        0,
-        Math.min(count, AI_MOCK_SENTENCES.length),
-      );
-      setSentences(mockResults);
+
+    try {
+      const payload = {
+        topic_name: topic,
+        difficulty: level,
+        quantity: parseInt(quantity) || 3,
+        goal: goal || undefined,
+      };
+
+      const result = await createSentenceSet(payload);
+
+      if (result.success && result.data) {
+        const generatedSentences: Sentence[] = result.data.map(
+          (item: any, index: number) => ({
+            id: item.sentence_id || `gen-${index}`,
+            english: item.english_text,
+            vietnamese: item.vietnamese_text,
+            phonetic: item.phonetic || "",
+            difficulty: item.difficulty,
+            topicId: item.topic_id,
+          }),
+        );
+
+        setSentences(generatedSentences);
+        setShowResults(true);
+
+        if (onSuccess) {
+          onSuccess();
+        }
+      } else {
+        Alert.alert("Error", "Failed to generate sentences");
+      }
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to generate sentences");
+    } finally {
       setLoading(false);
-      setShowResults(true);
-    }, 1500);
+    }
   };
 
   const handleSpeak = (text: string) => {
@@ -82,7 +118,8 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
 
   const selectedLevelLabel =
     LEVEL_OPTIONS.find((l) => l.key === level)?.label ?? "Level";
-  const canGenerate = topic.trim().length > 0 && level !== null && !loading;
+  const canGenerate =
+    topic.trim().length > 0 && level !== null && !loading && !apiLoading;
 
   return (
     <Modal
@@ -97,7 +134,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
       >
         <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-[#F0F7F0] rounded-t-3xl max-h-[90%] min-h-[60%]">
-            {/* Header */}
             <View className="flex-row items-center px-5 pt-5 pb-3">
               {showResults && (
                 <TouchableOpacity onPress={handleBackToForm} className="mr-2">
@@ -125,7 +161,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
             >
               {!showResults ? (
                 <View className="bg-white rounded-[20px] p-5 shadow-sm shadow-black/5">
-                  {/* Topic */}
                   <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                     Topic:
                   </Text>
@@ -144,7 +179,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                     {topic.length}/50
                   </Text>
 
-                  {/* Level & Quantity */}
                   <View className="flex-row mb-5 gap-3">
                     <View className="flex-1">
                       <Text className="text-[15px] font-semibold text-gray-700 mb-2">
@@ -213,7 +247,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                     </View>
                   </View>
 
-                  {/* Goal */}
                   <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                     Goal:
                   </Text>
@@ -233,7 +266,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                     {goal.length}/200
                   </Text>
 
-                  {/* Generate Button */}
                   <TouchableOpacity
                     onPress={handleGenerate}
                     disabled={!canGenerate}
@@ -255,7 +287,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                   </TouchableOpacity>
                 </View>
               ) : (
-                /* Results */
                 <View>
                   {loading && (
                     <View className="items-center py-8">
