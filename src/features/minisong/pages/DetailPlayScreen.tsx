@@ -1,7 +1,7 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { Play } from "lucide-react-native";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Text,
   View,
@@ -31,16 +31,17 @@ export default function SongDetailPlayScreen() {
   const [showQuiz, setShowQuiz] = useState(false);
   const [activeQuestion, setActiveQuestion] = useState<any>(null);
   const [answeredIds, setAnsweredIds] = useState<string[]>([]);
-
   const [playing, setPlaying] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [totalWatchTime, setTotalWatchTime] = useState(0);
   const [activeLyricIndex, setActiveLyricIndex] = useState(0);
   const [itemHeight, setItemHeight] = useState(0);
+
   const startTimeRef = useRef<number>(Date.now());
   const playerRef = useRef<any>(null);
   const listRef = useRef<FlatList>(null);
+  const isLocked = useRef(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -50,129 +51,107 @@ export default function SongDetailPlayScreen() {
         );
         setSong(fullData);
       } catch (e) {
-        console.error(e);
+        console.error("Load data error:", e);
       }
     };
     loadData();
   }, []);
 
-  const getYouTubeVideoId = (url: string) => {
-    const match = url.match(
+  const videoId = useMemo(() => {
+    const match = song.video_url.match(
       /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
     );
     return match ? match[1] : "";
-  };
+  }, [song.video_url]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (playing && playerRef.current && !showQuiz) {
-        playerRef.current.getCurrentTime().then((time: number) => {
-          const roundTime = Math.floor(time);
+    const interval = setInterval(async () => {
+      if (!playing || showQuiz || isLocked.current || !playerRef.current)
+        return;
 
-          const question = song.questions?.find(
-            (q: any) =>
-              Math.floor(q.start_time) === roundTime &&
-              !answeredIds.includes(q.question_id),
+      try {
+        const time: number = await playerRef.current.getCurrentTime();
+        const roundTime = Math.floor(time);
+
+        const question = song.questions?.find(
+          (q: any) =>
+            Math.floor(q.start_time) === roundTime &&
+            !answeredIds.includes(q.question_id),
+        );
+
+        if (question) {
+          isLocked.current = true;
+          playerRef.current?.pauseVideo?.();
+          setPlaying(false);
+          setActiveQuestion(question);
+          setShowQuiz(true);
+          return;
+        }
+
+        setCurrentTime(time);
+        const index = song.song_lyrics?.findIndex((lyric, idx) => {
+          const nextLyric = song.song_lyrics?.[idx + 1];
+          return (
+            time >= (lyric.start_time ?? 0) &&
+            (!nextLyric || time < (nextLyric.start_time ?? 999))
           );
-
-          if (question) {
-            setPlaying(false);
-            if (playerRef.current) playerRef.current.pauseVideo?.();
-
-            setActiveQuestion(question);
-            setShowQuiz(true);
-            return;
-          }
-
-          setCurrentTime(time);
-          const currentLyricIndex =
-            song.song_lyrics?.findIndex((lyric, index) => {
-              const nextLyric = song.song_lyrics?.[index + 1];
-              return (
-                lyric.start_time !== null &&
-                time >= lyric.start_time &&
-                (!nextLyric ||
-                  nextLyric.start_time === null ||
-                  time < nextLyric.start_time)
-              );
-            }) ?? -1;
-
-          if (
-            currentLyricIndex !== -1 &&
-            currentLyricIndex !== activeLyricIndex
-          ) {
-            setActiveLyricIndex(currentLyricIndex);
-          }
         });
+
+        if (index !== undefined && index !== -1 && index !== activeLyricIndex) {
+          setActiveLyricIndex(index);
+        }
+      } catch (error) {
+        console.log("Interval logic error:", error);
       }
     }, 500);
-    return () => clearInterval(interval);
-  }, [playing, song, answeredIds, showQuiz]);
 
-  const handleCorrectAnswer = () => {
-    if (activeQuestion) {
-      setAnsweredIds((prev) => [...prev, activeQuestion.question_id]);
-    }
-    setTimeout(() => {
-      setShowQuiz(false);
-      setPlaying(true);
-    }, 1200);
-  };
+    return () => clearInterval(interval);
+  }, [playing, song, answeredIds, showQuiz, activeLyricIndex]);
 
   useEffect(() => {
     if (!listRef.current || itemHeight === 0 || !song.song_lyrics) return;
-    const totalItems = song.song_lyrics.length;
-    const visibleItems = Math.floor(320 / itemHeight);
-    const middlePosition = Math.floor(visibleItems / 2);
-    let scrollToIndex = activeLyricIndex - middlePosition;
-    scrollToIndex = Math.max(
-      0,
-      Math.min(scrollToIndex, totalItems - visibleItems),
-    );
-
-    if (activeLyricIndex >= middlePosition) {
-      listRef.current.scrollToIndex({
-        index: scrollToIndex,
-        animated: true,
-        viewPosition: 0,
-      });
-    }
-  }, [activeLyricIndex, itemHeight, song.song_lyrics]);
+    listRef.current.scrollToIndex({
+      index: activeLyricIndex,
+      animated: true,
+      viewPosition: 0.5,
+    });
+  }, [activeLyricIndex, itemHeight]);
 
   useEffect(() => {
     if (playing) {
       startTimeRef.current = Date.now();
     } else if (startTimeRef.current) {
-      const watchTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-      setTotalWatchTime((prev) => prev + watchTime);
+      const sessionTime = Math.floor(
+        (Date.now() - startTimeRef.current) / 1000,
+      );
+      setTotalWatchTime((prev) => prev + sessionTime);
     }
   }, [playing]);
 
   const updateLearningLog = async (isCompleted: boolean) => {
-    if (!song.learningLogId || totalWatchTime === 0) return;
+    if (!song.learningLogId) return;
+    const sessionTime = playing
+      ? Math.floor((Date.now() - startTimeRef.current) / 1000)
+      : 0;
+    const finalWatchTime = totalWatchTime + sessionTime;
+
+    if (finalWatchTime === 0) return;
+
     try {
       await SongsService.updateLearningLog(
         song.learningLogId.toString(),
-        totalWatchTime,
+        finalWatchTime,
         Math.floor(currentTime),
         isCompleted,
       );
     } catch (error) {
-      console.error("Failed to update learning log:", error);
+      console.error("Failed to update log:", error);
     }
   };
 
   useEffect(() => {
-    return () => {
-      if (totalWatchTime > 0) {
-        updateLearningLog(false);
-      }
-    };
-  }, [totalWatchTime, currentTime]);
-
-  useEffect(() => {
     const handleAppStateChange = (nextAppState: string) => {
-      if (nextAppState === "background" && totalWatchTime > 0) {
+      if (nextAppState !== "active") {
         updateLearningLog(false);
       }
     };
@@ -180,20 +159,15 @@ export default function SongDetailPlayScreen() {
       "change",
       handleAppStateChange,
     );
-    return () => subscription?.remove();
+    return () => subscription.remove();
   }, [totalWatchTime, currentTime]);
 
-  const seekToLyric = (startTime: number | null) => {
-    if (playerRef.current && startTime !== null) {
-      playerRef.current.seekTo(startTime, true);
-      setPlaying(true);
-    }
-  };
-
   const onStateChange = (state: string) => {
-    if (showQuiz) {
-      setPlaying(false);
-      if (playerRef.current) playerRef.current.pauseVideo?.();
+    if (showQuiz || isLocked.current) {
+      if (state === "playing" || state === "buffering") {
+        playerRef.current?.pauseVideo?.();
+        setPlaying(false);
+      }
       return;
     }
 
@@ -201,7 +175,7 @@ export default function SongDetailPlayScreen() {
       setPlaying(true);
     } else if (state === "paused") {
       setPlaying(false);
-      if (totalWatchTime > 0) updateLearningLog(false);
+      updateLearningLog(false);
     } else if (state === "ended") {
       setPlaying(false);
       updateLearningLog(true);
@@ -209,72 +183,25 @@ export default function SongDetailPlayScreen() {
     }
   };
 
-  const handleBackPress = () => {
-    if (playing && startTimeRef.current) {
-      const watchTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-      const updatedTotalTime = totalWatchTime + watchTime;
-
-      if (updatedTotalTime > 0) {
-        SongsService.updateLearningLog(
-          song.learningLogId?.toString() || "",
-          updatedTotalTime,
-          Math.floor(currentTime),
-          false,
-        ).finally(() => router.back());
-      } else {
-        router.back();
-      }
-    } else if (totalWatchTime > 0) {
-      updateLearningLog(false).finally(() => router.back());
-    } else {
-      router.back();
+  const handleCorrectAnswer = () => {
+    if (activeQuestion) {
+      setAnsweredIds((prev) => [...prev, activeQuestion.question_id]);
     }
+    setTimeout(() => {
+      isLocked.current = false;
+      setShowQuiz(false);
+      setPlaying(true);
+    }, 1200);
+  };
+
+  const handleBackPress = async () => {
+    await updateLearningLog(false);
+    router.back();
   };
 
   const handleItemLayout = (event: LayoutChangeEvent) => {
     const { height } = event.nativeEvent.layout;
-    if (!itemHeight) {
-      setItemHeight(height);
-    }
-  };
-
-  const renderLyric = ({ item, index }: any) => {
-    const isActive = index === activeLyricIndex;
-    return (
-      <TouchableOpacity
-        onPress={() => seekToLyric(item.start_time)}
-        className={`flex-row items-center justify-between rounded-xl px-4 py-3 mb-3 ${
-          isActive
-            ? "bg-orange-100 border-2 border-orange-300"
-            : "bg-white opacity-60"
-        } shadow-sm`}
-        onLayout={index === 0 ? handleItemLayout : undefined}
-      >
-        <View className="flex-1 pr-3">
-          <Text
-            className={`font-semibold text-sm ${
-              isActive ? "text-orange-600" : "text-gray-700"
-            }`}
-          >
-            {item.lyric_text}
-          </Text>
-          <Text
-            className={`text-xs mt-1 ${
-              isActive ? "text-orange-500" : "text-gray-400"
-            }`}
-          >
-            {item.phonetic}
-          </Text>
-        </View>
-        <CircleIcon
-          icon={Play}
-          size={36}
-          iconSize={16}
-          backgroundColor={isActive ? "#FB923C" : "#22C55E"}
-          onPress={() => seekToLyric(item.start_time)}
-        />
-      </TouchableOpacity>
-    );
+    if (!itemHeight) setItemHeight(height);
   };
 
   return (
@@ -297,7 +224,7 @@ export default function SongDetailPlayScreen() {
             ref={playerRef}
             height={220}
             play={playing}
-            videoId={getYouTubeVideoId(song.video_url)}
+            videoId={videoId}
             onChangeState={onStateChange}
           />
         </View>
@@ -307,16 +234,45 @@ export default function SongDetailPlayScreen() {
         <FlatList
           ref={listRef}
           data={song.song_lyrics}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderLyric}
-          showsVerticalScrollIndicator={false}
-          style={{ maxHeight: 320 }}
+          keyExtractor={(item, idx) => idx.toString()}
           extraData={activeLyricIndex}
           getItemLayout={(data, index) => ({
-            length: itemHeight || 110,
-            offset: (itemHeight || 110) * index,
+            length: itemHeight || 90,
+            offset: (itemHeight || 90) * index,
             index,
           })}
+          renderItem={({ item, index }) => {
+            const isActive = index === activeLyricIndex;
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  playerRef.current?.seekTo(item.start_time, true);
+                  setPlaying(true);
+                }}
+                onLayout={index === 0 ? handleItemLayout : undefined}
+                className={`flex-row items-center justify-between rounded-xl px-4 py-3 mb-3 ${isActive ? "bg-orange-100 border-2 border-orange-300" : "bg-white opacity-60"} shadow-sm`}
+              >
+                <View className="flex-1 pr-3">
+                  <Text
+                    className={`font-semibold text-sm ${isActive ? "text-orange-600" : "text-gray-700"}`}
+                  >
+                    {item.lyric_text}
+                  </Text>
+                  <Text
+                    className={`text-xs mt-1 ${isActive ? "text-orange-500" : "text-gray-400"}`}
+                  >
+                    {item.phonetic}
+                  </Text>
+                </View>
+                <CircleIcon
+                  icon={Play}
+                  size={36}
+                  iconSize={16}
+                  backgroundColor={isActive ? "#FB923C" : "#22C55E"}
+                />
+              </TouchableOpacity>
+            );
+          }}
         />
       </ScrollView>
 
@@ -325,6 +281,7 @@ export default function SongDetailPlayScreen() {
         question={activeQuestion}
         onCorrect={handleCorrectAnswer}
         onClose={() => {
+          isLocked.current = false;
           setShowQuiz(false);
           setPlaying(true);
         }}

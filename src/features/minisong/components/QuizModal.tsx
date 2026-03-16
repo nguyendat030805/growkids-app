@@ -10,12 +10,38 @@ import {
 
 export const QuizModal = ({ visible, question, onCorrect, onClose }: any) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [isCorrected, setIsCorrected] = useState(false);
+  const [status, setStatus] = useState<"none" | "correct" | "wrong">("none");
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
 
   if (!question) return null;
+
+  const startShake = () => {
+    shakeAnim.setValue(0);
+    Animated.sequence([
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -10,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 0,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   const handleSubmit = () => {
     const selectedOption = question.images?.find(
@@ -23,28 +49,33 @@ export const QuizModal = ({ visible, question, onCorrect, onClose }: any) => {
     );
 
     if (selectedOption?.is_correct) {
-      setIsCorrected(true);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }).start();
-
+      setStatus("correct");
       setTimeout(() => {
         onCorrect();
-        setSelectedId(null);
-        setIsCorrected(false);
-        fadeAnim.setValue(0);
+        resetModal();
       }, 1200);
     } else {
-      alert("That's wrong, please choose again!");
+      setStatus("wrong");
+      startShake();
+      setTimeout(() => {
+        setStatus("none");
+        setSelectedId(null);
+      }, 1000);
     }
+  };
+
+  const resetModal = () => {
+    setSelectedId(null);
+    setStatus("none");
   };
 
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View className="flex-1 justify-center items-center bg-black/60 px-6">
-        <View className="bg-white rounded-[40px] p-6 w-full border-4 border-[#D4F063] relative overflow-hidden">
+        <Animated.View
+          style={{ transform: [{ translateX: shakeAnim }] }}
+          className="bg-white rounded-[40px] p-6 w-full border-4 border-[#D4F063] relative overflow-hidden"
+        >
           <TouchableOpacity
             onPress={onClose}
             className="absolute right-6 top-4 z-10 p-2"
@@ -74,6 +105,7 @@ export const QuizModal = ({ visible, question, onCorrect, onClose }: any) => {
                 >
                   <TouchableOpacity
                     onPress={() => {
+                      if (status !== "none") return;
                       setSelectedId(img.image_id);
                       scaleAnim.setValue(1);
                       Animated.spring(scaleAnim, {
@@ -82,14 +114,27 @@ export const QuizModal = ({ visible, question, onCorrect, onClose }: any) => {
                         useNativeDriver: true,
                       }).start();
                     }}
-                    className={`w-full h-full rounded-3xl overflow-hidden border-4 
-                      ${isSelected ? (img.is_correct ? "border-green-500" : "border-red-500") : "border-yellow-100"}`}
+                    className={`w-full h-full rounded-3xl overflow-hidden border-4 ${isSelected ? (img.is_correct ? "border-green-500" : "border-red-500") : "border-yellow-100"} relative`}
                   >
                     <Image
                       source={{ uri: img.image_url }}
                       className="w-full h-full"
                       resizeMode="cover"
                     />
+
+                    {isSelected && status !== "none" && (
+                      <View
+                        className={`absolute inset-0 justify-center items-center ${status === "correct" ? "bg-green-500/40" : "bg-red-500/40"}`}
+                      >
+                        <View
+                          className={`w-16 h-16 rounded-full items-center justify-center border-4 border-white shadow-lg ${status === "correct" ? "bg-green-500" : "bg-red-500"}`}
+                        >
+                          <Text className="text-white text-4xl font-black shadow-sm">
+                            {status === "correct" ? "✓" : "✕"}
+                          </Text>
+                        </View>
+                      </View>
+                    )}
                   </TouchableOpacity>
                 </Animated.View>
               );
@@ -98,38 +143,14 @@ export const QuizModal = ({ visible, question, onCorrect, onClose }: any) => {
 
           <TouchableOpacity
             onPress={handleSubmit}
-            disabled={!selectedId || isCorrected}
-            className={`py-4 rounded-full mt-2 shadow-sm ${selectedId ? "bg-[#00C517]" : "bg-[#B6F4BD]"}`}
+            disabled={!selectedId || status !== "none"}
+            className={`py-4 rounded-full mt-2 ${selectedId ? "bg-[#00C517]" : "bg-[#B6F4BD]"}`}
           >
             <Text className="text-white text-center font-black text-xl uppercase">
               Submit
             </Text>
           </TouchableOpacity>
-
-          {isCorrected && (
-            <Animated.View
-              style={{
-                opacity: fadeAnim,
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 999,
-                backgroundColor: "rgba(255,255,255,0.7)",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <View className="bg-green-500 rounded-full w-24 h-24 justify-center items-center shadow-lg">
-                <Text className="text-white text-6xl font-bold">✓</Text>
-              </View>
-              <Text className="text-green-600 text-3xl font-black mt-4 uppercase">
-                Correct!
-              </Text>
-            </Animated.View>
-          )}
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
