@@ -37,4 +37,21 @@ export interface Song {
   created_at: string;
   song_lyrics?: LyricLine[];
   learningLog?: LearningLog;
+  questions?: SongQuestion[];
+}
+
+export interface QuestionImage {
+  image_id: string;
+  question_id: string;
+  image_url: string;
+  is_correct: boolean;
+  created_at: string;
+}
+
+export interface SongQuestion {
+  question_id: string;
+  mini_song_id: string;
+  vocabulary: string;
+  start_time: number;
+  images: QuestionImage[];
 }
