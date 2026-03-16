@@ -9,23 +9,21 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
-import {
-  X,
-  Sparkles,
-  Volume2,
-  ChevronLeft,
-  ChevronDown,
-  Pen,
-} from "lucide-react-native";
+import { X, Sparkles, Volume2, ChevronLeft, Pen } from "lucide-react-native";
 import * as Speech from "expo-speech";
+import { Audio } from "expo-av";
 
 import { Sentence, Difficulty } from "../types/LibraryType";
-import { AI_MOCK_SENTENCES } from "../datas/mockSentences";
+import { useLibrary } from "../hooks/useLibrary";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STORAGE_KEYS } from "@/src/core/constants";
 
 interface AISentenceModalProps {
   visible: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 const LEVEL_OPTIONS: { key: Difficulty; label: string }[] = [
@@ -34,43 +32,99 @@ const LEVEL_OPTIONS: { key: Difficulty; label: string }[] = [
   { key: "advanced", label: "Advanced" },
 ];
 
-export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
+export function AISentenceModal({
+  visible,
+  onClose,
+  onSuccess,
+}: AISentenceModalProps) {
+  const { createSentenceSet, loading: apiLoading } = useLibrary();
   const [topic, setTopic] = useState("");
-  const [level, setLevel] = useState<Difficulty | null>(null);
   const [quantity, setQuantity] = useState("");
   const [goal, setGoal] = useState("");
-  const [showLevelPicker, setShowLevelPicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sentences, setSentences] = useState<Sentence[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const handleGenerate = async () => {
+    const childId = await AsyncStorage.getItem(STORAGE_KEYS.SELECTED_CHILD_ID);
 
-  const handleGenerate = () => {
     setLoading(true);
     setSentences([]);
-    setTimeout(() => {
-      const count = parseInt(quantity) || 3;
-      const mockResults: Sentence[] = AI_MOCK_SENTENCES.slice(
-        0,
-        Math.min(count, AI_MOCK_SENTENCES.length),
-      );
-      setSentences(mockResults);
+
+    try {
+      const payload = {
+        topic: topic,
+        quantity: parseInt(quantity) || 3,
+        goal: goal || "No",
+        childId: childId || "",
+      };
+
+      const result = await createSentenceSet(payload);
+      console.log("Create sentence set response:", result);
+
+      if (result.success && result.data?.sentences) {
+        const generatedSentences: Sentence[] = result.data.sentences.map(
+          (item: any, index: number) => ({
+            id: item.sentence_id || `gen-${index}`,
+            english: item.sentence_text || "",
+            vietnamese: item.meaning || "",
+            phonetic: item.phonetic || "",
+            difficulty: item.levels?.level_name?.toLowerCase() || "medium",
+            topicId: item.topic_id,
+            audio_url: item.audio_url,
+          }),
+        );
+
+        console.log("Generated sentences:", generatedSentences);
+        setSentences(generatedSentences);
+        setShowResults(true);
+
+        if (onSuccess) {
+          onSuccess();
+        }
+      } else {
+        Alert.alert("Error", "Failed to generate sentences");
+      }
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to generate sentences");
+    } finally {
       setLoading(false);
-      setShowResults(true);
-    }, 1500);
+    }
   };
 
-  const handleSpeak = (text: string) => {
-    Speech.speak(text, { language: "en-US", rate: 0.85 });
+  const handleSpeak = async (text: string, audioUrl?: string) => {
+    if (audioUrl && audioUrl.startsWith("http")) {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+        });
+
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: audioUrl },
+          { shouldPlay: true },
+        );
+
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            sound.unloadAsync();
+          }
+        });
+      } catch (error) {
+        console.log("Audio playback error:", error);
+        Speech.speak(text, { language: "en-US", rate: 0.85 });
+      }
+    } else {
+      Speech.speak(text, { language: "en-US", rate: 0.85 });
+    }
   };
 
   const handleClose = () => {
     setTopic("");
-    setLevel(null);
     setQuantity("");
     setGoal("");
     setSentences([]);
     setShowResults(false);
-    setShowLevelPicker(false);
     setLoading(false);
     onClose();
   };
@@ -80,9 +134,7 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
     setSentences([]);
   };
 
-  const selectedLevelLabel =
-    LEVEL_OPTIONS.find((l) => l.key === level)?.label ?? "Level";
-  const canGenerate = topic.trim().length > 0 && level !== null && !loading;
+  const canGenerate = topic.trim().length > 0 && !loading && !apiLoading;
 
   return (
     <Modal
@@ -97,7 +149,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
       >
         <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-[#F0F7F0] rounded-t-3xl max-h-[90%] min-h-[60%]">
-            {/* Header */}
             <View className="flex-row items-center px-5 pt-5 pb-3">
               {showResults && (
                 <TouchableOpacity onPress={handleBackToForm} className="mr-2">
@@ -125,7 +176,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
             >
               {!showResults ? (
                 <View className="bg-white rounded-[20px] p-5 shadow-sm shadow-black/5">
-                  {/* Topic */}
                   <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                     Topic:
                   </Text>
@@ -144,59 +194,7 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                     {topic.length}/50
                   </Text>
 
-                  {/* Level & Quantity */}
                   <View className="flex-row mb-5 gap-3">
-                    <View className="flex-1">
-                      <Text className="text-[15px] font-semibold text-gray-700 mb-2">
-                        Level:
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => setShowLevelPicker(!showLevelPicker)}
-                        activeOpacity={0.7}
-                        className="flex-row items-center justify-between border border-gray-200 rounded-full px-4 py-3.5"
-                      >
-                        <Text
-                          className={
-                            level
-                              ? "text-[15px] text-gray-800 font-medium"
-                              : "text-[15px] text-gray-400"
-                          }
-                        >
-                          {selectedLevelLabel}
-                        </Text>
-                        <ChevronDown size={18} color="#9CA3AF" />
-                      </TouchableOpacity>
-
-                      {showLevelPicker && (
-                        <View className="absolute top-20 left-0 right-0 bg-white rounded-xl border border-gray-200 z-10 shadow-lg shadow-black/10">
-                          {LEVEL_OPTIONS.map((opt) => (
-                            <TouchableOpacity
-                              key={opt.key}
-                              onPress={() => {
-                                setLevel(opt.key);
-                                setShowLevelPicker(false);
-                              }}
-                              className={
-                                level === opt.key
-                                  ? "px-4 py-3 bg-blue-50"
-                                  : "px-4 py-3 bg-transparent"
-                              }
-                            >
-                              <Text
-                                className={
-                                  level === opt.key
-                                    ? "text-[15px] text-[#1C2B6D] font-semibold"
-                                    : "text-[15px] text-gray-700"
-                                }
-                              >
-                                {opt.label}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </View>
-                      )}
-                    </View>
-
                     <View className="flex-1">
                       <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                         Quantity:
@@ -213,7 +211,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                     </View>
                   </View>
 
-                  {/* Goal */}
                   <Text className="text-[15px] font-semibold text-gray-700 mb-2">
                     Goal:
                   </Text>
@@ -233,7 +230,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                     {goal.length}/200
                   </Text>
 
-                  {/* Generate Button */}
                   <TouchableOpacity
                     onPress={handleGenerate}
                     disabled={!canGenerate}
@@ -255,7 +251,6 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                   </TouchableOpacity>
                 </View>
               ) : (
-                /* Results */
                 <View>
                   {loading && (
                     <View className="items-center py-8">
@@ -276,7 +271,9 @@ export function AISentenceModal({ visible, onClose }: AISentenceModalProps) {
                           {sentence.english}
                         </Text>
                         <TouchableOpacity
-                          onPress={() => handleSpeak(sentence.english)}
+                          onPress={() =>
+                            handleSpeak(sentence.english, sentence.audio_url)
+                          }
                           className="w-9 h-9 rounded-full bg-white/20 items-center justify-center"
                         >
                           <Volume2 size={18} color="#fff" />
