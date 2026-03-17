@@ -7,9 +7,7 @@ import LoginScreen from "../features/auth/pages/LoginScreen";
 import OnboardingPage from "../features/schedules/pages/OnboardingPage";
 import GoldenTimeSummaryScreen from "../features/schedules/pages/GoldenTimeSummaryScreen";
 import HomepageScreen from "../features/homepage/pages/HomepageScreen";
-
 import VisualScheduleScreen from "../features/visualSchedules/pages/VisualSheduleScreen";
-
 import GoldenTimeScreen from "../features/schedules/pages/GoldenTimeScreen";
 import ScanScreen from "../features/object-scanning/pages/ScanScreen";
 import ResultScreen from "../features/object-scanning/pages/ResultScreen";
@@ -17,6 +15,7 @@ import SongDetailPlayScreen from "../features/minisong/pages/DetailPlayScreen";
 import MiniSongScreen from "../features/minisong/pages/MiniSongScreen";
 import RegisterScreen from "../features/auth/pages/RegisterScreen";
 import NotificationsScreen from "../features/notifications/pages/NotificationsScreen";
+import ProfileScreen from "../features/profile/pages/ProfileScreen";
 import { useRegisterNotifications } from "../features/notifications/hooks/useRegisterNotifications";
 import { NotificationProvider } from "../features/notifications/context/NotificationContext";
 
@@ -47,6 +46,7 @@ function AppNavigatorContent() {
       <Stack.Screen name="ResultScreen" component={ResultScreen} />
       <Stack.Screen name="VisualSchedule" component={VisualScheduleScreen} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
     </Stack.Navigator>
   );
 }
