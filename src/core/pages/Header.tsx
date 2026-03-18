@@ -7,7 +7,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import { User, LogOut } from "lucide-react-native";
+import { User, LogOut, CalendarCheck } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, CommonActions } from "@react-navigation/native";
@@ -60,9 +60,14 @@ export const Header = () => {
     );
   }, [navigation]);
 
-  const handleProfile = useCallback(() => {
+  const handleVisualSchedule = useCallback(() => {
     setShowDropdown(false);
     navigation.navigate("VisualSchedule" as never);
+  }, [navigation]);
+
+  const handleProfile = useCallback(() => {
+    setShowDropdown(false);
+    navigation.navigate("Profile" as never);
   }, [navigation]);
 
   const handleNotificationPress = useCallback(() => {
@@ -130,12 +135,23 @@ export const Header = () => {
           >
             <TouchableOpacity
               className="flex-row items-center px-4 py-3"
+              onPress={handleVisualSchedule}
+              activeOpacity={0.7}
+            >
+              <CalendarCheck size={18} color="#1C2B6D" />
+              <Text className="ml-3 text-sm font-medium text-[#1C2B6D]">
+                Visual Schedule
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="flex-row items-center px-4 py-3"
               onPress={handleProfile}
               activeOpacity={0.7}
             >
               <User size={18} color="#1C2B6D" />
               <Text className="ml-3 text-sm font-medium text-[#1C2B6D]">
-                Visual Schedule
+                Profile
               </Text>
             </TouchableOpacity>
 
