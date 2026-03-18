@@ -14,6 +14,7 @@ import {
   MessageSquareMore,
   Pencil,
   Volume2,
+  ArrowLeft,
 } from "lucide-react-native";
 import LottieView from "lottie-react-native";
 import ChildItem from "../components/ChildItem";
@@ -22,6 +23,7 @@ import EditUserModal from "../components/EditUserModal";
 import EditChildModal from "../components/EditChildModal";
 import { Header } from "@/src/core/pages/Header";
 import { useProfile } from "../hooks/useProfile";
+import { useNavigation } from "@react-navigation/native";
 
 const calcAge = (birthDate: string) => {
   if (!birthDate) return null;
@@ -45,6 +47,7 @@ const formatDateDisplay = (isoDate: string) => {
 export default function ProfileScreen() {
   const { profile, loading, fetchProfile, updateUser, updateChild } =
     useProfile();
+  const navigation = useNavigation();
   const [showEditUser, setShowEditUser] = useState(false);
   const [showEditChild, setShowEditChild] = useState(false);
 
@@ -88,7 +91,19 @@ export default function ProfileScreen() {
   return (
     <View className="flex-1 bg-white pt-12">
       <Header />
-      <ScrollView className="flex-1 bg-gray-100 px-4 pt-10">
+      <ScrollView className="flex-1 bg-gray-100 px-4 pt-4">
+        <View className="flex-row items-center mb-4">
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            className="flex-row items-center bg-white px-3 py-2 rounded-full"
+            activeOpacity={0.7}
+          >
+            <ArrowLeft size={16} color="#1C2B6D" />
+            <Text className="text-[#1C2B6D] font-semibold text-sm ml-2">
+              Back
+            </Text>
+          </TouchableOpacity>
+        </View>
         <View className="items-center mb-6">
           <View className="relative w-28 h-28">
             {userAvatar ? (

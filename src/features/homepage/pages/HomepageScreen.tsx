@@ -1,52 +1,64 @@
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
-
-const stats = [
-  {
-    label: "Learned today",
-    value: "3/3",
-    sub: "Completed^^",
-    color: "bg-[#F3FDE8] border-[#B6E388] text-[#618264]",
-    valueColor: "text-[#A8D400]",
-    borderWidth: "border-2",
-  },
-  {
-    label: "Study time",
-    value: "1 hours",
-    sub: "60 minutes goal",
-    color: "bg-[#FFF7D4] border-[#FFD95A] text-[#B99B2B]",
-    valueColor: "text-[#FFB81F]",
-  },
-  {
-    label: "Streak",
-    value: "7 days",
-    sub: "Keep it up!",
-    color: "bg-[#E3F4F4] border-[#39A7FF] text-[#176B87]",
-    valueColor: "text-[#0F5E47]",
-  },
-];
-
-const activities = [
-  {
-    title: "MiniSong",
-    type: "Short song",
-    desc: "1-2 min songs with fun animations and hand & body movements.",
-    info: "5 songs | New",
-    btn: "Start",
-    btnColor: "bg-[#9EC800] text-white",
-    image: require("@/public/assets/images/imgMiniSong.png"),
-  },
-  {
-    title: "Interactive Story",
-    type: "Interactive story",
-    desc: "Stories told by native voices. Tap the characters to learn vocabulary.",
-    info: "3 stories | New",
-    btn: "Start",
-    btnColor: "bg-[#FFB500] text-[#B99B2B]",
-    image: require("@/public/assets/images/imgStory.png"),
-  },
-];
+import { useUserData } from "../hooks/useUserData";
+import { useNavigation } from "@react-navigation/native";
 
 export default function HomepageScreen() {
+  const navigation = useNavigation();
+  const { dailyStats, streak, contentStats, loading, error } = useUserData();
+  const stats = [
+    {
+      label: "Learned today",
+      value: dailyStats
+        ? `${dailyStats.completedCount}/${dailyStats.totalSlots}`
+        : "--/--",
+      sub:
+        dailyStats && dailyStats.completedCount === dailyStats.totalSlots
+          ? "Completed^^"
+          : "Keep going!",
+      color: "bg-[#F3FDE8] border-[#B6E388] text-[#618264]",
+      valueColor: "text-[#A8D400]",
+    },
+    {
+      label: "Study time",
+      value: dailyStats
+        ? `${Math.floor(dailyStats.totalLearningTimeSeconds / 3600)} hours`
+        : "--",
+      sub: "60 minutes goal",
+      color: "bg-[#FFF7D4] border-[#FFD95A] text-[#B99B2B]",
+      valueColor: "text-[#FFB81F]",
+    },
+    {
+      label: "Streak",
+      value: streak ? `${streak.current_streak} days` : "--",
+      sub: "Keep it up!",
+      color: "bg-[#E3F4F4] border-[#39A7FF] text-[#176B87]",
+      valueColor: "text-[#0F5E47]",
+    },
+  ];
+  const activities = [
+    {
+      title: "MiniSong",
+      type: "Short song",
+      desc: "1-2 min songs with fun animations and hand & body movements.",
+      info: contentStats ? `${contentStats.totalSongs} songs` : "-- songs",
+      btn: "Start",
+      btnColor: "bg-[#9EC800] text-white",
+      image: require("@/public/assets/images/imgMiniSong.png"),
+      navigateTo: "Songs",
+    },
+    {
+      title: "Interactive Story",
+      type: "Interactive story",
+      desc: "Stories told by native voices. Tap the characters to learn vocabulary.",
+      info: contentStats
+        ? `${contentStats.totalStories} stories`
+        : "-- stories",
+      btn: "Start",
+      btnColor: "bg-[#FFB500] text-[#B99B2B]",
+      image: require("@/public/assets/images/imgStory.png"),
+      navigateTo: "Story",
+    },
+  ];
   return (
     <View className="flex-1 bg-white">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -114,6 +126,9 @@ export default function HomepageScreen() {
                         </Text>
                         <TouchableOpacity
                           className={`rounded-lg px-3 py-1 ml-2 ${act.btnColor}`}
+                          onPress={() =>
+                            navigation.navigate(act.navigateTo as never)
+                          }
                         >
                           <Text className="font-bold text-xs text-white">
                             {act.btn}
