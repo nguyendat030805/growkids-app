@@ -94,19 +94,19 @@ export default function NotificationsScreen() {
         }
       >
         <View className="px-4 pt-4">
-          {notifications.length > 0 && (
-            <View className="flex-row justify-between items-center mb-4">
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                className="flex-row items-center bg-gray-100 px-3 py-2 rounded-full"
-                activeOpacity={0.7}
-              >
-                <ArrowLeft size={16} color="#1C2B6D" />
-                <Text className="text-[#1C2B6D] font-semibold text-sm ml-2">
-                  Back
-                </Text>
-              </TouchableOpacity>
+          <View className="flex-row justify-between items-center mb-4">
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              className="flex-row items-center bg-gray-100 px-3 py-2 rounded-full"
+              activeOpacity={0.7}
+            >
+              <ArrowLeft size={16} color="#1C2B6D" />
+              <Text className="text-[#1C2B6D] font-semibold text-sm ml-2">
+                Back
+              </Text>
+            </TouchableOpacity>
 
+            {notifications.length > 0 && (
               <TouchableOpacity
                 onPress={handleClearAll}
                 className="flex-row items-center bg-[#FFB500]/10 px-4 py-2 rounded-full"
@@ -117,8 +117,8 @@ export default function NotificationsScreen() {
                   Clear All
                 </Text>
               </TouchableOpacity>
-            </View>
-          )}
+            )}
+          </View>
 
           {today.length > 0 && (
             <>

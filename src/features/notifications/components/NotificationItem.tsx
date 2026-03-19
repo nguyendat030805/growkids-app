@@ -1,15 +1,28 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Notification } from "../types/notification.type";
-import { Clock, Music, TrendingUp, Book, Bell } from "lucide-react-native";
+import {
+  Clock,
+  Music,
+  TrendingUp,
+  Book,
+  Bell,
+  AlertTriangle,
+} from "lucide-react-native";
 
 type Props = {
   notification: Notification;
   onPress?: () => void;
 };
 
-const getIconComponent = (iconName: string) => {
-  const iconProps = { size: 20, color: "#1C2B6D" };
+const isMissedGoldenTime = (type: string) =>
+  type?.toLowerCase() === "missed_golden_time";
 
+const getIconComponent = (iconName: string, type: string) => {
+  if (isMissedGoldenTime(type)) {
+    return <AlertTriangle size={20} color="#EF4444" />;
+  }
+
+  const iconProps = { size: 20, color: "#1C2B6D" };
   switch (iconName) {
     case "time-outline":
       return <Clock {...iconProps} />;
@@ -26,6 +39,7 @@ const getIconComponent = (iconName: string) => {
 
 export default function NotificationItem({ notification, onPress }: Props) {
   const isUnread = !notification.read;
+  const isMissed = isMissedGoldenTime(notification.type);
 
   const handlePress = () => {
     if (onPress && isUnread) {
@@ -38,19 +52,25 @@ export default function NotificationItem({ notification, onPress }: Props) {
       activeOpacity={0.7}
       onPress={handlePress}
       className={`mb-3 rounded-2xl overflow-hidden ${
-        isUnread
-          ? "bg-[#9EC800]/10 border border-[#9EC800]/30"
-          : "bg-gray-100 border border-gray-200"
+        isMissed
+          ? "bg-red-50 border border-red-200"
+          : isUnread
+            ? "bg-[#9EC800]/10 border border-[#9EC800]/30"
+            : "bg-gray-100 border border-gray-200"
       }`}
       style={styles.cardShadow}
     >
       <View className="flex-row p-4">
         <View
           className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${
-            isUnread ? "bg-[#9EC800]/20" : "bg-gray-50"
+            isMissed
+              ? "bg-red-100"
+              : isUnread
+                ? "bg-[#9EC800]/20"
+                : "bg-gray-50"
           }`}
         >
-          {getIconComponent(notification.icon)}
+          {getIconComponent(notification.icon, notification.type)}
         </View>
 
         <View className="flex-1">
@@ -63,7 +83,7 @@ export default function NotificationItem({ notification, onPress }: Props) {
               {notification.title}
             </Text>
 
-            <Text className="text-xs text-gray-400 font-medium">
+            <Text className="text-xs text-gray-500 font-medium pt-1">
               {notification.time}
             </Text>
           </View>
@@ -73,14 +93,28 @@ export default function NotificationItem({ notification, onPress }: Props) {
           </Text>
 
           <View className="flex-row items-center justify-between mt-2">
-            <Text className="text-xs text-[#FFB500] font-semibold">
-              {notification.type}
+            <Text
+              className={`text-xs font-semibold ${
+                isMissed ? "text-red-400" : "text-[#FFB500]"
+              }`}
+            >
+              {notification.type
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (c) => c.toUpperCase())}
             </Text>
 
             {isUnread && (
               <View className="flex-row items-center">
-                <View className="w-2 h-2 rounded-full bg-[#9EC800] mr-2" />
-                <Text className="text-[#9EC800] text-xs font-semibold">
+                <View
+                  className={`w-2 h-2 rounded-full mr-2 ${
+                    isMissed ? "bg-red-400" : "bg-[#9EC800]"
+                  }`}
+                />
+                <Text
+                  className={`text-xs font-semibold ${
+                    isMissed ? "text-red-400" : "text-[#9EC800]"
+                  }`}
+                >
                   New
                 </Text>
               </View>
